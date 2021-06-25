@@ -42,8 +42,9 @@ function wrapHistory(history) {
   };
 
   let nextHistory = window.$$K2RootWindow?.$$_K2_SDK?.lib.utils.getHistory(window, history);
+
   if (nextHistory) {
-    console.log("接管history");
+    nextHistory.listen = history.listen;
   } else {
     nextHistory = history;
   }

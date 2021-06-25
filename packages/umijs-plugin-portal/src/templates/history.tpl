@@ -12,14 +12,10 @@ export const createHistory = (hotReload = false) => {
 };
 
 function wrapHistory(history) {
-  window.$$k2App = {
-    replace: history.replace,
-    push: history.push,
-  };
-
   let nextHistory = window.$$K2RootWindow?.$$_K2_SDK?.lib.utils.getHistory(window, history);
+
   if (nextHistory) {
-    console.log("%cPortal接管history\n", "color:#666;text-shadow:1px 1px 2px #999;");
+    nextHistory.listen = history.listen;
   } else {
     nextHistory = history;
   }

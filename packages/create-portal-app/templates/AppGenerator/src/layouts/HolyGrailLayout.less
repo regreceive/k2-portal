@@ -1,0 +1,32 @@
+.grid {
+  display: grid;
+  grid-gap: 5px;
+  grid-template-columns: minmax(150px, 250px) minmax(500px, 1fr);
+  grid-template-rows: 100px 1fr 100px;
+  grid-template-areas:
+    'header header'
+    'sidebar main'
+    'footer footer';
+  height: 100%;
+
+  > div {
+    background-color: #fff;
+  }
+
+  .header {
+    grid-area: header;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+  }
+
+  .main {
+    grid-area: main;
+    background-color: unset;
+  }
+
+  .footer {
+    grid-area: footer;
+  }
+}

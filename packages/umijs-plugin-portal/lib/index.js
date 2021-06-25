@@ -99,6 +99,38 @@ function _defineProperty(obj, key, value) {
   return obj;
 }
 
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+  try {
+    var info = gen[key](arg);
+    var value = info.value;
+  } catch (error) {
+    reject(error);
+    return;
+  }
+  if (info.done) {
+    resolve(value);
+  } else {
+    Promise.resolve(value).then(_next, _throw);
+  }
+}
+
+function _asyncToGenerator(fn) {
+  return function () {
+    var self = this,
+      args = arguments;
+    return new Promise(function (resolve, reject) {
+      var gen = fn.apply(self, args);
+      function _next(value) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'next', value);
+      }
+      function _throw(err) {
+        asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'throw', err);
+      }
+      _next(undefined);
+    });
+  };
+}
+
 function _default(api) {
   const _api$utils = api.utils,
     Mustache = _api$utils.Mustache,
@@ -142,38 +174,80 @@ function _default(api) {
 
       onChange: api.ConfigChangeType.regenerateTmpFiles,
     },
-  }); // 生成init.js
-
-  api.onGenerateFiles(() => {
-    var _api$config$portal, _api$config;
-
-    const _ref =
-        (_api$config$portal =
-          (_api$config = api.config) === null || _api$config === void 0
-            ? void 0
-            : _api$config.portal) !== null && _api$config$portal !== void 0
-          ? _api$config$portal
-          : {},
-      service = _ref.service,
-      nacos = _ref.nacos;
-
-    const initTpl = (0, _fs().readFileSync)(
-      (0, _path().join)(__dirname, 'init.tpl'),
-      'utf-8',
-    ); // 生成初始化portal的js
-
-    api.writeTmpFile({
-      path: (0, _path().join)('plugin-portal/init.js'),
-      content: Mustache.render(initTpl, {
-        service: JSON.stringify(service, null, 4) || {},
-        nacos,
-      }),
-    });
   });
+  api.onGenerateFiles(
+    /*#__PURE__*/ _asyncToGenerator(function* () {
+      var _api$config$portal, _api$config;
+
+      const _ref2 =
+          (_api$config$portal =
+            (_api$config = api.config) === null || _api$config === void 0
+              ? void 0
+              : _api$config.portal) !== null && _api$config$portal !== void 0
+            ? _api$config$portal
+            : {},
+        service = _ref2.service;
+
+      const strArray = Object.entries(service).map(([key, value]) => {
+        return `${key}: new MockService(window.$$config.service.${key})`;
+      });
+      const sdkTpl = (0, _fs().readFileSync)(
+        (0, _path().join)(__dirname, 'templates', 'sdk.tpl'),
+        'utf-8',
+      );
+      api.writeTmpFile({
+        path: (0, _path().join)('plugin-portal/sdk.ts'),
+        content: Mustache.render(sdkTpl, {
+          service: strArray.join(',\n'),
+        }),
+      });
+    }),
+  );
+  api.addRuntimePlugin(() => [
+    (0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx'),
+  ]);
+  api.onGenerateFiles(
+    /*#__PURE__*/ _asyncToGenerator(function* () {
+      var _api$config$portal2, _api$config2;
+
+      const _ref4 =
+          (_api$config$portal2 =
+            (_api$config2 = api.config) === null || _api$config2 === void 0
+              ? void 0
+              : _api$config2.portal) !== null && _api$config$portal2 !== void 0
+            ? _api$config$portal2
+            : {},
+        service = _ref4.service,
+        nacos = _ref4.nacos;
+
+      const initTpl = (0, _fs().readFileSync)(
+        (0, _path().join)(__dirname, 'templates', 'init.tpl'),
+        'utf-8',
+      ); // 生成init.js
+
+      api.writeTmpFile({
+        path: (0, _path().join)('plugin-portal/init.js'),
+        content: Mustache.render(initTpl, {
+          service: JSON.stringify(service, null, 4) || {},
+          nacos,
+        }),
+      }); // runtime，提供根节点上下文
+
+      api.writeTmpFile({
+        path: 'plugin-portal/runtime.tsx',
+        content: (0, _fs().readFileSync)(
+          (0, _path().join)(__dirname, 'templates', 'runtime.tpl'),
+          'utf-8',
+        ),
+      });
+    }),
+  ); // 覆盖umi的history
+
   api.onGenerateFiles(() => {
     const historyTpl = (0, _fs().readFileSync)(
       (0, _path().join)(
         __dirname,
+        'templates',
         api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl',
       ),
       'utf-8',
@@ -202,20 +276,8 @@ function _default(api) {
         ),
         runtimePath,
       }),
-    }); // runtime，提供根节点上下文
-
-    api.writeTmpFile({
-      path: 'plugin-portal/runtime.tsx',
-      content: (0, _fs().readFileSync)(
-        (0, _path().join)(__dirname, 'runtime.tpl'),
-        'utf-8',
-      ),
     });
-  }); // Runtime Plugin
-
-  api.addRuntimePlugin(() => [
-    (0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx'),
-  ]); // 阻止antd被优化加载，否则antd无法被externals
+  }); // 阻止antd被优化加载，否则antd无法被externals
 
   api.modifyBabelPresetOpts((opts) => {
     var _opts$import$filter, _opts$import;
@@ -238,7 +300,7 @@ function _default(api) {
   }); // 复制资源文件到输出目录
 
   api.modifyConfig((memo) => {
-    var _ref2, _api$paths;
+    var _ref5, _api$paths;
 
     const resourceName =
       api.env === 'development' ? 'development' : 'production.min';
@@ -247,11 +309,11 @@ function _default(api) {
       'develop.js',
       {
         from: `${api.paths.absTmpPath.replace(
-          (_ref2 =
+          (_ref5 =
             ((_api$paths = api.paths) === null || _api$paths === void 0
               ? void 0
-              : _api$paths.cwd) + '/') !== null && _ref2 !== void 0
-            ? _ref2
+              : _api$paths.cwd) + '/') !== null && _ref5 !== void 0
+            ? _ref5
             : '',
           '',
         )}/plugin-portal/init.js`,

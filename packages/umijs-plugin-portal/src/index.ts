@@ -46,11 +46,36 @@ export default function (api: IApi) {
     },
   });
 
-  // 生成init.js
-  api.onGenerateFiles(() => {
+  api.onGenerateFiles(async () => {
+    const { service } = api.config?.portal ?? {};
+    const strArray = Object.entries(service).map(([key, value]) => {
+      return `${key}: new MockService(window.$$config.service.${key})`;
+    });
+
+    const sdkTpl = readFileSync(
+      join(__dirname, 'templates', 'sdk.tpl'),
+      'utf-8',
+    );
+
+    api.writeTmpFile({
+      path: join('plugin-portal/sdk.ts'),
+      content: Mustache.render(sdkTpl, {
+        service: strArray.join(',\n'),
+      }),
+    });
+  });
+
+  api.addRuntimePlugin(() => [
+    join(api.paths.absTmpPath!, 'plugin-portal/runtime.tsx'),
+  ]);
+
+  api.onGenerateFiles(async () => {
     const { service, nacos } = api.config?.portal ?? {};
-    const initTpl = readFileSync(join(__dirname, 'init.tpl'), 'utf-8');
-    // 生成初始化portal的js
+    const initTpl = readFileSync(
+      join(__dirname, 'templates', 'init.tpl'),
+      'utf-8',
+    );
+    // 生成init.js
     api.writeTmpFile({
       path: join('plugin-portal/init.js'),
       content: Mustache.render(initTpl, {
@@ -58,12 +83,23 @@ export default function (api: IApi) {
         nacos,
       }),
     });
+
+    // runtime，提供根节点上下文
+    api.writeTmpFile({
+      path: 'plugin-portal/runtime.tsx',
+      content: readFileSync(
+        join(__dirname, 'templates', 'runtime.tpl'),
+        'utf-8',
+      ),
+    });
   });
 
+  // 覆盖umi的history
   api.onGenerateFiles(() => {
     const historyTpl = readFileSync(
       join(
         __dirname,
+        'templates',
         api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl',
       ),
       'utf-8',
@@ -90,18 +126,7 @@ export default function (api: IApi) {
         runtimePath,
       }),
     });
-
-    // runtime，提供根节点上下文
-    api.writeTmpFile({
-      path: 'plugin-portal/runtime.tsx',
-      content: readFileSync(join(__dirname, 'runtime.tpl'), 'utf-8'),
-    });
   });
-
-  // Runtime Plugin
-  api.addRuntimePlugin(() => [
-    join(api.paths.absTmpPath!, 'plugin-portal/runtime.tsx'),
-  ]);
 
   // 阻止antd被优化加载，否则antd无法被externals
   api.modifyBabelPresetOpts((opts) => {

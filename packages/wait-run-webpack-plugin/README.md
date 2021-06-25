@@ -1,11 +1,20 @@
 # `wait-run-webpack-plugin`
 
-> TODO: description
+For bundles that don't want to run instantly, unless revoke them manually.
 
 ## Usage
 
+```js
+const WaitRunWebpackPlugin = require('wait-run-webpack-plugin');
+module.exports = {
+  plugins: [new WaitRunWebpackPlugin({ test: /bundle\.js/ })],
+};
 ```
-const waitRunWebpackPlugin = require('wait-run-webpack-plugin');
 
-// TODO: DEMONSTRATE API
+## Run
+
+```js
+window.addEventListener('bundleReady', function (event) {
+  event.detail.run();
+});
 ```
