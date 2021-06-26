@@ -1,6 +1,6 @@
 {
   "name": "k2-portal",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.2+4e833c1",
   "description": "> TODO: description",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -26,5 +26,6 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170"
-  }
+  },
+  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }

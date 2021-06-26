@@ -1,6 +1,6 @@
 {
   "name": "@umijs/plugin-portal",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.2+4e833c1",
   "description": "integrated with portal",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -12,7 +12,7 @@
     "test": "__tests__"
   },
   "dependencies": {
-    "wait-run-webpack-plugin": "^0.0.0"
+    "wait-run-webpack-plugin": "^0.0.1-alpha.2+4e833c1"
   },
   "devDependencies": {
     "@testing-library/react": "^9.4.0",
@@ -48,5 +48,6 @@
   },
   "scripts": {
     "start": "cross-env APP_ROOT=example umi dev"
-  }
+  },
+  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }

@@ -1,6 +1,6 @@
 {
   "name": "create-portal-app",
-  "version": "0.0.0",
+  "version": "0.0.1-alpha.2+4e833c1",
   "description": "k2/create-portal-app",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -24,5 +24,6 @@
   },
   "bin": {
     "create-portal-app": "bin/create-portal-app"
-  }
+  },
+  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }
