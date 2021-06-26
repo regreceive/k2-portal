@@ -32,7 +32,7 @@
     "k2-portal": "^{{{ version }}}"
   },
   "devDependencies": {
-    "@umijs/plugin-portal": "^{{{ version }}}",
+    "k2-portal-plugin": "^{{{ version }}}",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@umijs/test": "^3.4.25",
