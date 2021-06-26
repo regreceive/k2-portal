@@ -3,6 +3,9 @@
   "packages": ["packages/*"],
   "npmClient": "yarn",
   "useWorkspaces": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "ignoreChanges": [
     "**/*.md",
     "**/*.test.ts",
