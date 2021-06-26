@@ -20,7 +20,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bin": {
-    "create-portal-app": "bin/create-portal-app"
+    "create-portal-app": "bin/create-portal-app.js"
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }
