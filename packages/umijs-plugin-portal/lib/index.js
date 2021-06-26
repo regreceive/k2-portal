@@ -201,6 +201,13 @@ function _default(api) {
           service: strArray.join(',\n'),
         }),
       });
+      api.writeTmpFile({
+        path: 'plugin-portal/MockService.ts',
+        content: (0, _fs().readFileSync)(
+          (0, _path().join)(__dirname, 'templates', 'MockService.tpl'),
+          'utf-8',
+        ),
+      });
     }),
   );
   api.addRuntimePlugin(() => [

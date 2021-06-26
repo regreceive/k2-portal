@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { request } from 'umi';
 
 const namespace = env.RUNTIME_NAMESPACE as string;

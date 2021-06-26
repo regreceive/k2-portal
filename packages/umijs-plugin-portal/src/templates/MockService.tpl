@@ -1,4 +1,4 @@
-import request from '@/sdk/request';
+import { request } from 'umi';
 
 const namespace = env.RUNTIME_NAMESPACE as string;
 
@@ -24,7 +24,6 @@ function adapt(host: string, url: string) {
   return host + url.replace('{namespace_name}', namespace);
 }
 
-// proxy-polyfill 只认自身方法，不认原型的方法
 export default class MockService {
   public host: string;
   public withDB: boolean;

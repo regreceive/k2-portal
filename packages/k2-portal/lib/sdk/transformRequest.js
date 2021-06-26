@@ -21,6 +21,16 @@ function _react() {
   return data;
 }
 
+function _isNil() {
+  const data = _interopRequireDefault(require('lodash/isNil'));
+
+  _isNil = function _isNil() {
+    return data;
+  };
+
+  return data;
+}
+
 function _mapKeys() {
   const data = _interopRequireDefault(require('lodash/mapKeys'));
 
@@ -35,16 +45,6 @@ function _queryString() {
   const data = _interopRequireDefault(require('query-string'));
 
   _queryString = function _queryString() {
-    return data;
-  };
-
-  return data;
-}
-
-function _isNil() {
-  const data = _interopRequireDefault(require('lodash/isNil'));
-
-  _isNil = function _isNil() {
     return data;
   };
 

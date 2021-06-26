@@ -2,7 +2,7 @@ import { FC, useCallback, useState } from 'react';
 import { history } from 'umi';
 import { Button, Typography } from 'antd';
 import { GitlabOutlined } from '@ant-design/icons';
-import { getInstance } from '@/services';
+import { getInstance } from 'k2-portal';
 import BoxArea from '@/components/BoxArea';
 
 const Home: FC = () => {

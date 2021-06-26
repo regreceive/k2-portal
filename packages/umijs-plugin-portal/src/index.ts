@@ -63,6 +63,14 @@ export default function (api: IApi) {
         service: strArray.join(',\n'),
       }),
     });
+
+    api.writeTmpFile({
+      path: 'plugin-portal/MockService.ts',
+      content: readFileSync(
+        join(__dirname, 'templates', 'MockService.tpl'),
+        'utf-8',
+      ),
+    });
   });
 
   api.addRuntimePlugin(() => [

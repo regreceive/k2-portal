@@ -28,19 +28,18 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/preset-react": "1.x",
-    "umi": "^3.4.25"
+    "umi": "^3.4.25",
+    "k2-portal": "^{{{ version }}}"
   },
   "devDependencies": {
+    "@umijs/plugin-portal": "^{{{ version }}}",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@umijs/test": "^3.4.25",
-    "father": "^2.30.6",
-    "k2-portal-plugin": "^0.0.11",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "react": "17.x",
     "react-dom": "17.x",
-    "rollup-plugin-hashbang": "^2.2.2",
     "typescript": "^4.1.2",
     "yorkie": "^2.0.0"
   }

@@ -1,7 +1,7 @@
 /**
  * 模拟portal的sdk，用于当前子应用独立运行
  */
-import MockService from 'k2-portal/lib/sdk/MockService';
+import MockService from './MockService';
 import { History } from 'umi';
 
 declare global {

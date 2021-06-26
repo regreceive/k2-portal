@@ -81,7 +81,7 @@ class AppGenerator extends _utils().Generator {
           version: require('../../package').version,
           conventionRoutes: _this.args.conventionRoutes,
         },
-        path: (0, _path().join)(__dirname, '../../templates/AppGenerator'),
+        path: (0, _path().join)(__dirname, '../../templates/app'),
         target: _this.cwd,
       });
     })();
