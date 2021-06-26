@@ -3469,7 +3469,7 @@
     "@umijs/utils" "3.4.25"
     webpack-chain "6.5.1"
 
-"@umijs/utils@3.4.25", "@umijs/utils@^3.2.28":
+"@umijs/utils@3.4.25", "@umijs/utils@^3.2.28", "@umijs/utils@^3.4.25":
   version "3.4.25"
   resolved "https://registry.nlark.com/@umijs/utils/download/@umijs/utils-3.4.25.tgz#47e4b76da92dd1e7e4b10301b873faf1e6706762"
   integrity sha1-R+S3bakt0efksQMBuHP68eZwZ2I=
@@ -9376,7 +9376,7 @@ lead@^1.0.0:
   dependencies:
     flush-write-stream "^1.0.2"
 
-lerna@^3.20.2, lerna@^3.22.1:
+lerna@^3.22.1:
   version "3.22.1"
   resolved "https://registry.npm.taobao.org/lerna/download/lerna-3.22.1.tgz#82027ac3da9c627fd8bf02ccfeff806a98e65b62"
   integrity sha1-ggJ6w9qcYn/YvwLM/v+AapjmW2I=
@@ -12097,11 +12097,6 @@ prettier@2.2.1:
   version "2.2.1"
   resolved "https://registry.nlark.com/prettier/download/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
   integrity sha1-eVoaeN1S8HPaDNQrIfnJE4GSP/U=
-
-prettier@^1.19.1:
-  version "1.19.1"
-  resolved "https://registry.nlark.com/prettier/download/prettier-1.19.1.tgz#f7d7f5ff8a9cd872a7be4ca142095956a60797cb"
-  integrity sha1-99f1/4qc2HKnvkyhQglZVqYHl8s=
 
 prettier@^2.3.0:
   version "2.3.1"
@@ -15210,6 +15205,13 @@ wait-for-expect@^3.0.2:
   version "3.0.2"
   resolved "https://registry.npm.taobao.org/wait-for-expect/download/wait-for-expect-3.0.2.tgz#d2f14b2f7b778c9b82144109c8fa89ceaadaa463"
   integrity sha1-0vFLL3t3jJuCFEEJyPqJzqrapGM=
+
+wait-run-webpack-plugin@^0.0.1-alpha.2+4e833c1:
+  version "0.0.1-alpha.13"
+  resolved "https://registry.yarnpkg.com/wait-run-webpack-plugin/-/wait-run-webpack-plugin-0.0.1-alpha.13.tgz#bb68571000b560927e15ee8d4bc51cbebcdd908e"
+  integrity sha512-cRWNp1l49lXn0s4yUalOAr3aw0mIwftFOQxH0jfy0FbiR3NSw99VvSOMSIg6WWLWvOF+uC/lnLBVJoCg9Ri4wQ==
+  dependencies:
+    webpack "^5.40.0"
 
 walker@^1.0.7, walker@~1.0.5:
   version "1.0.7"
