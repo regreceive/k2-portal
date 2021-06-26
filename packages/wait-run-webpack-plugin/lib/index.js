@@ -1,12 +1,12 @@
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
-  value: true,
+Object.defineProperty(exports, "__esModule", {
+  value: true
 });
 exports.default = void 0;
 
 function _react() {
-  const data = _interopRequireDefault(require('react'));
+  const data = _interopRequireDefault(require("react"));
 
   _react = function _react() {
     return data;
@@ -15,9 +15,7 @@ function _react() {
   return data;
 }
 
-function _interopRequireDefault(obj) {
-  return obj && obj.__esModule ? obj : { default: obj };
-}
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class WaitRunPlugin {
   constructor(options) {
@@ -30,18 +28,14 @@ class WaitRunPlugin {
   }
 
   apply(compiler) {
-    compiler.hooks.emit.tap('wait-run-plugin', (Compilation) => {
+    compiler.hooks.emit.tap('wait-run-plugin', Compilation => {
       const options = this.options;
       return new Promise((resolve, reject) => {
         const assets = Compilation.assets;
-        Object.keys(assets).forEach((key) => {
+        Object.keys(assets).forEach(key => {
           var _options$test;
 
-          if (
-            (_options$test = options.test) === null || _options$test === void 0
-              ? void 0
-              : _options$test.test(key)
-          ) {
+          if ((_options$test = options.test) === null || _options$test === void 0 ? void 0 : _options$test.test(key)) {
             const wrapper = `(function () {
               var run = function () {
               ${assets[key].source()}
@@ -62,6 +56,7 @@ class WaitRunPlugin {
       });
     });
   }
+
 }
 
 var _default = WaitRunPlugin;
