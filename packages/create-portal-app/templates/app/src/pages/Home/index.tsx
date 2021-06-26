@@ -20,19 +20,6 @@ const Home: FC = () => {
 
   return (
     <>
-      <BoxArea
-        title="适配3.0"
-        rightArea={
-          <a href="https://gitlab.kstonedata.k2/bcf/front-end/umi-app-template3.0.git">
-            <Button type="primary" icon={<GitlabOutlined />}>
-              前往项目
-            </Button>
-          </a>
-        }
-      >
-        我们使用开放的、社区活跃的Umi，集成到公司的Portal前端容器，减少非必要开发流程，尽可能多利用Portal沉淀的技术资产，基于代码做到应用的快速开发。
-      </BoxArea>
-
       <BoxArea title="快速开始">
         <Typography.Paragraph>
           <pre>
