@@ -1,11 +1,9 @@
 # `create-portal-app`
 
-> TODO: description
-
 ## Usage
 
-```
-const createPortalApp = require('create-portal-app');
-
-// TODO: DEMONSTRATE API
+```bash
+mkdir app && cd $_
+yarn create portal-app
+yarn install
 ```

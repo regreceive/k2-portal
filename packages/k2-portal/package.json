@@ -19,7 +19,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "k2-portal-plugin": "^0.0.0"
+    "k2-portal-plugin": "^1.1.0"
   },
   "peerDependencies": {
     "ahooks": "^2.10.6",

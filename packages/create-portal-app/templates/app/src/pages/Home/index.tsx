@@ -22,8 +22,8 @@ const Home: FC = () => {
       <BoxArea title="快速开始">
         <Typography.Paragraph>
           <pre>
-            <div>$ yarn create portal-app your_project_folder_name</div>
-            <div>$ cd your_project_folder_name && yarn install</div>
+            <div>$ mkdir app && cd $_</div>
+            <div>$ yarn create portal-app</div>
           </pre>
         </Typography.Paragraph>
       </BoxArea>
