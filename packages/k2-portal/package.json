@@ -18,10 +18,12 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
+  "dependencies": {
+    "k2-portal-plugin": "^0.0.0"
+  },
   "peerDependencies": {
     "ahooks": "^2.10.6",
     "echarts": "^5.1.2",
-    "k2-portal-plugin": "^0.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
