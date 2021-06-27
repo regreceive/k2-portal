@@ -15206,13 +15206,6 @@ wait-for-expect@^3.0.2:
   resolved "https://registry.npm.taobao.org/wait-for-expect/download/wait-for-expect-3.0.2.tgz#d2f14b2f7b778c9b82144109c8fa89ceaadaa463"
   integrity sha1-0vFLL3t3jJuCFEEJyPqJzqrapGM=
 
-wait-run-webpack-plugin@^0.0.1-alpha.2+4e833c1:
-  version "0.0.1-alpha.13"
-  resolved "https://registry.yarnpkg.com/wait-run-webpack-plugin/-/wait-run-webpack-plugin-0.0.1-alpha.13.tgz#bb68571000b560927e15ee8d4bc51cbebcdd908e"
-  integrity sha512-cRWNp1l49lXn0s4yUalOAr3aw0mIwftFOQxH0jfy0FbiR3NSw99VvSOMSIg6WWLWvOF+uC/lnLBVJoCg9Ri4wQ==
-  dependencies:
-    webpack "^5.40.0"
-
 walker@^1.0.7, walker@~1.0.5:
   version "1.0.7"
   resolved "https://registry.npm.taobao.org/walker/download/walker-1.0.7.tgz#2f7f9b8fd10d677262b18a884e28d19618e028fb"
