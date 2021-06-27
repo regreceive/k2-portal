@@ -13,7 +13,12 @@ interface Relation {
   data: Relation[];
 }
 
-/** 通用查表 */
+/**
+ * 通用查表
+ * @param entityName 表名称
+ * @param query 查询对象
+ * @returns
+ */
 export async function getInstance<T = any>(
   entityName: string,
   query?: ConvertRequest<typeof transformQuery.entity>,
@@ -26,7 +31,12 @@ export async function getInstance<T = any>(
   );
 }
 
-/** 通用关联查表 */
+/**
+ * 通用关联查表
+ * @param entityName 表名称
+ * @param query 查询对象
+ * @returns
+ */
 export async function getRelation(
   entityName: string,
   query?: ConvertRequest<typeof transformQuery.relation>,
@@ -41,8 +51,8 @@ export async function getRelation(
 
 /**
  * 通用sql查询
- * @param entityName
- * @param sql
+ * @param entityName 表名称
+ * @param sql 查询语句
  */
 export async function getSql<T = any>(entityName: string, sql: string) {
   return api.dataService.get<{ attributes: T }[]>(
