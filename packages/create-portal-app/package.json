@@ -1,0 +1,29 @@
+{
+  "name": "create-portal-app",
+  "version": "1.1.0-alpha.0",
+  "description": "k2/create-portal-app",
+  "author": "liyao <liyao@k2data.com.cn>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib",
+    "bin",
+    "templates"
+  ],
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bin": {
+    "create-portal-app": "bin/create-portal-app.js"
+  },
+  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
+  "dependencies": {
+    "@umijs/utils": "^3.4.25"
+  }
+}

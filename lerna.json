@@ -1,0 +1,16 @@
+{
+  "version": "1.1.0-alpha.0",
+  "packages": ["packages/*"],
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "ignoreChanges": [
+    "**/*.md",
+    "**/*.test.ts",
+    "**/*.e2e.ts",
+    "**/fixtures/**",
+    "**/test/**"
+  ]
+}
