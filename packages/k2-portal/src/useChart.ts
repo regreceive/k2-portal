@@ -3,7 +3,9 @@ import { useSize, useUpdate } from 'ahooks';
 import * as echarts from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';
 
-export function useChart<T extends HTMLDivElement>(height: number = 300) {
+export default function useChart<T extends HTMLDivElement>(
+  height: number = 300,
+) {
   const chart = useRef<echarts.ECharts>();
   const ref = useRef<T>(null);
   const update = useUpdate();

@@ -18,8 +18,10 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
+  "dependencies": {
+    "ahooks": "^2.10.6"
+  },
   "peerDependencies": {
-    "ahooks": "^2.10.6",
     "echarts": "^5.1.2",
     "lodash": "^4.17.21",
     "umi-plugin-portal": "^1.1.3"
