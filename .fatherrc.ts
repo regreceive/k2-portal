@@ -4,7 +4,7 @@ export default {
   disableTypeCheck: true,
   pkgs: [
     'wait-run-webpack-plugin',
-    'umijs-plugin-portal',
+    'umi-plugin-portal',
     'k2-portal',
     'create-portal-app',
   ],

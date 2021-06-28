@@ -2,31 +2,19 @@
 
 [![NPM version](https://img.shields.io/npm/v/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal) [![NPM downloads](http://img.shields.io/npm/dm/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal)
 
-## Install
+Portal 应用框架
+
+---
+
+## 快速上手
 
 ```bash
-# or yarn
-$ npm install
+# 创建目录
+$ mkdir myapp && cd myapp
+
+# 初始化应用模板
+$ yarn create portal-app
 ```
-
-```bash
-$ npm run build --watch
-$ npm run start
-```
-
-## Usage
-
-Configure in `.umirc.js`,
-
-```js
-export default {
-  plugins: [['k2-portal']],
-};
-```
-
-## Options
-
-TODO
 
 ## LICENSE
 

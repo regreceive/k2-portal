@@ -18,5 +18,4 @@ export default defineConfig({
   dynamicImportSyntax: {},
   ignoreMomentLocale: true,
   proxy: proxy[(process.env.REACT_APP_ENV as 'dev') || 'dev'],
-  plugins: ['k2-portal-plugin'],
 });
