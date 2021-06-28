@@ -18,13 +18,11 @@
   "scripts": {
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
-  "dependencies": {
-    "k2-portal-plugin": "^1.1.0"
-  },
   "peerDependencies": {
     "ahooks": "^2.10.6",
     "echarts": "^5.1.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "umi-plugin-portal": "^1.1.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170"
