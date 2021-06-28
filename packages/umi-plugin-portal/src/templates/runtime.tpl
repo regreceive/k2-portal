@@ -22,13 +22,13 @@ export function modifyClientRenderOpts(memo: any) {
 
 export function render(oldRender: Function) {
   appRender = oldRender;
-  if (window.$$config.alone) {
+  if (window.$$config?.alone) {
     oldRender();
   }
 }
 
 export function rootContainer(container) {
-  if (window.$$config.alone) {
+  if (window.$$config?.alone) {
     const { ConfigProvider, locales } = window.antd;
     return React.createElement(ConfigProvider, {locale: locales.zh_CN}, container);
   }

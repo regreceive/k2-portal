@@ -14,6 +14,8 @@ test('generate app', async () => {
       $0: '',
     },
   });
-  expect(existsSync(join(cwd, 'src', 'pages', 'index.tsx'))).toEqual(true);
+  expect(existsSync(join(cwd, 'src', 'pages', 'Home', 'index.tsx'))).toEqual(
+    true,
+  );
   rimraf.sync(cwd);
 });

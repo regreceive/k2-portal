@@ -215,7 +215,7 @@ export default function (api: IApi) {
     return {
       ...memo,
       antd: false,
-      copy,
+      copy: api.env === 'test' ? memo.copy : copy,
       headScripts,
       define: { ...memo.define, ...runtimeEnv() },
     };

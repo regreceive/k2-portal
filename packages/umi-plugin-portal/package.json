@@ -18,7 +18,13 @@
     "lib"
   ],
   "scripts": {
-    "start": "cross-env APP_ROOT=example umi dev"
+    "start": "cross-env APP_ROOT=example umi dev",
+    "test": "umi-test"
   },
-  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
+  "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
+  "devDependencies": {
+    "antd": "^4.16.5",
+    "cross-env": "^7.0.3",
+    "umi": "^3.4.25"
+  }
 }

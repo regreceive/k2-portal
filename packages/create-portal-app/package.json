@@ -17,7 +17,7 @@
     "templates"
   ],
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "test": "umi-test"
   },
   "bin": {
     "create-portal-app": "bin/create-portal-app.js"
