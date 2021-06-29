@@ -23,6 +23,7 @@
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
   "devDependencies": {
+    "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
     "umi": "^3.4.25"

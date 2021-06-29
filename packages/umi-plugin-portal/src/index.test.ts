@@ -24,5 +24,6 @@ test('normal', async () => {
   });
 
   const result = statSync(join(cwd, 'src', '.umi-test', 'plugin-portal'));
-  expect(result.isDirectory()).toEqual(true);
+
+  expect(result.isDirectory()).toBeTruthy();
 });
