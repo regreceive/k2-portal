@@ -2,7 +2,7 @@
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
 import { readdirSync, readFileSync } from 'fs';
-import { dirname, join, resolve } from 'path';
+import path, { dirname, join, resolve } from 'path';
 import WaitRunWebpackPlugin from 'wait-run-webpack-plugin';
 
 export default function (api: IApi) {
@@ -158,6 +158,19 @@ export default function (api: IApi) {
     const resourceName =
       api.env === 'development' ? 'development' : 'production.min';
 
+    let relative = '';
+    try {
+      const root = path.resolve(
+        dirname(require.resolve('react/package.json')),
+        '../../',
+      );
+
+      // lerna
+      if (root !== api.cwd) {
+        relative = winPath(path.relative(api.cwd, root)) + '/';
+      }
+    } catch {}
+
     const copy = [
       ...(memo.copy || []),
       'develop.js',
@@ -169,42 +182,42 @@ export default function (api: IApi) {
         to: 'init.js',
       },
       {
-        from: `node_modules/react/umd/react.${resourceName}.js`,
+        from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
         to: 'alone/react.js',
       },
       {
-        from: `node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+        from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
         to: 'alone/react-dom.js',
       },
       {
-        from: 'node_modules/moment/min/moment.min.js',
+        from: `${relative}node_modules/moment/min/moment.min.js`,
         to: 'alone/moment.js',
       },
       {
-        from: 'node_modules/moment/locale/zh-cn.js',
+        from: `${relative}node_modules/moment/locale/zh-cn.js`,
         to: 'alone/zh-cn.js',
       },
       {
-        from: 'node_modules/antd/dist/antd-with-locales.js',
+        from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
         to: 'alone/antd.js',
       },
       {
-        from: 'node_modules/antd/dist/antd.css',
+        from: `${relative}node_modules/antd/dist/antd.css`,
         to: 'alone/antd.css',
       },
     ];
 
     if (api.env === 'development') {
       copy.push({
-        from: 'node_modules/antd/dist/antd-with-locales.js.map',
+        from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
         to: 'alone/antd-with-locales.js.map',
       });
       copy.push({
-        from: 'node_modules/moment/min/moment.min.js.map',
+        from: `${relative}node_modules/moment/min/moment.min.js.map`,
         to: 'alone/moment.min.js.map',
       });
       copy.push({
-        from: 'node_modules/antd/dist/antd.css.map',
+        from: `${relative}node_modules/antd/dist/antd.css.map`,
         to: 'alone/antd.css.map',
       });
     }

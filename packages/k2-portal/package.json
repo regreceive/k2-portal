@@ -22,7 +22,7 @@
     "ahooks": "^2.10.6"
   },
   "peerDependencies": {
-    "echarts": "^5.1.2",
+    "echarts": "^5.x",
     "lodash": "^4.17.21",
     "umi-plugin-portal": "^1.1.3"
   },

@@ -1,11 +1,6 @@
 {
-  "name": "create-portal-app",
-  "version": "0.0.3",
-  "description": "Production ready starter for portal app project",
-  "files": [
-    "dist"
-  ],
-  "bin": "dist/setup.js",
+  "private": true,
+  "name": "portal-app",
   "scripts": {
     "start": "umi dev",
     "build": "umi build",
