@@ -1,6 +1,10 @@
 {
   "version": "1.1.3",
-  "packages": ["packages/*"],
+  "packages": [
+    "packages/create-portal-app",
+    "packages/k2-portal",
+    "packages/umi-plugin-portal"
+  ],
   "npmClient": "yarn",
   "useWorkspaces": true,
   "publishConfig": {
