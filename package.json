@@ -3,6 +3,9 @@
   "workspaces": [
 	  "packages/*"
   ],
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org/"
+  },
   "scripts": {
     "start": "cross-env APP_ROOT=example umi dev",
     "build": "father-build",
