@@ -44,7 +44,11 @@ export function rootContainer(container) {
       configContainer,
     );
   }
-  return container;
+  return React.createElement(
+    AppContext.Provider,
+    { value: appProps },
+    container,
+  );
 }
 
 const codeMessage: { [key: number]: string } = {
