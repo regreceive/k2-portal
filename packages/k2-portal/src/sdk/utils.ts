@@ -24,3 +24,17 @@ export function mergeTimeSeries(...series: any[][]) {
     return [v[0], ...v[1]];
   });
 }
+
+export function log(str: string) {
+  console.log(
+    '%c' + str,
+    'font-size:14px;color:#666;text-shadow:1px 1px 2px #ccc;',
+  );
+}
+
+export function warn(str: string) {
+  console.log(
+    'warning: %c' + str,
+    'font-size:14px;color:#dd9900;text-shadow:1px 1px 2px #eee;',
+  );
+}

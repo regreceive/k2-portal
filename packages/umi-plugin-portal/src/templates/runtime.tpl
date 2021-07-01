@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { createContext } from 'react';
 import { RequestConfig } from 'umi';
 import { notification } from 'antd';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
+let appProps: any = {};
+const AppContext = createContext(appProps);
 
 //@ts-ignore
 window.micPack = {
-  default: async (micSdk: any, props: any) => {
-    rootElement = micSdk.appBody;
+  default: async (obj: any, props: any) => {
+    rootElement = obj.appBody;
+    appProps = props;
     appRender();
   },
 };
@@ -30,7 +33,16 @@ export function render(oldRender: Function) {
 export function rootContainer(container) {
   if (window.$$config?.alone) {
     const { ConfigProvider, locales } = window.antd;
-    return React.createElement(ConfigProvider, {locale: locales.zh_CN}, container);
+    const configContainer = React.createElement(
+      ConfigProvider,
+      { locale: locales.zh_CN },
+      container,
+    );
+    return React.createElement(
+      AppContext.Provider,
+      { value: appProps },
+      configContainer,
+    );
   }
   return container;
 }
