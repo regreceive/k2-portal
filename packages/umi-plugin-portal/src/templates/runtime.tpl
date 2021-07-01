@@ -1,11 +1,11 @@
-import React, { createContext } from 'react';
-import { RequestConfig } from 'umi';
 import { notification } from 'antd';
+import { AppContext } from 'k2-portal';
+import React from 'react';
+import { RequestConfig } from 'umi';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
 let appProps: any = {};
-const AppContext = createContext(appProps);
 
 //@ts-ignore
 window.micPack = {
