@@ -1,6 +1,6 @@
 {
   "name": "k2-portal",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "> TODO: description",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170",
-    "umi-plugin-portal": "^1.1.6"
+    "umi-plugin-portal": "^1.1.7"
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }
