@@ -23,7 +23,7 @@ const routes: IBestAFSRoute[] = [
   },
   {
     path: '/child',
-    component: '@pages/Child',
+    component: '@/pages/Child',
   }
 ];
 

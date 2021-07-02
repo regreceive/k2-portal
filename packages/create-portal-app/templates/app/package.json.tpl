@@ -35,7 +35,7 @@
     "react": "17.x",
     "react-dom": "17.x",
     "typescript": "^4.1.2",
-    "umi-plugin-portal": "^{{{ version }}}",
+    "umi-plugin-portal": "^1.1.6",
     "yorkie": "^2.0.0"
   }
 }

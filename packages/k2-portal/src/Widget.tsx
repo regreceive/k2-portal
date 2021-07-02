@@ -1,11 +1,17 @@
 import { usePrevious } from 'ahooks';
+import { Spin } from 'antd';
 import isEqual from 'lodash/isEqual';
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { warn } from './utils';
 
 type Props = {
+  /** 应用地址，一定要同域 */
   src: string;
+  /** 应用是否是行内 */
   inline?: boolean;
+  /** 应用导入占位符 */
+  loading?: React.ReactNode;
+  /** 向应用传递参数，字段自拟 */
   appProps?: {
     [key: string]: any;
   };
@@ -48,11 +54,12 @@ export const Widget: FC<Props> = (props) => {
         src={props.src}
         style={{ display: 'none' }}
       />
-      <div ref={bodyRef} />
+      <div ref={bodyRef}>{props.loading}</div>
     </div>
   );
 };
 
 Widget.defaultProps = {
   inline: false,
+  loading: <Spin />,
 };

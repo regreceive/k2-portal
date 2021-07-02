@@ -28,11 +28,13 @@ const Home: FC = () => {
         </Typography.Paragraph>
       </BoxArea>
 
-      <BoxArea title="api请求示例" height={200}>
+      <BoxArea title="api请求示例">
         <Button onClick={handleBtnClick}>获得菜单</Button>
-        <pre style={{ marginTop: 20 }}>
-          <code>Response: {JSON.stringify(result, null, 4)}</code>
-        </pre>
+        <Typography.Paragraph>
+          <pre style={{ maxHeight: 200, overflow: 'hidden auto' }}>
+            Response: {JSON.stringify(result, null, 4)}
+          </pre>
+        </Typography.Paragraph>
       </BoxArea>
 
       <BoxArea title="路由跳转">
@@ -47,7 +49,7 @@ const Home: FC = () => {
 
       <BoxArea title="子应用演示">
         <p>为方便演示，这里嵌套的是应用自身，在真实环境子应用是独立部署的</p>
-        <Widget src="/#/child" appProps={{ points: ['id1', 'id2'] }} />
+        <Widget src={`//${location.host}/#/child`} appProps={{ points: ['id1', 'id2'] }} />
       </BoxArea>
     </>
   );
