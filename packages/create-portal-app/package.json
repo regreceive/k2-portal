@@ -27,6 +27,7 @@
     "@umijs/utils": "^3.4.25"
   },
   "devDependencies": {
-    "k2-portal": "^1.1.5"
+    "k2-portal": "^1.1.5",
+    "umi-plugin-portal": "^1.1.6"
   }
 }

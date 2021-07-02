@@ -23,11 +23,11 @@
     "echarts": "^5.x"
   },
   "peerDependencies": {
-    "lodash": "^4.17.21",
-    "umi-plugin-portal": "^1.1.5"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.170"
+    "@types/lodash": "^4.14.170",
+    "umi-plugin-portal": "^1.1.6"
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }
