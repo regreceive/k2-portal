@@ -99,7 +99,7 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: localStorage.dev_token,
+        Authorization: {{{ authorization }}},
       };
       return {
         url,

@@ -102,9 +102,11 @@ export default function (api: IApi) {
     // runtime，提供根节点上下文
     api.writeTmpFile({
       path: 'plugin-portal/runtime.tsx',
-      content: readFileSync(
-        join(__dirname, 'templates', 'runtime.tpl'),
-        'utf-8',
+      content: Mustache.render(
+        readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
+        {
+          authorization: `Basic ${btoa('admin:admin')}`,
+        },
       ),
     });
   });

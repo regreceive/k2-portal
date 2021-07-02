@@ -11,7 +11,9 @@ export default function useChart<T extends HTMLDivElement>(
 
   useEffect(() => {
     if (ref.current) {
-      chart.current = echarts.init(ref.current as HTMLDivElement);
+      chart.current = echarts.init(ref.current as HTMLDivElement, undefined, {
+        height,
+      });
       update();
     }
 
