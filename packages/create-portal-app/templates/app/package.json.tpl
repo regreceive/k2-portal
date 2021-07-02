@@ -23,19 +23,19 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/preset-react": "1.x",
-    "umi": "^3.4.25",
-    "k2-portal": "^{{{ version }}}"
+    "k2-portal": "^{{{ version }}}",
+    "umi": "^3.5.0"
   },
   "devDependencies": {
-    "umi-plugin-portal": "^{{{ version }}}",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@umijs/test": "^3.4.25",
+    "@umijs/test": "^3.5.0",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "react": "17.x",
     "react-dom": "17.x",
     "typescript": "^4.1.2",
+    "umi-plugin-portal": "^{{{ version }}}",
     "yorkie": "^2.0.0"
   }
 }

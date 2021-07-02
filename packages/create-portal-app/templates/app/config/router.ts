@@ -21,6 +21,10 @@ const routes: IBestAFSRoute[] = [
       },
     ],
   },
+  {
+    path: '/child',
+    component: '@pages/Child',
+  }
 ];
 
 export default routes;

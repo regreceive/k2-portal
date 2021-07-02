@@ -1,4 +1,3 @@
-// @ts-nocheck
 import { useSize, useUpdate } from 'ahooks';
 import * as echarts from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';

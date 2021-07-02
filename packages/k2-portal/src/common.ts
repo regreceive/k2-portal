@@ -1,32 +1,44 @@
-// @ts-nocheck
+/**
+ * 建模器通用查表，如果不够请补充
+ */
+
+// @ts-ignore
 import { api } from '@@/plugin-portal/sdk';
-import transform, * as transformQuery from './transformRequest';
+import transform from './transformRequest';
 
-type Convert<T, C> = {
-  [P in keyof T]: C;
-};
-type ConvertRequest<T> = Partial<Convert<T, any>>;
-
-interface Relation {
+interface ResponseRelation {
   attributes: { [key: string]: any };
   entity_id: number;
-  data: Relation[];
+  data: ResponseRelation[];
 }
 
+/** 表查询 */
+type RequestEntity = {
+  entity_ids: number;
+  attributes: string;
+  param: {
+    [key: string]: string | number | string[] | number[];
+  };
+};
+
+/** 关联表查询 */
+type RequestRelation = RequestEntity & {
+  relationTypes: string;
+};
+
 /**
- * 通用查表
+ * 通用单表查询
  * @param entityName 表名称
  * @param query 查询对象
  * @returns
  */
 export async function getInstance<T = any>(
   entityName: string,
-  query?: ConvertRequest<typeof transformQuery.entity>,
+  query?: Partial<RequestEntity>,
 ) {
   return api.dataService.get<{ attributes: T }[]>(
     `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transform(
       query,
-      transformQuery.entity,
     )}`,
   );
 }
@@ -39,12 +51,11 @@ export async function getInstance<T = any>(
  */
 export async function getRelation(
   entityName: string,
-  query?: ConvertRequest<typeof transformQuery.relation>,
+  query?: Partial<RequestRelation>,
 ) {
-  return api.dataService.get<Relation[]>(
+  return api.dataService.get<ResponseRelation[]>(
     `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities_via_relation_types?${transform(
       query,
-      transformQuery.relation,
     )}`,
   );
 }

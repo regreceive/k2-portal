@@ -1,7 +1,7 @@
 import { FC, useCallback, useState } from 'react';
 import { history } from 'umi';
 import { Button, Typography } from 'antd';
-import { getInstance } from 'k2-portal';
+import { getInstance, Widget } from 'k2-portal';
 import BoxArea from '@/components/BoxArea';
 
 const Home: FC = () => {
@@ -22,7 +22,7 @@ const Home: FC = () => {
       <BoxArea title="快速开始">
         <Typography.Paragraph>
           <pre>
-            <div>$ mkdir app && cd $_</div>
+            <div>$ mkdir app &amp;&amp; cd $_</div>
             <div>$ yarn create portal-app</div>
           </pre>
         </Typography.Paragraph>
@@ -43,6 +43,11 @@ const Home: FC = () => {
         >
           /home/page1
         </Button>
+      </BoxArea>
+
+      <BoxArea title="子应用演示">
+        <p>为方便演示，这里嵌套的是应用自身，在真实环境子应用是独立部署的</p>
+        <Widget src="/#/child" appProps={{ points: ['id1', 'id2'] }} />
       </BoxArea>
     </>
   );
