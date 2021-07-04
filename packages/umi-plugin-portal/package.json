@@ -12,6 +12,7 @@
     "test": "__tests__"
   },
   "dependencies": {
+    "md5": "^2.3.0",
     "wait-run-webpack-plugin": "^1.1.5"
   },
   "files": [
@@ -23,6 +24,7 @@
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
   "devDependencies": {
+    "@types/md5": "^2.3.0",
     "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",

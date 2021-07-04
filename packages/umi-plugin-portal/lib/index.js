@@ -25,6 +25,16 @@ function _fs() {
   return data;
 }
 
+function _md() {
+  const data = _interopRequireDefault(require("md5"));
+
+  _md = function _md() {
+    return data;
+  };
+
+  return data;
+}
+
 function _path() {
   const data = _interopRequireWildcard(require("path"));
 
@@ -84,6 +94,10 @@ function _default(api) {
           datalabModeler: '//fill_api_here',
           gateway: '//fill_api_here',
           influxdb: '//fill_api_here'
+        },
+        auth: {
+          username: 'admin',
+          password: 'admin'
         }
       },
 
@@ -145,9 +159,12 @@ function _default(api) {
       })
     }); // runtime，提供根节点上下文
 
+    const base64 = Buffer.from(`${api.config.portal.auth.username}:${(0, _md().default)(api.config.portal.auth.password)}`).toString('base64');
     api.writeTmpFile({
       path: 'plugin-portal/runtime.tsx',
-      content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8')
+      content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
+        authorization: api.env === 'production' ? '' : `Basic ${base64}`
+      })
     });
   })); // 覆盖umi的history
 

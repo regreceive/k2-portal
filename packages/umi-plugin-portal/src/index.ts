@@ -2,6 +2,7 @@
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
 import { readdirSync, readFileSync } from 'fs';
+import md5 from 'md5';
 import path, { dirname, join, resolve } from 'path';
 import WaitRunWebpackPlugin from 'wait-run-webpack-plugin';
 
@@ -32,6 +33,10 @@ export default function (api: IApi) {
           datalabModeler: '//fill_api_here',
           gateway: '//fill_api_here',
           influxdb: '//fill_api_here',
+        },
+        auth: {
+          username: 'admin',
+          password: 'admin',
         },
       },
       schema(joi) {
@@ -100,12 +105,17 @@ export default function (api: IApi) {
     });
 
     // runtime，提供根节点上下文
+    const base64 = Buffer.from(
+      `${api.config.portal.auth.username}:${md5(
+        api.config.portal.auth.password,
+      )}`,
+    ).toString('base64');
     api.writeTmpFile({
       path: 'plugin-portal/runtime.tsx',
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
-          authorization: `Basic ${btoa('admin:admin')}`,
+          authorization: api.env === 'production' ? '' : `Basic ${base64}`,
         },
       ),
     });

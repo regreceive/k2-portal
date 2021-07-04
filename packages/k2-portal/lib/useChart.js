@@ -45,7 +45,9 @@ function useChart(height = 300) {
   const update = (0, _ahooks().useUpdate)();
   (0, _react().useEffect)(() => {
     if (ref.current) {
-      chart.current = echarts().init(ref.current);
+      chart.current = echarts().init(ref.current, undefined, {
+        height
+      });
       update();
     }
 
