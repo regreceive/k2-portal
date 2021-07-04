@@ -68,3 +68,16 @@ Object.keys(_Widget).forEach(function (key) {
     }
   });
 });
+
+var _sdk = require("@@/plugin-portal/sdk");
+
+Object.keys(_sdk).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (key in exports && exports[key] === _sdk[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _sdk[key];
+    }
+  });
+});
