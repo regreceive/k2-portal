@@ -28,6 +28,9 @@ export interface ResponseData<T = any> {
       values: any[];
     }[];
   }[];
+  body?: {
+    items: any[];
+  }
 }
 
 interface PortalResponseData {

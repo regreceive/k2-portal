@@ -111,7 +111,8 @@ function _default(api) {
             dataService: joi.string(),
             datalabModeler: joi.string(),
             gateway: joi.string(),
-            influxdb: joi.string()
+            influxdb: joi.string(),
+            dev: joi.string()
           }),
           nacos: joi.string()
         });

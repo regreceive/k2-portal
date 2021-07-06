@@ -2,6 +2,7 @@
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
 import { readdirSync, readFileSync } from 'fs';
+// @ts-ignore
 import md5 from 'md5';
 import path, { dirname, join, resolve } from 'path';
 import WaitRunWebpackPlugin from 'wait-run-webpack-plugin';
