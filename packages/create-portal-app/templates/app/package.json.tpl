@@ -27,6 +27,7 @@
     "umi": "^3.5.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@umijs/test": "^3.5.0",
