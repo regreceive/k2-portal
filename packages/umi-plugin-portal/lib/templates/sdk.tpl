@@ -31,6 +31,7 @@ export interface ResponseData<T = any> {
   body?: {
     items: {
       k_ts: number;
+      k_device: string;
       [key: string]: number;
     }[];
   }
