@@ -29,7 +29,10 @@ export interface ResponseData<T = any> {
     }[];
   }[];
   body?: {
-    items: any[];
+    items: {
+      k_ts: number;
+      [key: string]: number;
+    }[];
   }
 }
 
