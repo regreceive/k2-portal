@@ -84,6 +84,9 @@ var Widget = function Widget(props) {
       display: 'none'
     }
   }), loaded ? null : props.loading, /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      height: '100%'
+    },
     ref: bodyRef
   }));
 };
