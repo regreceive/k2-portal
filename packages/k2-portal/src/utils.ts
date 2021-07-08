@@ -5,19 +5,32 @@ export function pickProps<P>(component: React.FC<P>) {
 }
 
 /**
- * 把多组时序通过时间索引，合并时序数据
- * @param series
+ * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
+ * @param params
  * @example mergeTimeSeries(ts1, ts2)
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
-export function mergeTimeSeries(...series: any[][]) {
+export function mergeTimeSeries(...params: any[][]) {
   const map = new Map();
-  series.forEach((values, index) => {
-    values.forEach((ts) => {
-      const value = map.get(ts[0]) || Array(series.length).fill(null);
-      value[index] = ts[1];
-      map.set(ts[0], value);
+  let prevOffset = 0;
+  const length = params.reduce(
+    (prev, curr) => prev + (curr[0]?.length ?? 1) - 1,
+    0,
+  );
+  const spacer = Array(length).fill(null);
+
+  params.forEach((ts) => {
+    ts.forEach((series) => {
+      const init = map.get(series[0]) || spacer;
+      const value = [
+        ...init.slice(0, prevOffset),
+        ...series.slice(1),
+        ...init.slice(prevOffset + series.length - 1),
+      ];
+
+      map.set(series[0], value);
     });
+    prevOffset += (ts[0]?.length ?? 1) - 1;
   });
 
   return Array.from(map, (v) => {

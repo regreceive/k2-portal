@@ -24,21 +24,31 @@ function pickProps(component) {
   return component;
 }
 /**
- * 把多组时序通过时间索引，合并时序数据
- * @param series
+ * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
+ * @param params
  * @example mergeTimeSeries(ts1, ts2)
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
 
 
-function mergeTimeSeries(...series) {
+function mergeTimeSeries(...params) {
   const map = new Map();
-  series.forEach((values, index) => {
-    values.forEach(ts => {
-      const value = map.get(ts[0]) || Array(series.length).fill(null);
-      value[index] = ts[1];
-      map.set(ts[0], value);
+  let prevOffset = 0;
+  const length = params.reduce((prev, curr) => {
+    var _curr$0$length, _curr$;
+
+    return prev + ((_curr$0$length = (_curr$ = curr[0]) === null || _curr$ === void 0 ? void 0 : _curr$.length) !== null && _curr$0$length !== void 0 ? _curr$0$length : 1) - 1;
+  }, 0);
+  const spacer = Array(length).fill(null);
+  params.forEach(ts => {
+    var _ts$0$length, _ts$;
+
+    ts.forEach(series => {
+      const init = map.get(series[0]) || spacer;
+      const value = [...init.slice(0, prevOffset), ...series.slice(1), ...init.slice(prevOffset + series.length - 1)];
+      map.set(series[0], value);
     });
+    prevOffset += ((_ts$0$length = (_ts$ = ts[0]) === null || _ts$ === void 0 ? void 0 : _ts$.length) !== null && _ts$0$length !== void 0 ? _ts$0$length : 1) - 1;
   });
   return Array.from(map, v => {
     return [v[0], ...v[1]];
