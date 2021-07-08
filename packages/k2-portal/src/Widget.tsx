@@ -62,7 +62,7 @@ export const Widget: FC<Props> = (props) => {
         style={{ display: 'none' }}
       />
       {loaded ? null : props.loading}
-      <div ref={bodyRef} />
+      <div style={{ height: '100%' }} ref={bodyRef} />
     </div>
   );
 };
