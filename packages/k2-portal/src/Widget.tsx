@@ -7,10 +7,6 @@ import { warn } from './utils';
 type Props = {
   /** 应用地址，一定要同域 */
   src: string;
-  /** 应用是否是行内 */
-  inline?: boolean;
-  /** 应用导入占位符 */
-  loading?: React.ReactNode;
   /** 样式名称 */
   className?: string;
   /** 向应用传递参数，字段自拟 */
@@ -23,7 +19,7 @@ export const Widget: FC<Props> = (props) => {
   const frame = useRef<HTMLIFrameElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const previous = usePrevious(props.appProps);
-  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const renderApp = useCallback(() => {
     try {
@@ -47,27 +43,19 @@ export const Widget: FC<Props> = (props) => {
   }, [props.appProps]);
 
   return (
-    <div
-      data-name="widget"
-      style={{ display: props.inline ? 'inline' : 'block' }}
-      {...{ className: props.className }}
-    >
+    <div data-name="widget" {...{ className: props.className }}>
       <iframe
         ref={frame}
         onLoad={() => {
-          setLoaded(true);
+          setLoading(false);
           renderApp();
         }}
         src={props.src}
         style={{ display: 'none' }}
       />
-      {loaded ? null : props.loading}
-      <div style={{ height: '100%' }} ref={bodyRef} />
+      <Spin spinning={loading}>
+        <div style={{ height: '100%' }} ref={bodyRef} />
+      </Spin>
     </div>
   );
-};
-
-Widget.defaultProps = {
-  inline: false,
-  loading: <Spin />,
 };
