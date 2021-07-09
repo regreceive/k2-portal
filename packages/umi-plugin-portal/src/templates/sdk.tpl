@@ -35,6 +35,7 @@ export interface ResponseData<T = any> {
       k_device: string;
       [key: string]: number;
     }[];
+    [key: string]: any;
   }
 }
 

@@ -51,6 +51,7 @@ export default function (api: IApi) {
             datalabModeler: joi.string(),
             gateway: joi.string(),
             influxdb: joi.string(),
+            repo: joi.string(),
             dev: joi.string(),
           }),
           nacos: joi.string(),

@@ -63,5 +63,5 @@ export function warn(str: string) {
 }
 
 export function formatDateTime(value: number | string) {
-  return moment(value).format('YYYY-MM-DD HH:mm:ss');
+  return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--';
 }

@@ -112,6 +112,7 @@ function _default(api) {
             datalabModeler: joi.string(),
             gateway: joi.string(),
             influxdb: joi.string(),
+            repo: joi.string(),
             dev: joi.string()
           }),
           nacos: joi.string()

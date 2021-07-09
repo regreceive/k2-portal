@@ -86,5 +86,5 @@ function warn(str) {
 }
 
 function formatDateTime(value) {
-  return (0, _moment().default)(value).format('YYYY-MM-DD HH:mm:ss');
+  return value ? (0, _moment().default)(value).format('YYYY-MM-DD HH:mm:ss') : '--';
 }
