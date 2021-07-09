@@ -7,5 +7,15 @@ export declare function pickProps<P>(component: React.FC<P>): React.FC<P>;
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
 export declare function mergeTimeSeries(...params: any[][]): any[][];
+/**
+ * 日志输出
+ *
+ * @pam str 字符串
+ */
 export declare function log(str: string): void;
+/**
+ * 警告日志输出、
+ * @param str 字符串
+ */
 export declare function warn(str: string): void;
+export declare function FormatDateTime(value: number | string): string;

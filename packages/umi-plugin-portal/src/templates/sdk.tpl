@@ -1,6 +1,7 @@
 /**
  * 模拟portal的sdk，用于当前子应用独立运行
  */
+import { createContext, useContext } from 'react';
 import MockService from './MockService';
 import { History } from 'umi';
 
@@ -113,3 +114,17 @@ export const api = Object.entries(defaultSDK.lib.utils.service).reduce(
   },
   {} as SemiServiceList,
 );
+
+/**
+ * 应用之间传递传递参数，通过此context接收数据
+ */
+export const AppContext = createContext<any>({});
+
+/**
+ * 接收app入参
+ *
+ * @param initialProps 默认app传参值
+ */
+export function useAppProps<T>(initialProps: T) {
+  return useContext<T>(AppContext) || initialProps;
+}

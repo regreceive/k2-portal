@@ -7,11 +7,22 @@ exports.pickProps = pickProps;
 exports.mergeTimeSeries = mergeTimeSeries;
 exports.log = log;
 exports.warn = warn;
+exports.FormatDateTime = FormatDateTime;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
 
   _react = function _react() {
+    return data;
+  };
+
+  return data;
+}
+
+function _moment() {
+  const data = _interopRequireDefault(require("moment"));
+
+  _moment = function _moment() {
     return data;
   };
 
@@ -54,11 +65,26 @@ function mergeTimeSeries(...params) {
     return [v[0], ...v[1]];
   });
 }
+/**
+ * 日志输出
+ *
+ * @pam str 字符串
+ */
+
 
 function log(str) {
   console.log('%c' + str, 'font-size:14px;color:#666;text-shadow:1px 1px 2px #ccc;');
 }
+/**
+ * 警告日志输出、
+ * @param str 字符串
+ */
+
 
 function warn(str) {
   console.log('warning: %c' + str, 'font-size:14px;color:#dd9900;text-shadow:1px 1px 2px #eee;');
+}
+
+function FormatDateTime(value) {
+  return (0, _moment().default)(value).format('YYYY-MM-DD HH:mm:ss');
 }

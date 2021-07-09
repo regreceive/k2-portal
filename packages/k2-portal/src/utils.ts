@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React from 'react';
 
 export function pickProps<P>(component: React.FC<P>) {
@@ -38,6 +39,11 @@ export function mergeTimeSeries(...params: any[][]) {
   });
 }
 
+/**
+ * 日志输出
+ *
+ * @pam str 字符串
+ */
 export function log(str: string) {
   console.log(
     '%c' + str,
@@ -45,9 +51,17 @@ export function log(str: string) {
   );
 }
 
+/**
+ * 警告日志输出、
+ * @param str 字符串
+ */
 export function warn(str: string) {
   console.log(
     'warning: %c' + str,
     'font-size:14px;color:#dd9900;text-shadow:1px 1px 2px #eee;',
   );
+}
+
+export function FormatDateTime(value: number | string) {
+  return moment(value).format('YYYY-MM-DD HH:mm:ss');
 }

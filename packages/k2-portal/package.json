@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "ahooks": "^2.10.6",
-    "echarts": "^5.x"
+    "echarts": "^5.x",
+    "moment": "^2.29.1"
   },
   "peerDependencies": {
     "lodash": "^4.17.21"

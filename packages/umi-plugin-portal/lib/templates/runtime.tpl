@@ -1,5 +1,5 @@
 import { notification } from 'antd';
-import { AppContext } from 'k2-portal';
+import { AppContext } from './sdk';
 import React from 'react';
 import { RequestConfig } from 'umi';
 

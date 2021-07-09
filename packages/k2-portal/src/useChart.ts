@@ -1,4 +1,5 @@
-import { useSize, useUpdate } from 'ahooks';
+import useSize from 'ahooks/es/useSize';
+import useUpdate from 'ahooks/es/useUpdate';
 import * as echarts from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';
 

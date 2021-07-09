@@ -15,10 +15,20 @@ function _react() {
   return data;
 }
 
-function _ahooks() {
-  const data = require("ahooks");
+function _useSize() {
+  const data = _interopRequireDefault(require("ahooks/es/useSize"));
 
-  _ahooks = function _ahooks() {
+  _useSize = function _useSize() {
+    return data;
+  };
+
+  return data;
+}
+
+function _useUpdate() {
+  const data = _interopRequireDefault(require("ahooks/es/useUpdate"));
+
+  _useUpdate = function _useUpdate() {
     return data;
   };
 
@@ -35,6 +45,8 @@ function echarts() {
   return data;
 }
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -42,7 +54,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 function useChart(height = 300) {
   const chart = (0, _react().useRef)();
   const ref = (0, _react().useRef)(null);
-  const update = (0, _ahooks().useUpdate)();
+  const update = (0, _useUpdate().default)();
   (0, _react().useEffect)(() => {
     if (ref.current) {
       chart.current = echarts().init(ref.current, undefined, {
@@ -59,7 +71,7 @@ function useChart(height = 300) {
   }, []);
   /** 图表自适应 */
 
-  const box = (0, _ahooks().useSize)(ref.current);
+  const box = (0, _useSize().default)(ref.current);
   (0, _react().useEffect)(() => {
     if (chart.current) {
       chart.current.resize({
