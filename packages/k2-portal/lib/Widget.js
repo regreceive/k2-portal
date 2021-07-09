@@ -40,10 +40,10 @@ var Widget = function Widget(props) {
   var bodyRef = (0, _react.useRef)(null);
   var previous = (0, _ahooks.usePrevious)(props.appProps);
 
-  var _useState = (0, _react.useState)(false),
+  var _useState = (0, _react.useState)(true),
       _useState2 = _slicedToArray(_useState, 2),
-      loaded = _useState2[0],
-      setLoaded = _useState2[1];
+      loading = _useState2[0],
+      setLoading = _useState2[1];
 
   var renderApp = (0, _react.useCallback)(function () {
     try {
@@ -69,30 +69,25 @@ var Widget = function Widget(props) {
   }, [props.appProps]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
-    style: {
-      display: props.inline ? 'inline' : 'block'
-    },
     className: props.className
   }, /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
-      setLoaded(true);
+      setLoading(false);
       renderApp();
     },
     src: props.src,
     style: {
       display: 'none'
     }
-  }), loaded ? null : props.loading, /*#__PURE__*/_react.default.createElement("div", {
+  }), /*#__PURE__*/_react.default.createElement(_antd.Spin, {
+    spinning: loading
+  }, /*#__PURE__*/_react.default.createElement("div", {
     style: {
       height: '100%'
     },
     ref: bodyRef
-  }));
+  })));
 };
 
 exports.Widget = Widget;
-Widget.defaultProps = {
-  inline: false,
-  loading: /*#__PURE__*/_react.default.createElement(_antd.Spin, null)
-};

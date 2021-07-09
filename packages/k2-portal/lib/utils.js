@@ -7,7 +7,7 @@ exports.pickProps = pickProps;
 exports.mergeTimeSeries = mergeTimeSeries;
 exports.log = log;
 exports.warn = warn;
-exports.FormatDateTime = FormatDateTime;
+exports.formatDateTime = formatDateTime;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -85,6 +85,6 @@ function warn(str) {
   console.log('warning: %c' + str, 'font-size:14px;color:#dd9900;text-shadow:1px 1px 2px #eee;');
 }
 
-function FormatDateTime(value) {
+function formatDateTime(value) {
   return (0, _moment().default)(value).format('YYYY-MM-DD HH:mm:ss');
 }

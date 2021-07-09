@@ -18,4 +18,4 @@ export declare function log(str: string): void;
  * @param str 字符串
  */
 export declare function warn(str: string): void;
-export declare function FormatDateTime(value: number | string): string;
+export declare function formatDateTime(value: number | string): string;
