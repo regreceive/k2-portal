@@ -45,15 +45,7 @@ function _path() {
   return data;
 }
 
-function _waitRunWebpackPlugin() {
-  const data = _interopRequireDefault(require("wait-run-webpack-plugin"));
-
-  _waitRunWebpackPlugin = function _waitRunWebpackPlugin() {
-    return data;
-  };
-
-  return data;
-}
+var _WaitRunPlugin = _interopRequireDefault(require("./WaitRunPlugin"));
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -282,7 +274,7 @@ function _default(api) {
       callback();
     }]);
     config // 阻止bundle载入后立即启动。具体控制在init.js中
-    .plugin('WaitRunWebpackPlugin').use(_waitRunWebpackPlugin().default, [{
+    .plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
       test: /umi\.\w*\.?js$/
     }]).end();
     return config;
