@@ -91,6 +91,10 @@ function proxyFact(service: MockService) {
           return Reflect.apply(Reflect.get(target, p), target, args)
             .end()
             .then((response: PortalResponseData) => {
+              // bobo写死了服务返回数据解析(封装到依赖包里了)，如果解析失败就返回res，所以需要重新返回res.body
+              if (response.res?.req) {                
+                return Promise.resolve(response.res.body);
+              }
               return Promise.resolve(response?.res ?? {});
             });
         };
