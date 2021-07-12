@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "md5": "^2.3.0",
-    "wait-run-webpack-plugin": "^1.1.5"
+    "webpack": "^5.40.0"
   },
   "files": [
     "lib"

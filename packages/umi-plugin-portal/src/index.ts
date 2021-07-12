@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from 'fs';
 // @ts-ignore
 import md5 from 'md5';
 import path, { dirname, join, resolve } from 'path';
-import WaitRunWebpackPlugin from 'wait-run-webpack-plugin';
+import WaitRunWebpackPlugin from './WaitRunPlugin';
 
 export default function (api: IApi) {
   const {
