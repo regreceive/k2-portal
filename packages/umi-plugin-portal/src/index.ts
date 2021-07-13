@@ -7,7 +7,7 @@ import md5 from 'md5';
 import path, { dirname, join, resolve } from 'path';
 import WaitRunWebpackPlugin from './WaitRunPlugin';
 
-export default function (api: IApi) {
+export default async function (api: IApi) {
   const {
     utils: { Mustache, lodash, winPath },
   } = api;
@@ -24,6 +24,9 @@ export default function (api: IApi) {
   }
 
   api.logger.info('umi portal plugin.');
+
+  // app接受传参的默认值
+  api.addRuntimePluginKey(() => 'appPropsDefaultValue');
 
   api.describe({
     key: 'portal',

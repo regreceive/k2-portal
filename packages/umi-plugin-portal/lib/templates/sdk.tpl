@@ -3,7 +3,7 @@
  */
 import { createContext, useContext } from 'react';
 import MockService from './MockService';
-import { History } from 'umi';
+import { History, plugin, ApplyPluginsType } from 'umi';
 
 declare global {
   interface Window {
@@ -132,7 +132,12 @@ export const api = Object.entries(defaultSDK.lib.utils.service).reduce(
 /**
  * 应用之间传递传递参数，通过此context接收数据
  */
-export const AppContext = createContext<any>({});
+const defaultValue = plugin.applyPlugins({
+  key: 'appPropsDefaultValue',
+  type: ApplyPluginsType.modify,
+  initialValue: {},
+});
+export const AppContext = createContext<any>(defaultValue);
 
 /**
  * 接收app入参

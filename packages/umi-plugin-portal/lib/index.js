@@ -63,222 +63,231 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-function _default(api) {
-  const _api$utils = api.utils,
-        Mustache = _api$utils.Mustache,
-        lodash = _api$utils.lodash,
-        winPath = _api$utils.winPath;
-  let runtimePath;
+function _default(_x) {
+  return _ref.apply(this, arguments);
+}
 
-  try {
-    runtimePath = winPath((0, _path().dirname)(require.resolve('@umijs/runtime/package.json')));
-  } catch (_unused) {
-    runtimePath = winPath((0, _path().dirname)(require.resolve('umi/node_modules/@umijs/runtime/package.json')));
-  }
-
-  api.logger.info('umi portal plugin.');
-  api.describe({
-    key: 'portal',
-    config: {
-      default: {
-        service: {
-          dataService: '//fill_api_here',
-          datalabModeler: '//fill_api_here',
-          gateway: '//fill_api_here',
-          influxdb: '//fill_api_here'
-        },
-        auth: {
-          username: 'admin',
-          password: 'admin'
-        }
-      },
-
-      schema(joi) {
-        return joi.object({
-          auth: joi.object({
-            username: joi.string().required(),
-            password: joi.string().required()
-          }),
-          service: joi.object({
-            dataService: joi.string(),
-            datalabModeler: joi.string(),
-            gateway: joi.string(),
-            influxdb: joi.string(),
-            repo: joi.string(),
-            dev: joi.string()
-          }),
-          nacos: joi.string()
-        });
-      },
-
-      onChange: api.ConfigChangeType.regenerateTmpFiles
-    }
-  });
-  api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-    var _api$config$portal, _api$config;
-
-    const _ref2 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
-          service = _ref2.service;
-
-    const strArray = Object.entries(service).map(([key, value]) => {
-      return `${key}: new MockService(window.$$config.service.${key})`;
-    });
-    const sdkTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8');
-    api.writeTmpFile({
-      path: (0, _path().join)('plugin-portal/sdk.ts'),
-      content: Mustache.render(sdkTpl, {
-        service: strArray.join(',\n')
-      })
-    });
-    api.writeTmpFile({
-      path: 'plugin-portal/MockService.ts',
-      content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'MockService.tpl'), 'utf-8')
-    });
-  }));
-  api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
-  api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-    var _api$config$portal2, _api$config2;
-
-    const _ref4 = (_api$config$portal2 = (_api$config2 = api.config) === null || _api$config2 === void 0 ? void 0 : _api$config2.portal) !== null && _api$config$portal2 !== void 0 ? _api$config$portal2 : {},
-          service = _ref4.service,
-          nacos = _ref4.nacos;
-
-    const initTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'); // 生成init.js
-
-    api.writeTmpFile({
-      path: (0, _path().join)('plugin-portal/init.js'),
-      content: Mustache.render(initTpl, {
-        service: JSON.stringify(service, null, 4) || {},
-        nacos
-      })
-    }); // runtime，提供根节点上下文
-
-    const base64 = Buffer.from(`${api.config.portal.auth.username}:${(0, _md().default)(api.config.portal.auth.password)}`).toString('base64');
-    api.writeTmpFile({
-      path: 'plugin-portal/runtime.tsx',
-      content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
-        authorization: api.env === 'production' ? '' : `Basic ${base64}`
-      })
-    });
-  })); // 覆盖umi的history
-
-  api.onGenerateFiles(() => {
-    const historyTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl'), 'utf-8');
-    const history = api.config.history; // @ts-ignore
-
-    const type = history.type,
-          _history$options = history.options,
-          options = _history$options === void 0 ? {} : _history$options; // 生成history
-
-    api.writeTmpFile({
-      path: 'core/history.ts',
-      content: Mustache.render(historyTpl, {
-        creator: `create${lodash.upperFirst(type)}History`,
-        options: JSON.stringify(_objectSpread(_objectSpread({}, options), type === 'browser' || type === 'hash' ? {
-          basename: api.config.base
-        } : {}), null, 2),
-        runtimePath
-      })
-    });
-  }); // 阻止antd被优化加载，否则antd无法被externals
-
-  api.modifyBabelPresetOpts(opts => {
-    var _opts$import$filter, _opts$import;
-
-    const list = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
-    return _objectSpread(_objectSpread({}, opts), {}, {
-      import: list
-    });
-  }); // 复制资源文件到输出目录
-
-  api.modifyConfig(memo => {
-    var _ref5, _api$paths;
-
-    const resourceName = api.env === 'development' ? 'development' : 'production.min';
-    let relative = '';
+function _ref() {
+  _ref = _asyncToGenerator(function* (api) {
+    const _api$utils = api.utils,
+          Mustache = _api$utils.Mustache,
+          lodash = _api$utils.lodash,
+          winPath = _api$utils.winPath;
+    let runtimePath;
 
     try {
-      const root = _path().default.resolve((0, _path().dirname)(require.resolve('react/package.json')), '../../'); // lerna
+      runtimePath = winPath((0, _path().dirname)(require.resolve('@umijs/runtime/package.json')));
+    } catch (_unused) {
+      runtimePath = winPath((0, _path().dirname)(require.resolve('umi/node_modules/@umijs/runtime/package.json')));
+    }
 
+    api.logger.info('umi portal plugin.'); // app接受传参的默认值
 
-      if (root !== api.cwd) {
-        relative = winPath(_path().default.relative(api.cwd, root)) + '/';
+    api.addRuntimePluginKey(() => 'appPropsDefaultValue');
+    api.describe({
+      key: 'portal',
+      config: {
+        default: {
+          service: {
+            dataService: '//fill_api_here',
+            datalabModeler: '//fill_api_here',
+            gateway: '//fill_api_here',
+            influxdb: '//fill_api_here'
+          },
+          auth: {
+            username: 'admin',
+            password: 'admin'
+          }
+        },
+
+        schema(joi) {
+          return joi.object({
+            auth: joi.object({
+              username: joi.string().required(),
+              password: joi.string().required()
+            }),
+            service: joi.object({
+              dataService: joi.string(),
+              datalabModeler: joi.string(),
+              gateway: joi.string(),
+              influxdb: joi.string(),
+              repo: joi.string(),
+              dev: joi.string()
+            }),
+            nacos: joi.string()
+          });
+        },
+
+        onChange: api.ConfigChangeType.regenerateTmpFiles
       }
-    } catch (_unused2) {}
+    });
+    api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
+      var _api$config$portal, _api$config;
 
-    const copy = [...(memo.copy || []), 'develop.js', {
-      from: `${api.paths.absTmpPath.replace((_ref5 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref5 !== void 0 ? _ref5 : '', '')}/plugin-portal/init.js`,
-      to: 'init.js'
-    }, {
-      from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
-      to: 'alone/react.js'
-    }, {
-      from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
-      to: 'alone/react-dom.js'
-    }, {
-      from: `${relative}node_modules/moment/min/moment.min.js`,
-      to: 'alone/moment.js'
-    }, {
-      from: `${relative}node_modules/moment/locale/zh-cn.js`,
-      to: 'alone/zh-cn.js'
-    }, {
-      from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
-      to: 'alone/antd.js'
-    }, {
-      from: `${relative}node_modules/antd/dist/antd.css`,
-      to: 'alone/antd.css'
-    }];
+      const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
+            service = _ref3.service;
 
-    if (api.env === 'development') {
-      copy.push({
-        from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
-        to: 'alone/antd-with-locales.js.map'
+      const strArray = Object.entries(service).map(([key, value]) => {
+        return `${key}: new MockService(window.$$config.service.${key})`;
       });
-      copy.push({
-        from: `${relative}node_modules/moment/min/moment.min.js.map`,
-        to: 'alone/moment.min.js.map'
+      const sdkTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8');
+      api.writeTmpFile({
+        path: (0, _path().join)('plugin-portal/sdk.ts'),
+        content: Mustache.render(sdkTpl, {
+          service: strArray.join(',\n')
+        })
       });
-      copy.push({
-        from: `${relative}node_modules/antd/dist/antd.css.map`,
-        to: 'alone/antd.css.map'
+      api.writeTmpFile({
+        path: 'plugin-portal/MockService.ts',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'MockService.tpl'), 'utf-8')
       });
-    } // 引用init.js
+    }));
+    api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
+    api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
+      var _api$config$portal2, _api$config2;
+
+      const _ref5 = (_api$config$portal2 = (_api$config2 = api.config) === null || _api$config2 === void 0 ? void 0 : _api$config2.portal) !== null && _api$config$portal2 !== void 0 ? _api$config$portal2 : {},
+            service = _ref5.service,
+            nacos = _ref5.nacos;
+
+      const initTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'); // 生成init.js
+
+      api.writeTmpFile({
+        path: (0, _path().join)('plugin-portal/init.js'),
+        content: Mustache.render(initTpl, {
+          service: JSON.stringify(service, null, 4) || {},
+          nacos
+        })
+      }); // runtime，提供根节点上下文
+
+      const base64 = Buffer.from(`${api.config.portal.auth.username}:${(0, _md().default)(api.config.portal.auth.password)}`).toString('base64');
+      api.writeTmpFile({
+        path: 'plugin-portal/runtime.tsx',
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
+          authorization: api.env === 'production' ? '' : `Basic ${base64}`
+        })
+      });
+    })); // 覆盖umi的history
+
+    api.onGenerateFiles(() => {
+      const historyTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl'), 'utf-8');
+      const history = api.config.history; // @ts-ignore
+
+      const type = history.type,
+            _history$options = history.options,
+            options = _history$options === void 0 ? {} : _history$options; // 生成history
+
+      api.writeTmpFile({
+        path: 'core/history.ts',
+        content: Mustache.render(historyTpl, {
+          creator: `create${lodash.upperFirst(type)}History`,
+          options: JSON.stringify(_objectSpread(_objectSpread({}, options), type === 'browser' || type === 'hash' ? {
+            basename: api.config.base
+          } : {}), null, 2),
+          runtimePath
+        })
+      });
+    }); // 阻止antd被优化加载，否则antd无法被externals
+
+    api.modifyBabelPresetOpts(opts => {
+      var _opts$import$filter, _opts$import;
+
+      const list = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
+      return _objectSpread(_objectSpread({}, opts), {}, {
+        import: list
+      });
+    }); // 复制资源文件到输出目录
+
+    api.modifyConfig(memo => {
+      var _ref6, _api$paths;
+
+      const resourceName = api.env === 'development' ? 'development' : 'production.min';
+      let relative = '';
+
+      try {
+        const root = _path().default.resolve((0, _path().dirname)(require.resolve('react/package.json')), '../../'); // lerna
 
 
-    const headScripts = [...(memo.headScripts || []), {
-      src: 'init.js'
-    }];
-    return _objectSpread(_objectSpread({}, memo), {}, {
-      antd: false,
-      copy: api.env === 'test' ? memo.copy : copy,
-      headScripts,
-      define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
+        if (root !== api.cwd) {
+          relative = winPath(_path().default.relative(api.cwd, root)) + '/';
+        }
+      } catch (_unused2) {}
+
+      const copy = [...(memo.copy || []), 'develop.js', {
+        from: `${api.paths.absTmpPath.replace((_ref6 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref6 !== void 0 ? _ref6 : '', '')}/plugin-portal/init.js`,
+        to: 'init.js'
+      }, {
+        from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
+        to: 'alone/react.js'
+      }, {
+        from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+        to: 'alone/react-dom.js'
+      }, {
+        from: `${relative}node_modules/moment/min/moment.min.js`,
+        to: 'alone/moment.js'
+      }, {
+        from: `${relative}node_modules/moment/locale/zh-cn.js`,
+        to: 'alone/zh-cn.js'
+      }, {
+        from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
+        to: 'alone/antd.js'
+      }, {
+        from: `${relative}node_modules/antd/dist/antd.css`,
+        to: 'alone/antd.css'
+      }];
+
+      if (api.env === 'development') {
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
+          to: 'alone/antd-with-locales.js.map'
+        });
+        copy.push({
+          from: `${relative}node_modules/moment/min/moment.min.js.map`,
+          to: 'alone/moment.min.js.map'
+        });
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd.css.map`,
+          to: 'alone/antd.css.map'
+        });
+      } // 引用init.js
+
+
+      const headScripts = [...(memo.headScripts || []), {
+        src: 'init.js'
+      }];
+      return _objectSpread(_objectSpread({}, memo), {}, {
+        antd: false,
+        copy: api.env === 'test' ? memo.copy : copy,
+        headScripts,
+        define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
+      });
+    });
+    api.chainWebpack(config => {
+      const prevConfig = config.toConfig(); // react react-dom antd作为全局资源，不会被打入bundle中
+
+      config.externals([_objectSpread(_objectSpread({}, prevConfig.externals), {}, {
+        react: 'window.React',
+        'react-dom': 'window.ReactDOM',
+        moment: 'window.moment',
+        antd: 'window.antd'
+      }), function (context, request, callback) {
+        const match = /^antd\/es\/(\w+)$/.exec(request);
+
+        if (match) {
+          callback(null, 'antd.' + match[1]);
+          return;
+        }
+
+        callback();
+      }]);
+      config // 阻止bundle载入后立即启动。具体控制在init.js中
+      .plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
+        test: /umi\.\w*\.?js$/
+      }]).end();
+      return config;
     });
   });
-  api.chainWebpack(config => {
-    const prevConfig = config.toConfig(); // react react-dom antd作为全局资源，不会被打入bundle中
-
-    config.externals([_objectSpread(_objectSpread({}, prevConfig.externals), {}, {
-      react: 'window.React',
-      'react-dom': 'window.ReactDOM',
-      moment: 'window.moment',
-      antd: 'window.antd'
-    }), function (context, request, callback) {
-      const match = /^antd\/es\/(\w+)$/.exec(request);
-
-      if (match) {
-        callback(null, 'antd.' + match[1]);
-        return;
-      }
-
-      callback();
-    }]);
-    config // 阻止bundle载入后立即启动。具体控制在init.js中
-    .plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
-      test: /umi\.\w*\.?js$/
-    }]).end();
-    return config;
-  });
+  return _ref.apply(this, arguments);
 }
 
 function runtimeEnv() {
