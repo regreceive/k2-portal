@@ -109,6 +109,8 @@ export default async function (api: IApi) {
       content: Mustache.render(initTpl, {
         service: JSON.stringify(service, null, 4) || {},
         nacos,
+        reactInModule:
+          api.env !== 'production' && api.config.portal.reactInModule,
       }),
     });
 
@@ -165,7 +167,7 @@ export default async function (api: IApi) {
   });
 
   api.onStart(() => {
-    if (!api.config.portal.reactInModule) {
+    if (api.env !== 'production' && !api.config.portal.reactInModule) {
       // 阻止antd被优化加载，否则antd无法被externals
       api.modifyBabelPresetOpts((opts) => {
         const list =
@@ -175,6 +177,36 @@ export default async function (api: IApi) {
           ...opts,
           import: list,
         };
+      });
+
+      api.chainWebpack((config) => {
+        const prevConfig = config.toConfig();
+        // react react-dom antd作为全局资源，不会被打入bundle中
+        config.externals([
+          {
+            ...(prevConfig.externals as {}),
+            react: 'window.React',
+            'react-dom': 'window.ReactDOM',
+            moment: 'window.moment',
+            antd: 'window.antd',
+          },
+          function (context: any, request: string, callback: any) {
+            const match = /^antd\/es\/(\w+)$/.exec(request);
+            if (match) {
+              callback(null, 'antd.' + match[1]);
+              return;
+            }
+            callback();
+          },
+        ]);
+
+        config
+          // 阻止bundle载入后立即启动。具体控制在init.js中
+          .plugin('WaitRunWebpackPlugin')
+          .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }])
+          .end();
+
+        return config;
       });
     }
   });
@@ -209,7 +241,7 @@ export default async function (api: IApi) {
       },
     ];
 
-    if (!memo.portal.reactInModule) {
+    if (api.env !== 'production' && !memo.portal.reactInModule) {
       copy.concat([
         {
           from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
@@ -258,43 +290,14 @@ export default async function (api: IApi) {
 
     return {
       ...memo,
-      antd: memo.portal.reactInModule ? memo.antd : false,
+      antd:
+        api.env !== 'production' && memo.portal.reactInModule
+          ? memo.antd
+          : false,
       copy: api.env === 'test' ? memo.copy : copy,
       headScripts,
       define: { ...memo.define, ...runtimeEnv() },
     };
-  });
-
-  api.chainWebpack((config) => {
-    const prevConfig = config.toConfig();
-    if (!api.config.portal.reactInModule) {
-      // react react-dom antd作为全局资源，不会被打入bundle中
-      config.externals([
-        {
-          ...(prevConfig.externals as {}),
-          react: 'window.React',
-          'react-dom': 'window.ReactDOM',
-          moment: 'window.moment',
-          antd: 'window.antd',
-        },
-        function (context: any, request: string, callback: any) {
-          const match = /^antd\/es\/(\w+)$/.exec(request);
-          if (match) {
-            callback(null, 'antd.' + match[1]);
-            return;
-          }
-          callback();
-        },
-      ]);
-    }
-
-    config
-      // 阻止bundle载入后立即启动。具体控制在init.js中
-      .plugin('WaitRunWebpackPlugin')
-      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }])
-      .end();
-
-    return config;
   });
 }
 

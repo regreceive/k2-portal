@@ -96,25 +96,29 @@ window.$$config = {
   window.antd = window.$$K2RootWindow.antd;
 
   window.addEventListener('bundleReady', function (event) {
-    if (!window.React) {
-      // 动态加载全局资源，此时作为独立应用
-      Promise.all([
-        addScript('react.js'),
-        addScript('react-dom.js'),
-        addScript('moment.js').then(() => {
-          addScript('zh-cn.js')
-        }),
-        addScript('antd.js'),
-        getRuntimeConfig(),
-      ]).then(() => {
-        window.$$config.alone = true;
-        event.detail.run();
-      });
-      addLink('antd.css');
+    if ({{{ reactInModule }}}) {
+      event.detail.run();
     } else {
-      addScript('moment.js').then(() => {
-        event.detail.run();
-      });
+      if (!window.React) {
+        // 动态加载全局资源，此时作为独立应用
+        Promise.all([
+          addScript('react.js'),
+          addScript('react-dom.js'),
+          addScript('moment.js').then(() => {
+            addScript('zh-cn.js')
+          }),
+          addScript('antd.js'),
+          getRuntimeConfig(),
+        ]).then(() => {
+          window.$$config.alone = true;
+          event.detail.run();
+        });
+        addLink('antd.css');
+      } else {
+        addScript('moment.js').then(() => {
+          event.detail.run();
+        });
+      }
     }
   });
 })();
