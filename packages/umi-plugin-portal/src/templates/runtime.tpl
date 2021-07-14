@@ -5,7 +5,7 @@ import { RequestConfig } from 'umi';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
-let appProps: any = {};
+let appProps = {{{ appDefaultProps }}};
 
 //@ts-ignore
 window.micPack = {

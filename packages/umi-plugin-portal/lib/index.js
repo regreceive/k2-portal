@@ -150,7 +150,8 @@ function _ref() {
 
       const _ref5 = (_api$config$portal2 = (_api$config2 = api.config) === null || _api$config2 === void 0 ? void 0 : _api$config2.portal) !== null && _api$config$portal2 !== void 0 ? _api$config$portal2 : {},
             service = _ref5.service,
-            nacos = _ref5.nacos;
+            nacos = _ref5.nacos,
+            appDefaultProps = _ref5.appDefaultProps;
 
       const initTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'); // 生成init.js
 
@@ -166,7 +167,8 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
-          authorization: api.env === 'production' ? '' : `Basic ${base64}`
+          authorization: api.env === 'production' ? '' : `Basic ${base64}`,
+          appDefaultProps: JSON.stringify(appDefaultProps)
         })
       });
     })); // 覆盖umi的history

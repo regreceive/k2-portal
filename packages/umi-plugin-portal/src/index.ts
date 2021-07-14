@@ -96,7 +96,7 @@ export default async function (api: IApi) {
   ]);
 
   api.onGenerateFiles(async () => {
-    const { service, nacos } = api.config?.portal ?? {};
+    const { service, nacos, appDefaultProps } = api.config?.portal ?? {};
     const initTpl = readFileSync(
       join(__dirname, 'templates', 'init.tpl'),
       'utf-8',
@@ -122,6 +122,7 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
           authorization: api.env === 'production' ? '' : `Basic ${base64}`,
+          appDefaultProps: JSON.stringify(appDefaultProps),
         },
       ),
     });
