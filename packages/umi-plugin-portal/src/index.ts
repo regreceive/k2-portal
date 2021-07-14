@@ -30,6 +30,7 @@ export default async function (api: IApi) {
     config: {
       default: {
         appDefaultProps: {},
+        reactInModule: false,
         auth: {
           username: 'admin',
           password: 'admin',
@@ -57,6 +58,7 @@ export default async function (api: IApi) {
             dev: joi.string(),
           }),
           nacos: joi.string(),
+          reactInModule: joi.bool,
         });
       },
       onChange: api.ConfigChangeType.regenerateTmpFiles,
@@ -162,14 +164,19 @@ export default async function (api: IApi) {
     });
   });
 
-  // 阻止antd被优化加载，否则antd无法被externals
-  api.modifyBabelPresetOpts((opts) => {
-    const list = opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
+  api.onStart(() => {
+    if (!api.config.portal.reactInModule) {
+      // 阻止antd被优化加载，否则antd无法被externals
+      api.modifyBabelPresetOpts((opts) => {
+        const list =
+          opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
 
-    return {
-      ...opts,
-      import: list,
-    };
+        return {
+          ...opts,
+          import: list,
+        };
+      });
+    }
   });
 
   // 复制资源文件到输出目录
@@ -200,45 +207,50 @@ export default async function (api: IApi) {
         )}/plugin-portal/init.js`,
         to: 'init.js',
       },
-      {
-        from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
-        to: 'alone/react.js',
-      },
-      {
-        from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
-        to: 'alone/react-dom.js',
-      },
-      {
-        from: `${relative}node_modules/moment/min/moment.min.js`,
-        to: 'alone/moment.js',
-      },
-      {
-        from: `${relative}node_modules/moment/locale/zh-cn.js`,
-        to: 'alone/zh-cn.js',
-      },
-      {
-        from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
-        to: 'alone/antd.js',
-      },
-      {
-        from: `${relative}node_modules/antd/dist/antd.css`,
-        to: 'alone/antd.css',
-      },
     ];
 
-    if (api.env === 'development') {
-      copy.push({
-        from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
-        to: 'alone/antd-with-locales.js.map',
-      });
-      copy.push({
-        from: `${relative}node_modules/moment/min/moment.min.js.map`,
-        to: 'alone/moment.min.js.map',
-      });
-      copy.push({
-        from: `${relative}node_modules/antd/dist/antd.css.map`,
-        to: 'alone/antd.css.map',
-      });
+    if (!memo.portal.reactInModule) {
+      copy.concat([
+        {
+          from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
+          to: 'alone/react.js',
+        },
+        {
+          from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+          to: 'alone/react-dom.js',
+        },
+        {
+          from: `${relative}node_modules/moment/min/moment.min.js`,
+          to: 'alone/moment.js',
+        },
+        {
+          from: `${relative}node_modules/moment/locale/zh-cn.js`,
+          to: 'alone/zh-cn.js',
+        },
+        {
+          from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
+          to: 'alone/antd.js',
+        },
+        {
+          from: `${relative}node_modules/antd/dist/antd.css`,
+          to: 'alone/antd.css',
+        },
+      ]);
+
+      if (api.env === 'development') {
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
+          to: 'alone/antd-with-locales.js.map',
+        });
+        copy.push({
+          from: `${relative}node_modules/moment/min/moment.min.js.map`,
+          to: 'alone/moment.min.js.map',
+        });
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd.css.map`,
+          to: 'alone/antd.css.map',
+        });
+      }
     }
 
     // 引用init.js
@@ -246,7 +258,7 @@ export default async function (api: IApi) {
 
     return {
       ...memo,
-      antd: false,
+      antd: memo.portal.reactInModule ? memo.antd : false,
       copy: api.env === 'test' ? memo.copy : copy,
       headScripts,
       define: { ...memo.define, ...runtimeEnv() },
@@ -255,24 +267,26 @@ export default async function (api: IApi) {
 
   api.chainWebpack((config) => {
     const prevConfig = config.toConfig();
-    // react react-dom antd作为全局资源，不会被打入bundle中
-    config.externals([
-      {
-        ...(prevConfig.externals as {}),
-        react: 'window.React',
-        'react-dom': 'window.ReactDOM',
-        moment: 'window.moment',
-        antd: 'window.antd',
-      },
-      function (context: any, request: string, callback: any) {
-        const match = /^antd\/es\/(\w+)$/.exec(request);
-        if (match) {
-          callback(null, 'antd.' + match[1]);
-          return;
-        }
-        callback();
-      },
-    ]);
+    if (!api.config.portal.reactInModule) {
+      // react react-dom antd作为全局资源，不会被打入bundle中
+      config.externals([
+        {
+          ...(prevConfig.externals as {}),
+          react: 'window.React',
+          'react-dom': 'window.ReactDOM',
+          moment: 'window.moment',
+          antd: 'window.antd',
+        },
+        function (context: any, request: string, callback: any) {
+          const match = /^antd\/es\/(\w+)$/.exec(request);
+          if (match) {
+            callback(null, 'antd.' + match[1]);
+            return;
+          }
+          callback();
+        },
+      ]);
+    }
 
     config
       // 阻止bundle载入后立即启动。具体控制在init.js中

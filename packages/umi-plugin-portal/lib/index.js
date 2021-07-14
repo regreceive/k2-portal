@@ -87,6 +87,7 @@ function _ref() {
       config: {
         default: {
           appDefaultProps: {},
+          reactInModule: false,
           auth: {
             username: 'admin',
             password: 'admin'
@@ -114,7 +115,8 @@ function _ref() {
               repo: joi.string(),
               dev: joi.string()
             }),
-            nacos: joi.string()
+            nacos: joi.string(),
+            reactInModule: joi.bool
           });
         },
 
@@ -191,15 +193,19 @@ function _ref() {
           runtimePath
         })
       });
-    }); // 阻止antd被优化加载，否则antd无法被externals
+    });
+    api.onStart(() => {
+      if (!api.config.portal.reactInModule) {
+        // 阻止antd被优化加载，否则antd无法被externals
+        api.modifyBabelPresetOpts(opts => {
+          var _opts$import$filter, _opts$import;
 
-    api.modifyBabelPresetOpts(opts => {
-      var _opts$import$filter, _opts$import;
-
-      const list = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
-      return _objectSpread(_objectSpread({}, opts), {}, {
-        import: list
-      });
+          const list = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
+          return _objectSpread(_objectSpread({}, opts), {}, {
+            import: list
+          });
+        });
+      }
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
@@ -220,39 +226,43 @@ function _ref() {
       const copy = [...(memo.copy || []), 'develop.js', {
         from: `${api.paths.absTmpPath.replace((_ref6 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref6 !== void 0 ? _ref6 : '', '')}/plugin-portal/init.js`,
         to: 'init.js'
-      }, {
-        from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
-        to: 'alone/react.js'
-      }, {
-        from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
-        to: 'alone/react-dom.js'
-      }, {
-        from: `${relative}node_modules/moment/min/moment.min.js`,
-        to: 'alone/moment.js'
-      }, {
-        from: `${relative}node_modules/moment/locale/zh-cn.js`,
-        to: 'alone/zh-cn.js'
-      }, {
-        from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
-        to: 'alone/antd.js'
-      }, {
-        from: `${relative}node_modules/antd/dist/antd.css`,
-        to: 'alone/antd.css'
       }];
 
-      if (api.env === 'development') {
-        copy.push({
-          from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
-          to: 'alone/antd-with-locales.js.map'
-        });
-        copy.push({
-          from: `${relative}node_modules/moment/min/moment.min.js.map`,
-          to: 'alone/moment.min.js.map'
-        });
-        copy.push({
-          from: `${relative}node_modules/antd/dist/antd.css.map`,
-          to: 'alone/antd.css.map'
-        });
+      if (!memo.portal.reactInModule) {
+        copy.concat([{
+          from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
+          to: 'alone/react.js'
+        }, {
+          from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+          to: 'alone/react-dom.js'
+        }, {
+          from: `${relative}node_modules/moment/min/moment.min.js`,
+          to: 'alone/moment.js'
+        }, {
+          from: `${relative}node_modules/moment/locale/zh-cn.js`,
+          to: 'alone/zh-cn.js'
+        }, {
+          from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
+          to: 'alone/antd.js'
+        }, {
+          from: `${relative}node_modules/antd/dist/antd.css`,
+          to: 'alone/antd.css'
+        }]);
+
+        if (api.env === 'development') {
+          copy.push({
+            from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
+            to: 'alone/antd-with-locales.js.map'
+          });
+          copy.push({
+            from: `${relative}node_modules/moment/min/moment.min.js.map`,
+            to: 'alone/moment.min.js.map'
+          });
+          copy.push({
+            from: `${relative}node_modules/antd/dist/antd.css.map`,
+            to: 'alone/antd.css.map'
+          });
+        }
       } // 引用init.js
 
 
@@ -260,30 +270,34 @@ function _ref() {
         src: 'init.js'
       }];
       return _objectSpread(_objectSpread({}, memo), {}, {
-        antd: false,
+        antd: memo.portal.reactInModule ? memo.antd : false,
         copy: api.env === 'test' ? memo.copy : copy,
         headScripts,
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
       });
     });
     api.chainWebpack(config => {
-      const prevConfig = config.toConfig(); // react react-dom antd作为全局资源，不会被打入bundle中
+      const prevConfig = config.toConfig();
 
-      config.externals([_objectSpread(_objectSpread({}, prevConfig.externals), {}, {
-        react: 'window.React',
-        'react-dom': 'window.ReactDOM',
-        moment: 'window.moment',
-        antd: 'window.antd'
-      }), function (context, request, callback) {
-        const match = /^antd\/es\/(\w+)$/.exec(request);
+      if (!api.config.portal.reactInModule) {
+        // react react-dom antd作为全局资源，不会被打入bundle中
+        config.externals([_objectSpread(_objectSpread({}, prevConfig.externals), {}, {
+          react: 'window.React',
+          'react-dom': 'window.ReactDOM',
+          moment: 'window.moment',
+          antd: 'window.antd'
+        }), function (context, request, callback) {
+          const match = /^antd\/es\/(\w+)$/.exec(request);
 
-        if (match) {
-          callback(null, 'antd.' + match[1]);
-          return;
-        }
+          if (match) {
+            callback(null, 'antd.' + match[1]);
+            return;
+          }
 
-        callback();
-      }]);
+          callback();
+        }]);
+      }
+
       config // 阻止bundle载入后立即启动。具体控制在init.js中
       .plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
         test: /umi\.\w*\.?js$/
