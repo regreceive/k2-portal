@@ -1,13 +1,11 @@
-import { defineConfig } from 'umi';
+import { IConfigFromPlugins } from '@@/core/pluginConfig';
 
-const portal = defineConfig({
+const portal: IConfigFromPlugins['portal'] = {
   nacos: '/nacos/v1/cs/configs?dataId=dfem.front.portal&group=default',
   service: {
-    dataService: '//dfem.k2assets.data:8082/data-service/modeler/api/v2',
-    datalabModeler: '//dfem.k2assets.data:8082/datalab/modeler/api/v2',
-    gateway: '//127.0.0.1/gateway',
-    influxdb: '//dfem.influxdb.k2assets.data:8082',
+    influxdb: '/repo/repo-data/dfem_point_test_influxdb',
+    repo: '/repo/repos/dfem_point_test_influxdb',
   },
-});
+};
 
 export default portal;

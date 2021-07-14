@@ -132,18 +132,13 @@ export const api = Object.entries(defaultSDK.lib.utils.service).reduce(
 /**
  * 应用之间传递传递参数，通过此context接收数据
  */
-const defaultValue = plugin.applyPlugins({
-  key: 'appPropsDefaultValue',
-  type: ApplyPluginsType.modify,
-  initialValue: {},
-});
-export const AppContext = createContext<any>(defaultValue);
+export const AppContext = createContext<any>({{{ appDefaultProps }}});
 
 /**
  * 接收app入参
  *
  * @param initialProps 默认app传参值
  */
-export function useAppProps<T>(initialProps: T) {
-  return useContext<T>(AppContext) || initialProps;
+export function useAppProps<T>() {
+  return useContext<T>(AppContext);
 }

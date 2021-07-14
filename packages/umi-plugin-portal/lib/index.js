@@ -81,27 +81,27 @@ function _ref() {
       runtimePath = winPath((0, _path().dirname)(require.resolve('umi/node_modules/@umijs/runtime/package.json')));
     }
 
-    api.logger.info('umi portal plugin.'); // app接受传参的默认值
-
-    api.addRuntimePluginKey(() => 'appPropsDefaultValue');
+    api.logger.info('umi portal plugin.');
     api.describe({
       key: 'portal',
       config: {
         default: {
+          appDefaultProps: {},
+          auth: {
+            username: 'admin',
+            password: 'admin'
+          },
           service: {
             dataService: '//fill_api_here',
             datalabModeler: '//fill_api_here',
             gateway: '//fill_api_here',
             influxdb: '//fill_api_here'
-          },
-          auth: {
-            username: 'admin',
-            password: 'admin'
           }
         },
 
         schema(joi) {
           return joi.object({
+            appDefaultProps: joi.object(),
             auth: joi.object({
               username: joi.string().required(),
               password: joi.string().required()
@@ -125,7 +125,8 @@ function _ref() {
       var _api$config$portal, _api$config;
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
-            service = _ref3.service;
+            service = _ref3.service,
+            appDefaultProps = _ref3.appDefaultProps;
 
       const strArray = Object.entries(service).map(([key, value]) => {
         return `${key}: new MockService(window.$$config.service.${key})`;
@@ -134,7 +135,8 @@ function _ref() {
       api.writeTmpFile({
         path: (0, _path().join)('plugin-portal/sdk.ts'),
         content: Mustache.render(sdkTpl, {
-          service: strArray.join(',\n')
+          service: strArray.join(',\n'),
+          appDefaultProps: JSON.stringify(appDefaultProps)
         })
       });
       api.writeTmpFile({
