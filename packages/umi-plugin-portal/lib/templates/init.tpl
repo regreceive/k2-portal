@@ -1,6 +1,7 @@
+// 初始默认的service，如果请求nacos，会被覆盖
 window.$$config = {
-  service: {{{ service }}},
   nacos: '{{{ nacos }}}',
+  service: {{{ service }}},
   alone: false,
 };
 
@@ -96,9 +97,7 @@ window.$$config = {
   window.antd = window.$$K2RootWindow.antd;
 
   window.addEventListener('bundleReady', function (event) {
-    if ({{{ reactInModule }}}) {
-      event.detail.run();
-    } else {
+    if ({{{ integrated }}}) {
       if (!window.React) {
         // 动态加载全局资源，此时作为独立应用
         Promise.all([
@@ -110,6 +109,7 @@ window.$$config = {
           addScript('antd.js'),
           getRuntimeConfig(),
         ]).then(() => {
+          // 独立运行
           window.$$config.alone = true;
           event.detail.run();
         });
@@ -119,6 +119,9 @@ window.$$config = {
           event.detail.run();
         });
       }
+    } else {
+      window.$$config.alone = true;
+      event.detail.run();
     }
   });
 })();

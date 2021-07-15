@@ -87,7 +87,10 @@ function _ref() {
       config: {
         default: {
           appDefaultProps: {},
-          reactInModule: false,
+          integration: {
+            development: true,
+            production: true
+          },
           auth: {
             username: 'admin',
             password: 'admin'
@@ -102,11 +105,16 @@ function _ref() {
 
         schema(joi) {
           return joi.object({
+            /** app传参默认值 */
             appDefaultProps: joi.object(),
+
+            /** Basic认证插入请求头部，仅限开发 */
             auth: joi.object({
               username: joi.string().required(),
               password: joi.string().required()
             }),
+
+            /** 服务枚举，太过冗余，是为了适配portal， */
             service: joi.object({
               dataService: joi.string(),
               datalabModeler: joi.string(),
@@ -115,68 +123,62 @@ function _ref() {
               repo: joi.string(),
               dev: joi.string()
             }),
+
+            /** nacos配置地址 */
             nacos: joi.string(),
-            reactInModule: joi.bool
+
+            /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
+            integration: joi.object({
+              development: joi.boolean(),
+              production: joi.boolean()
+            })
           });
         },
 
         onChange: api.ConfigChangeType.regenerateTmpFiles
       }
     });
+    api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-      var _api$config$portal, _api$config;
+      var _api$config$portal, _api$config, _api$env;
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
             service = _ref3.service,
-            appDefaultProps = _ref3.appDefaultProps;
+            nacos = _ref3.nacos,
+            appDefaultProps = _ref3.appDefaultProps,
+            auth = _ref3.auth; // 生成init.js
 
-      const strArray = Object.entries(service).map(([key, value]) => {
-        return `${key}: new MockService(window.$$config.service.${key})`;
-      });
-      const sdkTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8');
+
       api.writeTmpFile({
-        path: (0, _path().join)('plugin-portal/sdk.ts'),
-        content: Mustache.render(sdkTpl, {
-          service: strArray.join(',\n'),
+        path: 'plugin-portal/init.js',
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
+          nacos,
+          service: JSON.stringify(service, null, 4) || {},
+          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
+        })
+      }); // 生成sdk.ts
+
+      api.writeTmpFile({
+        path: 'plugin-portal/sdk.ts',
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
           appDefaultProps: JSON.stringify(appDefaultProps)
         })
-      });
+      }); // 生成MockService.ts
+
       api.writeTmpFile({
         path: 'plugin-portal/MockService.ts',
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'MockService.tpl'), 'utf-8')
-      });
-    }));
-    api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
-    api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-      var _api$config$portal2, _api$config2;
+      }); // 生成runtime
 
-      const _ref5 = (_api$config$portal2 = (_api$config2 = api.config) === null || _api$config2 === void 0 ? void 0 : _api$config2.portal) !== null && _api$config$portal2 !== void 0 ? _api$config$portal2 : {},
-            service = _ref5.service,
-            nacos = _ref5.nacos,
-            appDefaultProps = _ref5.appDefaultProps;
-
-      const initTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'); // 生成init.js
-
-      api.writeTmpFile({
-        path: (0, _path().join)('plugin-portal/init.js'),
-        content: Mustache.render(initTpl, {
-          service: JSON.stringify(service, null, 4) || {},
-          nacos,
-          reactInModule: api.env !== 'production' && api.config.portal.reactInModule
-        })
-      }); // runtime，提供根节点上下文
-
-      const base64 = Buffer.from(`${api.config.portal.auth.username}:${(0, _md().default)(api.config.portal.auth.password)}`).toString('base64');
+      const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64');
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
-          authorization: api.env === 'production' ? '' : `Basic ${base64}`,
+          authorization: base64,
           appDefaultProps: JSON.stringify(appDefaultProps)
         })
-      });
-    })); // 覆盖umi的history
+      }); // 覆盖umi的history
 
-    api.onGenerateFiles(() => {
       const historyTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl'), 'utf-8');
       const history = api.config.history; // @ts-ignore
 
@@ -194,47 +196,26 @@ function _ref() {
           runtimePath
         })
       });
-    });
-    api.onStart(() => {
-      if (api.env !== 'production' && !api.config.portal.reactInModule) {
-        // 阻止antd被优化加载，否则antd无法被externals
-        api.modifyBabelPresetOpts(opts => {
-          var _opts$import$filter, _opts$import;
+    })); // 阻止antd被优化加载，否则antd无法被externals
 
-          const list = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
-          return _objectSpread(_objectSpread({}, opts), {}, {
-            import: list
-          });
-        });
-        api.chainWebpack(config => {
-          const prevConfig = config.toConfig(); // react react-dom antd作为全局资源，不会被打入bundle中
+    api.modifyBabelPresetOpts(opts => {
+      var _api$env2;
 
-          config.externals([_objectSpread(_objectSpread({}, prevConfig.externals), {}, {
-            react: 'window.React',
-            'react-dom': 'window.ReactDOM',
-            moment: 'window.moment',
-            antd: 'window.antd'
-          }), function (context, request, callback) {
-            const match = /^antd\/es\/(\w+)$/.exec(request);
+      let importList = opts.import;
 
-            if (match) {
-              callback(null, 'antd.' + match[1]);
-              return;
-            }
+      if (api.config.portal.integration[(_api$env2 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env2 !== void 0 ? _api$env2 : 'development']) {
+        var _opts$import$filter, _opts$import;
 
-            callback();
-          }]);
-          config // 阻止bundle载入后立即启动。具体控制在init.js中
-          .plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
-            test: /umi\.\w*\.?js$/
-          }]).end();
-          return config;
-        });
+        importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
       }
+
+      return _objectSpread(_objectSpread({}, opts), {}, {
+        import: importList
+      });
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
-      var _ref6, _api$paths;
+      var _ref4, _api$paths, _api$env3, _api$env4, _api$env5;
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
       let relative = '';
@@ -249,12 +230,12 @@ function _ref() {
       } catch (_unused2) {}
 
       const copy = [...(memo.copy || []), 'develop.js', {
-        from: `${api.paths.absTmpPath.replace((_ref6 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref6 !== void 0 ? _ref6 : '', '')}/plugin-portal/init.js`,
+        from: `${api.paths.absTmpPath.replace((_ref4 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref4 !== void 0 ? _ref4 : '', '')}/plugin-portal/init.js`,
         to: 'init.js'
       }];
 
-      if (api.env !== 'production' && !memo.portal.reactInModule) {
-        copy.concat([{
+      if (memo.portal.integration[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
+        copy.push(...[{
           from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
           to: 'alone/react.js'
         }, {
@@ -288,6 +269,26 @@ function _ref() {
             to: 'alone/antd.css.map'
           });
         }
+      }
+
+      let externals = memo.externals;
+
+      if (memo.portal.integration[(_api$env4 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env4 !== void 0 ? _api$env4 : 'development']) {
+        externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
+          react: 'window.React',
+          'react-dom': 'window.ReactDOM',
+          moment: 'window.moment',
+          antd: 'window.antd'
+        }), function (context, request, callback) {
+          const match = /^antd\/es\/(\w+)$/.exec(request);
+
+          if (match) {
+            callback(null, 'antd.' + match[1]);
+            return;
+          }
+
+          callback();
+        }];
       } // 引用init.js
 
 
@@ -295,7 +296,18 @@ function _ref() {
         src: 'init.js'
       }];
       return _objectSpread(_objectSpread({}, memo), {}, {
-        antd: api.env !== 'production' && memo.portal.reactInModule ? memo.antd : false,
+        externals: externals,
+        chainWebpack: function chainWebpack(chain, args) {
+          if (memo.chainWebpack) {
+            memo.chainWebpack(chain, args);
+          } // 阻止bundle载入后立即启动。具体控制在init.js中
+
+
+          chain.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
+            test: /umi\.\w*\.?js$/
+          }]).end();
+        },
+        antd: memo.portal.integration[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? false : memo.antd,
         copy: api.env === 'test' ? memo.copy : copy,
         headScripts,
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())

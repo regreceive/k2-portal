@@ -1,7 +1,7 @@
 import { notification } from 'antd';
-import { AppContext } from './sdk';
 import React from 'react';
 import { RequestConfig } from 'umi';
+import { AppContext, portalWindow } from './sdk';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
@@ -31,7 +31,7 @@ export function render(oldRender: Function) {
 }
 
 export function rootContainer(container) {
-  if (window.$$config?.alone) {
+  if (window.antd && portalWindow === window) {
     const { ConfigProvider, locales } = window.antd;
     const configContainer = React.createElement(
       ConfigProvider,

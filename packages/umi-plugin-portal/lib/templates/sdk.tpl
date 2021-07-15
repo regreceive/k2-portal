@@ -2,8 +2,8 @@
  * 模拟portal的sdk，用于当前子应用独立运行
  */
 import { createContext, useContext } from 'react';
+import { History } from 'umi';
 import MockService from './MockService';
-import { History, plugin, ApplyPluginsType } from 'umi';
 
 declare global {
   interface Window {
@@ -67,12 +67,15 @@ export type AppMapType = {
   url: string;
 };
 
+const service = Object.entries(window.$$config.service)
+  .reduce((prev, [key, value]) => {
+    return {...prev, [key]: new MockService(value)};
+  }, {});
+
 const mockSDK = {
   lib: {
     utils: {
-      service: {
-        {{{ service }}}
-      },
+      service,
       getHistory: (win: Window, history: History): History => history,
     },
   },
