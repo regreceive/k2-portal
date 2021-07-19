@@ -9,7 +9,7 @@ exports.Widget = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _ahooks = require("ahooks");
+var _usePrevious = _interopRequireDefault(require("ahooks/es/usePrevious"));
 
 var _antd = require("antd");
 
@@ -38,7 +38,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 var Widget = function Widget(props) {
   var frame = (0, _react.useRef)(null);
   var bodyRef = (0, _react.useRef)(null);
-  var previous = (0, _ahooks.usePrevious)(props.appProps);
+  var previous = (0, _usePrevious.default)(props.appProps);
 
   var _useState = (0, _react.useState)(true),
       _useState2 = _slicedToArray(_useState, 2),

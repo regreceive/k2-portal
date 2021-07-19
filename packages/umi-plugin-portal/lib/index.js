@@ -161,7 +161,8 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/sdk.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
-          appDefaultProps: JSON.stringify(appDefaultProps)
+          appDefaultProps: JSON.stringify(appDefaultProps),
+          service: Object.keys(service)
         })
       }); // 生成MockService.ts
 

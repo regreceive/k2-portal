@@ -1,4 +1,4 @@
-import { usePrevious } from 'ahooks';
+import usePrevious from 'ahooks/es/usePrevious';
 import { Spin } from 'antd';
 import isEqual from 'lodash/isEqual';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';

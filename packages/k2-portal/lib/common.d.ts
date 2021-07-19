@@ -6,7 +6,7 @@ declare type RequestEntity = {
     entity_ids: number;
     attributes: string;
     param: {
-        [key: string]: string | number | string[] | number[];
+        [key: string]: boolean | string | number | string[] | number[];
     };
 };
 /** 关联表查询 */

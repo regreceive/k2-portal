@@ -67,7 +67,13 @@ export type AppMapType = {
   url: string;
 };
 
-const service = Object.entries(window.$$config.service)
+type ServiceType = {
+  {{#service}}
+  {{.}}: MockService;
+  {{/service}}
+};
+
+const service: ServiceType = Object.entries(window.$$config.service)
   .reduce((prev, [key, value]) => {
     return {...prev, [key]: new MockService(value)};
   }, {});

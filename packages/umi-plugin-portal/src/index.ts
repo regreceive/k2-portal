@@ -103,6 +103,7 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'sdk.tpl'), 'utf-8'),
         {
           appDefaultProps: JSON.stringify(appDefaultProps),
+          service: Object.keys(service),
         },
       ),
     });
