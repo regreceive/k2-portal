@@ -9,5 +9,5 @@ declare type Props = {
         [key: string]: any;
     };
 };
-export declare const Widget: FC<Props>;
-export {};
+declare const Widget: FC<Props>;
+export default Widget;

@@ -5,7 +5,7 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.Widget = void 0;
+exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
@@ -37,6 +37,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var Widget = function Widget(props) {
   var frame = (0, _react.useRef)(null);
+  var link = (0, _react.useRef)(null);
   var bodyRef = (0, _react.useRef)(null);
   var previous = (0, _usePrevious.default)(props.appProps);
 
@@ -67,13 +68,37 @@ var Widget = function Widget(props) {
       renderApp();
     }
   }, [props.appProps]);
+  var moveCSS = (0, _react.useCallback)(function () {
+    var _frame$current3, _frame$current3$conte, _frame$current3$conte2;
+
+    var url = (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentDocument) === null || _frame$current3$conte === void 0 ? void 0 : (_frame$current3$conte2 = _frame$current3$conte.querySelector('link[href$=.css]')) === null || _frame$current3$conte2 === void 0 ? void 0 : _frame$current3$conte2.href;
+
+    if (url) {
+      var _link$current;
+
+      var ele = (_link$current = link.current) === null || _link$current === void 0 ? void 0 : _link$current.ownerDocument.createElement('link');
+
+      if (ele) {
+        var _link$current2;
+
+        ele.href = url;
+        ele.type = 'text/css';
+        ele.rel = 'stylesheet';
+        (_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.appendChild(ele);
+      }
+    }
+  }, []);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     className: props.className
-  }, /*#__PURE__*/_react.default.createElement("iframe", {
+  }, /*#__PURE__*/_react.default.createElement("div", {
+    "data-name": "style",
+    ref: link
+  }), /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
       setLoading(false);
+      moveCSS();
       renderApp();
     },
     src: props.src,
@@ -90,4 +115,5 @@ var Widget = function Widget(props) {
   })));
 };
 
-exports.Widget = Widget;
+var _default = Widget;
+exports.default = _default;

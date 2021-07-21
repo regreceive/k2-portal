@@ -15,8 +15,9 @@ type Props = {
   };
 };
 
-export const Widget: FC<Props> = (props) => {
+const Widget: FC<Props> = (props) => {
   const frame = useRef<HTMLIFrameElement>(null);
+  const link = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   const previous = usePrevious(props.appProps);
   const [loading, setLoading] = useState(true);
@@ -42,12 +43,30 @@ export const Widget: FC<Props> = (props) => {
     }
   }, [props.appProps]);
 
+  const moveCSS = useCallback(() => {
+    const url =
+      frame.current?.contentDocument?.querySelector<HTMLLinkElement>(
+        'link[href$=.css]',
+      )?.href;
+    if (url) {
+      const ele = link.current?.ownerDocument.createElement('link');
+      if (ele) {
+        ele.href = url;
+        ele.type = 'text/css';
+        ele.rel = 'stylesheet';
+        link.current?.appendChild(ele);
+      }
+    }
+  }, []);
+
   return (
     <div data-name="widget" {...{ className: props.className }}>
+      <div data-name="style" ref={link} />
       <iframe
         ref={frame}
         onLoad={() => {
           setLoading(false);
+          moveCSS();
           renderApp();
         }}
         src={props.src}
@@ -59,3 +78,5 @@ export const Widget: FC<Props> = (props) => {
     </div>
   );
 };
+
+export default Widget;
