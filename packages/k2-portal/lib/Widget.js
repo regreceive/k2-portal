@@ -71,7 +71,7 @@ var Widget = function Widget(props) {
   var moveCSS = (0, _react.useCallback)(function () {
     var _frame$current3, _frame$current3$conte, _frame$current3$conte2;
 
-    var url = (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentDocument) === null || _frame$current3$conte === void 0 ? void 0 : (_frame$current3$conte2 = _frame$current3$conte.querySelector('link[href$=.css]')) === null || _frame$current3$conte2 === void 0 ? void 0 : _frame$current3$conte2.href;
+    var url = (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentDocument) === null || _frame$current3$conte === void 0 ? void 0 : (_frame$current3$conte2 = _frame$current3$conte.querySelector('link[href$=".css"]')) === null || _frame$current3$conte2 === void 0 ? void 0 : _frame$current3$conte2.href;
 
     if (url) {
       var _link$current;
