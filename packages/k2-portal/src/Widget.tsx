@@ -46,7 +46,7 @@ const Widget: FC<Props> = (props) => {
   const moveCSS = useCallback(() => {
     const url =
       frame.current?.contentDocument?.querySelector<HTMLLinkElement>(
-        'link[href$=.css]',
+        'link[href$=".css"]',
       )?.href;
     if (url) {
       const ele = link.current?.ownerDocument.createElement('link');
