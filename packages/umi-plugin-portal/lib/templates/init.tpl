@@ -117,7 +117,7 @@ window.$$config = {
       } else {
         addScript('moment.js').then(() => {
           // 作为子应用运行，使用portal的document，解决依赖包由于document错乱导致的问题，比如echarts的mouseup/mousemove
-          event.detail.run(winndow.K2RootWindow.document);
+          event.detail.run(window.$$K2RootWindow.document);
         });
       }
     } else {
