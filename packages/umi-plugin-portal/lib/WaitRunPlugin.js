@@ -37,7 +37,7 @@ class WaitRunPlugin {
 
           if ((_options$test = options.test) === null || _options$test === void 0 ? void 0 : _options$test.test(key)) {
             const wrapper = `(function () {
-              var run = function () {
+              var run = function (document) {
               ${assets[key].source()}
               };
               var evt = document.createEvent('CustomEvent');
