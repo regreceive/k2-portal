@@ -90,6 +90,9 @@ var Widget = function Widget(props) {
   }, []);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
+    style: {
+      height: '100%'
+    },
     className: props.className
   }, /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "style",

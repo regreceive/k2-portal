@@ -60,7 +60,11 @@ const Widget: FC<Props> = (props) => {
   }, []);
 
   return (
-    <div data-name="widget" {...{ className: props.className }}>
+    <div
+      data-name="widget"
+      style={{ height: '100%' }}
+      {...{ className: props.className }}
+    >
       <div data-name="style" ref={link} />
       <iframe
         ref={frame}
