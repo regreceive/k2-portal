@@ -3,8 +3,22 @@ import useUpdate from 'ahooks/es/useUpdate';
 import * as echarts from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';
 
+/**
+ *
+ * @param theme 预设了light和dark，默认是light
+ * @param opts echarts的初始化入参，请传高度值或者在外容器设置高度
+ * [reference](https://echarts.apache.org/zh/api.html#echarts.init)
+ * @returns
+ */
 export default function useChart<T extends HTMLDivElement>(
-  height: number = 300,
+  theme?: string,
+  opts?: {
+    renderer?: 'canvas' | 'svg';
+    devicePixelRatio?: number;
+    width?: number;
+    height?: number;
+    locale?: string;
+  },
 ) {
   const chart = useRef<echarts.ECharts>();
   const ref = useRef<T>(null);
@@ -12,8 +26,8 @@ export default function useChart<T extends HTMLDivElement>(
 
   useEffect(() => {
     if (ref.current) {
-      chart.current = echarts.init(ref.current as HTMLDivElement, undefined, {
-        height,
+      chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
+        ...opts,
       });
       update();
     }
@@ -29,12 +43,9 @@ export default function useChart<T extends HTMLDivElement>(
   const box = useSize(ref.current);
   useEffect(() => {
     if (chart.current) {
-      chart.current.resize({
-        // width: box.width as number,
-        height,
-      });
+      chart.current.resize();
     }
-  }, [box.width, height]);
+  }, [box.width]);
 
   // 强制初始化
   const enforceInit = useCallback(() => {

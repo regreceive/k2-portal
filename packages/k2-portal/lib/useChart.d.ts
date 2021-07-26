@@ -1,6 +1,19 @@
 /// <reference types="react" />
 import * as echarts from 'echarts';
-export default function useChart<T extends HTMLDivElement>(height?: number): {
+/**
+ *
+ * @param theme 预设了light和dark，默认是light
+ * @param opts echarts的初始化入参，请传高度值或者在外容器设置高度
+ * [reference](https://echarts.apache.org/zh/api.html#echarts.init)
+ * @returns
+ */
+export default function useChart<T extends HTMLDivElement>(theme?: string, opts?: {
+    renderer?: 'canvas' | 'svg';
+    devicePixelRatio?: number;
+    width?: number;
+    height?: number;
+    locale?: string;
+}): {
     ref: import("react").RefObject<T>;
     setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean | undefined, lazyUpdate?: boolean | undefined) => void;
     enforceInit: () => void;

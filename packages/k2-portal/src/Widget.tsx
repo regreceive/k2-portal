@@ -9,6 +9,7 @@ type Props = {
   src: string;
   /** 样式名称 */
   className?: string;
+  style?: React.CSSProperties;
   /** 向应用传递参数，字段自拟 */
   appProps?: {
     [key: string]: any;
@@ -62,7 +63,7 @@ const Widget: FC<Props> = (props) => {
   return (
     <div
       data-name="widget"
-      style={{ height: '100%' }}
+      style={{ height: '100%', ...props.style }}
       {...{ className: props.className }}
     >
       <div data-name="style" ref={link} />

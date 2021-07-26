@@ -4,6 +4,7 @@ declare type Props = {
     src: string;
     /** 样式名称 */
     className?: string;
+    style?: React.CSSProperties;
     /** 向应用传递参数，字段自拟 */
     appProps?: {
         [key: string]: any;
