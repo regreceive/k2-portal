@@ -8,6 +8,7 @@ import transform from 'k2-portal';
 interface ResponseRelation {
   attributes: { [key: string]: any };
   entity_id: number;
+  relation_type: string;
   data: ResponseRelation[];
 }
 
@@ -35,7 +36,7 @@ export async function getInstance<T = any>(
   entityName: string,
   query?: Partial<RequestEntity>,
 ) {
-  return api.dataService.get<{ attributes: T }[]>(
+  return api.dataService.get<T[]>(
     `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transform(
       query,
     )}`,
