@@ -99,7 +99,8 @@ function _ref() {
             dataService: '//fill_api_here',
             datalabModeler: '//fill_api_here',
             gateway: '//fill_api_here',
-            influxdb: '//fill_api_here'
+            influxdb: '//fill_api_here',
+            repo: '//fill_api_here'
           }
         },
 
@@ -156,6 +157,11 @@ function _ref() {
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
+      }); // 生成common.ts
+
+      api.writeTmpFile({
+        path: 'plugin-portal/common.ts',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'common.tpl'), 'utf-8')
       }); // 生成sdk.ts
 
       api.writeTmpFile({

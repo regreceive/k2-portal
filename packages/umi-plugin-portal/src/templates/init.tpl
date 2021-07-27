@@ -121,8 +121,9 @@ window.$$config = {
         });
       }
     } else {
+      // 独立运行，自身含有依赖文件
       window.$$config.alone = true;
-      event.detail.run();
+      event.detail.run(document);
     }
   });
 })();

@@ -43,6 +43,7 @@ export default async function (api: IApi) {
           datalabModeler: '//fill_api_here',
           gateway: '//fill_api_here',
           influxdb: '//fill_api_here',
+          repo: '//fill_api_here',
         },
       },
       schema(joi) {
@@ -93,6 +94,15 @@ export default async function (api: IApi) {
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[api?.env ?? 'development'],
         },
+      ),
+    });
+
+    // 生成common.ts
+    api.writeTmpFile({
+      path: 'plugin-portal/common.ts',
+      content: readFileSync(
+        join(__dirname, 'templates', 'common.tpl'),
+        'utf-8',
       ),
     });
 

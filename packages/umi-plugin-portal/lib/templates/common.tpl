@@ -2,9 +2,8 @@
  * 建模器通用查表，如果不够请补充
  */
 
-// @ts-ignore
-import { api } from '@@/plugin-portal/sdk';
-import transform from './transformRequest';
+import { api } from './sdk';
+import transform from 'k2-portal';
 
 interface ResponseRelation {
   attributes: { [key: string]: any };

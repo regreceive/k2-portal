@@ -11,6 +11,7 @@ let appProps = {{{ appDefaultProps }}};
 window.micPack = {
   default: async (obj: any, props: any) => {
     rootElement = obj.appBody;
+    // 请注意，如果在portal通过本地调试，portal会把sdk传过来，而不是我们的默认参数
     appProps = props;
     appRender();
   },
