@@ -11,6 +11,13 @@ class WaitRunPlugin {
     }
   }
 
+  // checkIgnore(resolveData: any) {
+  //   if (/^antd\/es\/\S+\/style/.test(resolveData.request)) {
+  //     return false;
+  //   }
+  //   return undefined;
+  // }
+
   apply(compiler: Compiler) {
     compiler.hooks.emit.tap('wait-run-plugin', (Compilation) => {
       const options = this.options;
@@ -35,6 +42,10 @@ class WaitRunPlugin {
         resolve(null);
       });
     });
+
+    // compiler.hooks.normalModuleFactory.tap('IgnorePlugin', (nmf) => {
+    //   nmf.hooks.beforeResolve.tap('IgnorePlugin', this.checkIgnore);
+    // });
   }
 }
 

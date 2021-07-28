@@ -194,6 +194,22 @@ export default async function (api: IApi) {
     };
   });
 
+  // webpack额外配置
+  api.chainWebpack((config) => {
+    // 阻止bundle载入后立即启动。具体控制在init.js中
+    config
+      .plugin('WaitRun')
+      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }]);
+
+    // 阻止直接加载antd/es/xx/style形式的样式
+    // config.plugin('Ignore').use(IgnorePlugin, [
+    //   {
+    //     resourceRegExp: /^antd\/es\/[\w\-]+\/style/,
+    //   },
+    // ]);
+    return config;
+  });
+
   // 复制资源文件到输出目录
   api.modifyConfig((memo) => {
     const resourceName =
@@ -276,21 +292,27 @@ export default async function (api: IApi) {
       externals = [
         {
           ...memo.externals,
-          react: 'window.React',
-          'react-dom': 'window.ReactDOM',
-          moment: 'window.moment',
-          antd: 'window.antd',
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          moment: 'moment',
+          antd: 'antd',
         },
         function (context: any, request: string, callback: any) {
-          const match = /^antd\/es\/(\w+)$/.exec(request);
+          // 会有代码或依赖包直接引用antd中es样式，要排除其打包
+          if (/^antd\/es\/[\w\-]+\/style/.test(request)) {
+            return callback(null, 'undefined');
+          }
+
+          // antd/es/table/hooks/xxx可以打包
+          // antd/es/table排除打包
+          const match = /^antd\/es\/([\w\-]+)$/.exec(request);
           if (match) {
-            callback(
-              null,
-              'antd.' +
-                match[1]
-                  .replace(/\-(\w)/, (_, $1) => $1.toUpperCase())
-                  .replace(/^\w/, (letter) => letter.toUpperCase()),
-            );
+            callback(null, [
+              'antd',
+              match[1]
+                .replace(/\-(\w)/, (_, $1) => $1.toUpperCase())
+                .replace(/^\w/, (letter) => letter.toUpperCase()),
+            ]);
             return;
           }
           callback();
@@ -304,16 +326,6 @@ export default async function (api: IApi) {
     return {
       ...memo,
       externals: externals,
-      chainWebpack: function (chain: any, args: any) {
-        if (memo.chainWebpack) {
-          memo.chainWebpack(chain, args);
-        }
-        // 阻止bundle载入后立即启动。具体控制在init.js中
-        chain
-          .plugin('WaitRunWebpackPlugin')
-          .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }])
-          .end();
-      },
       antd: memo.portal.integration[api?.env ?? 'development']
         ? false
         : memo.antd,

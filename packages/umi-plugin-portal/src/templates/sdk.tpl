@@ -20,7 +20,7 @@ type Convert<T, C> = {
   [P in keyof T]: C;
 };
 
-export interface ResponseData<T = any> {
+export interface ResponseData<T> {
   code?: number;
   data?: T;
   results?: {

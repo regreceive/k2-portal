@@ -5,6 +5,11 @@
 import { api } from './sdk';
 import { transformQuery } from 'k2-portal';
 
+type ResponseInstance = {
+  attributes: any;
+  entity_id: number;
+}
+
 interface ResponseRelation {
   attributes: { [key: string]: any };
   entity_id: number;
@@ -32,11 +37,11 @@ type RequestRelation = RequestEntity & {
  * @param query 查询对象
  * @returns
  */
-export async function getInstance<T = any>(
+export async function getInstance(
   entityName: string,
   query?: Partial<RequestEntity>,
 ) {
-  return api.dataService.get<T[]>(
+  return api.dataService.get<ResponseInstance[]>(
     `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transformQuery(
       query,
     )}`,
