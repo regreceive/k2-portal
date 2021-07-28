@@ -284,7 +284,13 @@ export default async function (api: IApi) {
         function (context: any, request: string, callback: any) {
           const match = /^antd\/es\/(\w+)$/.exec(request);
           if (match) {
-            callback(null, 'antd.' + match[1]);
+            callback(
+              null,
+              'antd.' +
+                match[1]
+                  .replace(/\-(\w)/, (_, $1) => $1.toUpperCase())
+                  .replace(/^\w/, (letter) => letter.toUpperCase()),
+            );
             return;
           }
           callback();

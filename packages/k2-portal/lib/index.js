@@ -13,20 +13,6 @@ Object.defineProperty(exports, "Widget", {
   }
 });
 
-var _sdk = require("@@/plugin-portal/sdk");
-
-Object.keys(_sdk).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _sdk[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _sdk[key];
-    }
-  });
-});
-
 var _common = require("@@/plugin-portal/common");
 
 Object.keys(_common).forEach(function (key) {
@@ -37,6 +23,20 @@ Object.keys(_common).forEach(function (key) {
     enumerable: true,
     get: function get() {
       return _common[key];
+    }
+  });
+});
+
+var _sdk = require("@@/plugin-portal/sdk");
+
+Object.keys(_sdk).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _sdk[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _sdk[key];
     }
   });
 });

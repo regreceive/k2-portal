@@ -290,7 +290,7 @@ function _ref() {
           const match = /^antd\/es\/(\w+)$/.exec(request);
 
           if (match) {
-            callback(null, 'antd.' + match[1]);
+            callback(null, 'antd.' + match[1].replace(/\-(\w)/, (_, $1) => $1.toUpperCase()).replace(/^\w/, letter => letter.toUpperCase()));
             return;
           }
 

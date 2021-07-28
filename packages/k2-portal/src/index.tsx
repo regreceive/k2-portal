@@ -1,6 +1,6 @@
 // @ts-ignore
-// @ts-ignore
 export * from '@@/plugin-portal/common';
+// @ts-ignore
 export * from '@@/plugin-portal/sdk';
 export * from './transformRequest';
 export * from './utils';
