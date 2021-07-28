@@ -4,7 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.stringifyParamValue = stringifyParamValue;
-exports.default = transform;
+exports.transformQuery = transformQuery;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -80,7 +80,7 @@ function stringifyParamValue(key, value) {
  */
 
 
-function transform(query = {}) {
+function transformQuery(query = {}) {
   const _query$param = query.param,
         param = _query$param === void 0 ? {} : _query$param,
         restQuery = _objectWithoutProperties(query, _excluded);

@@ -3,7 +3,7 @@
  */
 
 import { api } from './sdk';
-import transform from 'k2-portal';
+import { transformQuery } from 'k2-portal';
 
 interface ResponseRelation {
   attributes: { [key: string]: any };
@@ -37,7 +37,7 @@ export async function getInstance<T = any>(
   query?: Partial<RequestEntity>,
 ) {
   return api.dataService.get<T[]>(
-    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transform(
+    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transformQuery(
       query,
     )}`,
   );
@@ -54,7 +54,7 @@ export async function getRelation(
   query?: Partial<RequestRelation>,
 ) {
   return api.dataService.get<ResponseRelation[]>(
-    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities_via_relation_types?${transform(
+    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities_via_relation_types?${transformQuery(
       query,
     )}`,
   );

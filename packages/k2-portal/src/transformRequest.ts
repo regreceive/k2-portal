@@ -36,9 +36,7 @@ export function stringifyParamValue(
  *   })
  *   result: param=a=1|b=2 or b=3&page=1
  */
-export default function transform(
-  query: { param?: { [key: string]: any } } = {},
-) {
+export function transformQuery(query: { param?: { [key: string]: any } } = {}) {
   const { param = {}, ...restQuery } = query;
 
   const nextParam = Object.entries(param)

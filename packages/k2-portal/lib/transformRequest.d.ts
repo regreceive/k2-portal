@@ -17,7 +17,7 @@ export declare function stringifyParamValue(key: string, value: string | number 
  *   })
  *   result: param=a=1|b=2 or b=3&page=1
  */
-export default function transform(query?: {
+export declare function transformQuery(query?: {
     param?: {
         [key: string]: any;
     };
