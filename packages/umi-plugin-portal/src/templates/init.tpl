@@ -95,6 +95,10 @@ window.$$config = {
   window.React = window.$$K2RootWindow.React;
   window.ReactDOM = window.$$K2RootWindow.ReactDOM;
   window.antd = window.$$K2RootWindow.antd;
+  try {
+    // portal的antd引用portal的moment，为了保证antd的moment受控，应用内也要引用它
+    window.moment = $$K2RootWindow.$$_K2_SDK.lib.basis.moment;
+  } catch {}
 
   window.addEventListener('bundleReady', function (event) {
     if ({{{ integrated }}}) {
@@ -115,10 +119,12 @@ window.$$config = {
         });
         addLink('antd.css');
       } else {
-        addScript('moment.js').then(() => {
-          // 作为子应用运行，使用portal的document，解决依赖包由于document错乱导致的问题，比如echarts的mouseup/mousemove
-          event.detail.run(window.$$K2RootWindow.document);
-        });
+        // portal的moment没有加载中文语言包，这里加载一下会导致portal所有应用都有中文moment
+        if (moment.locale() === 'en') {  
+          addScript('zh-cn.js');
+        }
+        // 修复：部分依赖包会引用监听子应用自己的document，比如echarts的mouseup/mousemove
+        event.detail.run(window.$$K2RootWindow.document);
       }
     } else {
       // 独立运行，自身含有依赖文件

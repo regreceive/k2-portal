@@ -260,11 +260,11 @@ export default async function (api: IApi) {
             to: 'alone/zh-cn.js',
           },
           {
-            from: `${relative}node_modules/antd/dist/antd-with-locales.js`,
+            from: `${relative}node_modules/antd/dist/antd.min.js`,
             to: 'alone/antd.js',
           },
           {
-            from: `${relative}node_modules/antd/dist/antd.css`,
+            from: `${relative}node_modules/antd/dist/antd.min.css`,
             to: 'alone/antd.css',
           },
         ],
@@ -272,15 +272,15 @@ export default async function (api: IApi) {
 
       if (api.env === 'development') {
         copy.push({
-          from: `${relative}node_modules/antd/dist/antd-with-locales.js.map`,
-          to: 'alone/antd-with-locales.js.map',
+          from: `${relative}node_modules/antd/dist/antd.min.js.map`,
+          to: 'alone/antd.js.map',
         });
         copy.push({
           from: `${relative}node_modules/moment/min/moment.min.js.map`,
           to: 'alone/moment.min.js.map',
         });
         copy.push({
-          from: `${relative}node_modules/antd/dist/antd.css.map`,
+          from: `${relative}node_modules/antd/dist/antd.min.css.map`,
           to: 'alone/antd.css.map',
         });
       }

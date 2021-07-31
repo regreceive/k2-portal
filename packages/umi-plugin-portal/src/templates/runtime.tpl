@@ -1,11 +1,12 @@
-import { notification } from 'antd';
+import { notification, ConfigProvider } from 'antd';
+import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import { RequestConfig } from 'umi';
-import { AppContext, portalWindow } from './sdk';
+import { AppContext } from './sdk';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
-let appProps = {{{ appDefaultProps }}};
+let appProps = {};
 
 //@ts-ignore
 window.micPack = {
@@ -32,23 +33,11 @@ export function render(oldRender: Function) {
 }
 
 export function rootContainer(container) {
-  if (window.antd && portalWindow === window) {
-    const { ConfigProvider, locales } = window.antd;
-    const configContainer = React.createElement(
-      ConfigProvider,
-      { locale: locales.zh_CN },
-      container,
-    );
-    return React.createElement(
-      AppContext.Provider,
-      { value: appProps },
-      configContainer,
-    );
-  }
-  return React.createElement(
-    AppContext.Provider,
-    { value: appProps },
-    container,
+  // 不管是独立应用还是子应用，都要使用antd中文包
+  return (
+    <AppContext.Provider value={appProps}>
+      <ConfigProvider locale={zhCN}>{container}</ConfigProvider>
+    </AppContext.Provider>
   );
 }
 
@@ -100,7 +89,8 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: '{{{ authorization }}}',
+        Authorization:
+          'Basic YWRtaW46MjEyMzJmMjk3YTU3YTVhNzQzODk0YTBlNGE4MDFmYzM=',
       };
       return {
         url,
