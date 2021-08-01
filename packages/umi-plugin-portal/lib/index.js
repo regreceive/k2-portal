@@ -140,6 +140,11 @@ function _ref() {
       }
     });
     api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
+    api.addEntryImportsAhead(() => {
+      return [{
+        source: './plugin-portal/portal.less'
+      }];
+    });
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
       var _api$config$portal, _api$config, _api$env;
 
@@ -147,8 +152,13 @@ function _ref() {
             service = _ref3.service,
             nacos = _ref3.nacos,
             appDefaultProps = _ref3.appDefaultProps,
-            auth = _ref3.auth; // 生成init.js
+            auth = _ref3.auth; // 生成portal.less
 
+
+      api.writeTmpFile({
+        path: 'plugin-portal/portal.less',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.less'), 'utf-8')
+      }); // 生成init.js
 
       api.writeTmpFile({
         path: 'plugin-portal/init.js',

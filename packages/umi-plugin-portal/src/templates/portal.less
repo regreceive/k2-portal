@@ -1,0 +1,68 @@
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background-color: #eee !important;
+}
+
+#root {
+  height: 100%;
+}
+
+.ant-spin-nested-loading,
+.ant-spin-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+.box-area {
+  margin-bottom: 12px;
+  padding: 15px;
+  background-color: #fff;
+  box-shadow: 1px 1px 5px rgba(127, 127, 127, 0.3);
+  overflow: hidden;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// pro-table高度自适应
+.ant-pro-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  > .ant-card {
+    flex: auto;
+    height: 0;
+    > .ant-card-body {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+
+      > .ant-table-wrapper {
+        flex: auto;
+        height: 0;
+        > .ant-spin-nested-loading {
+          > .ant-spin-container {
+            display: flex;
+            flex-direction: column;
+          }
+        }
+      }
+    }
+  }
+  .ant-table {
+    flex: auto;
+    height: 0;
+  }
+  .ant-table-container {
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-table-container,
+  .ant-table-content {
+    height: 100%;
+  }
+}

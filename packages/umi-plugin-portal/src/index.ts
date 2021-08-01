@@ -81,8 +81,25 @@ export default async function (api: IApi) {
     join(api.paths.absTmpPath!, 'plugin-portal/runtime.tsx'),
   ]);
 
+  api.addEntryImportsAhead(() => {
+    return [
+      {
+        source: './plugin-portal/portal.less',
+      },
+    ];
+  });
+
   api.onGenerateFiles(async () => {
     const { service, nacos, appDefaultProps, auth } = api.config?.portal ?? {};
+
+    // 生成portal.less
+    api.writeTmpFile({
+      path: 'plugin-portal/portal.less',
+      content: readFileSync(
+        join(__dirname, 'templates', 'portal.less'),
+        'utf-8',
+      ),
+    });
 
     // 生成init.js
     api.writeTmpFile({
