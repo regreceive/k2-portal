@@ -5,13 +5,6 @@ import { createContext, useContext } from 'react';
 import { History } from 'umi';
 import MockService from './MockService';
 
-declare global {
-  interface Window {
-    $$K2RootWindow: PortalWindow | Window;
-    $$config: { [key: string]: any };
-  }
-}
-
 interface PortalWindow extends Window {
   $$_K2_SDK: {};
 }
@@ -32,6 +25,7 @@ export interface ResponseData<T> {
   body?: {
     items: {
       k_ts: number;
+      // @ts-ignore
       k_device: string;
       [key: string]: number;
     }[];
@@ -50,7 +44,7 @@ export interface ResponseData<T> {
 
 interface PortalResponseData {
   err: null | Error;
-  res: ResponseData;
+  res: ResponseData<any>;
 }
 
 interface SemiService {
@@ -58,7 +52,7 @@ interface SemiService {
   post: <T = any>(url: string, data: any) => Promise<ResponseData<T>>;
 }
 
-export type AppMapType = {
+export type AppMapValueType = {
   alone: boolean;
   appType: string;
   category: string;
@@ -73,16 +67,24 @@ type ServiceType = {
   {{/service}}
 };
 
+// @ts-ignore
 const service: ServiceType = Object.entries(window.$$config.service)
   .reduce((prev, [key, value]) => {
-    return {...prev, [key]: new MockService(value)};
+    return {...prev, [key]: new MockService(value as string)};
   }, {});
+
+let appMap = new Map<string, AppMapValueType>();
 
 const mockSDK = {
   lib: {
     utils: {
       service,
       getHistory: (win: Window, history: History): History => history,
+    },
+    central: {
+      appConfig: {
+        state: appMap,
+      },
     },
   },
   config: {
@@ -101,6 +103,7 @@ function proxyFact(service: MockService) {
             .end()
             .then((response: PortalResponseData) => {
               // bobo写死了服务返回数据解析(封装到依赖包里了)，如果解析失败就返回res，所以需要重新返回res.body
+              // @ts-ignore
               if (response.res?.req) {                
                 return Promise.resolve(response.res.body);
               }

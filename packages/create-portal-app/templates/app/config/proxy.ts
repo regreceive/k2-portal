@@ -15,5 +15,9 @@ export default {
       target: 'http://dfem.k2assets.k2:8082',
       changeOrigin: true,
     },
+    '/bcf': {
+      target: 'http://dfem.k2assets.k2:8082',
+      changeOrigin: true,
+    },
   },
 };

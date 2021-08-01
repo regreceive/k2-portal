@@ -6,14 +6,16 @@ import { AppContext } from './sdk';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
-let appProps = {};
+let appProps = {{{ appDefaultProps }}};
 
 //@ts-ignore
 window.micPack = {
   default: async (obj: any, props: any) => {
     rootElement = obj.appBody;
-    // 请注意，如果在portal通过本地调试，portal会把sdk传过来，而不是我们的默认参数
-    appProps = props;
+    // 如果在portal通过本地调试，portal会把sdk传过来，所以不接收
+    if (props.sdk === undefined) {
+      appProps = props;
+    }
     appRender();
   },
 };
@@ -36,7 +38,9 @@ export function rootContainer(container) {
   // 不管是独立应用还是子应用，都要使用antd中文包
   return (
     <AppContext.Provider value={appProps}>
-      <ConfigProvider locale={zhCN}>{container}</ConfigProvider>
+      <ConfigProvider componentSize="middle" locale={zhCN}>
+        {container}
+      </ConfigProvider>
     </AppContext.Provider>
   );
 }

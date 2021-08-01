@@ -279,7 +279,7 @@ function _ref() {
         if (api.env === 'development') {
           copy.push({
             from: `${relative}node_modules/antd/dist/antd.min.js.map`,
-            to: 'alone/antd.js.map'
+            to: 'alone/antd.min.js.map'
           });
           copy.push({
             from: `${relative}node_modules/moment/min/moment.min.js.map`,
@@ -287,7 +287,7 @@ function _ref() {
           });
           copy.push({
             from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-            to: 'alone/antd.css.map'
+            to: 'alone/antd.min.css.map'
           });
         }
       }
