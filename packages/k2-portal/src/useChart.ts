@@ -3,6 +3,14 @@ import useUpdate from 'ahooks/es/useUpdate';
 import * as echarts from 'echarts';
 import { useCallback, useEffect, useRef } from 'react';
 
+type Options = {
+  renderer?: 'canvas' | 'svg';
+  devicePixelRatio?: number;
+  width?: number;
+  height?: number;
+  locale?: string;
+};
+
 /**
  *
  * @param theme 预设了light和dark，默认是light
@@ -12,13 +20,7 @@ import { useCallback, useEffect, useRef } from 'react';
  */
 export default function useChart<T extends HTMLDivElement>(
   theme?: string,
-  opts?: {
-    renderer?: 'canvas' | 'svg';
-    devicePixelRatio?: number;
-    width?: number;
-    height?: number;
-    locale?: string;
-  },
+  opts?: Options,
 ) {
   const chart = useRef<echarts.ECharts>();
   const ref = useRef<T>(null);
@@ -26,9 +28,7 @@ export default function useChart<T extends HTMLDivElement>(
 
   useEffect(() => {
     if (ref.current) {
-      chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
-        ...opts,
-      });
+      chart.current = echarts.init(ref.current as HTMLDivElement, theme, opts);
       update();
     }
 
@@ -37,7 +37,7 @@ export default function useChart<T extends HTMLDivElement>(
         chart.current.dispose();
       }
     };
-  }, []);
+  }, [theme]);
 
   /** 图表自适应 */
   const box = useSize(ref.current);
@@ -48,8 +48,12 @@ export default function useChart<T extends HTMLDivElement>(
   }, [box.width]);
 
   // 强制初始化
-  const enforceInit = useCallback(() => {
-    chart.current = echarts.init(ref.current as HTMLDivElement);
+  const enforceInit = useCallback((newTheme?: string, newOpts?: Options) => {
+    chart.current = echarts.init(
+      ref.current as HTMLDivElement,
+      newTheme || theme,
+      newOpts || opts,
+    );
   }, []);
 
   // 图表选项设置

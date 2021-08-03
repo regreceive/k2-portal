@@ -1,5 +1,12 @@
 /// <reference types="react" />
 import * as echarts from 'echarts';
+declare type Options = {
+    renderer?: 'canvas' | 'svg';
+    devicePixelRatio?: number;
+    width?: number;
+    height?: number;
+    locale?: string;
+};
 /**
  *
  * @param theme 预设了light和dark，默认是light
@@ -7,16 +14,11 @@ import * as echarts from 'echarts';
  * [reference](https://echarts.apache.org/zh/api.html#echarts.init)
  * @returns
  */
-export default function useChart<T extends HTMLDivElement>(theme?: string, opts?: {
-    renderer?: 'canvas' | 'svg';
-    devicePixelRatio?: number;
-    width?: number;
-    height?: number;
-    locale?: string;
-}): {
+export default function useChart<T extends HTMLDivElement>(theme?: string, opts?: Options): {
     ref: import("react").RefObject<T>;
     setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean | undefined, lazyUpdate?: boolean | undefined) => void;
-    enforceInit: () => void;
+    enforceInit: (newTheme?: string | undefined, newOpts?: Options | undefined) => void;
     showEmpty: (text?: string) => void;
     chart: echarts.ECharts | undefined;
 };
+export {};

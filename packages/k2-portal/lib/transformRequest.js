@@ -36,7 +36,7 @@ function _queryString() {
   return data;
 }
 
-const _excluded = ["param"];
+const _excluded = ["param", "current", "pageSize"];
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -55,23 +55,44 @@ function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) r
  * @param key
  * @param value
  * @example
- *   stringifyParamValue('name', [1, 'bo'])
- *   result: name=1 or name='bo'
+ *   stringifyParamValue('name', ['$range', 1, 2])
+ *   result: name>=1 and name<=2
+ *
+ *   stringifyParamValue('name', ['$or', 1, 2])
+ *   result: name=1 or name=2
+ *
+ *   stringifyParamValue('name', ['$and', 1, 2])
+ *   result: name=1 and name=2
+ *
+ *   stringifyParamValue('name', [1, 2])
+ *   result: name=1 or name=2
  */
 function stringifyParamValue(key, value) {
   if (Array.isArray(value)) {
+    if (value.length === 3 && '$range' === value[0]) {
+      return typeof value[1] === 'string' ? `${key}>='${value[1]}' and ${key}<='${value[2]}'` : `${key}>=${value[1]} and ${key}<=${value[2]}`;
+    }
+
+    if (['$and', '$or'].includes(value[0])) {
+      const nextValue = value.slice(1).map(row => stringifyParamValue(key, row));
+      return nextValue.join(` ${value[0].slice(1)} `);
+    }
+
     const nextValue = value.map(row => stringifyParamValue(key, row));
     return nextValue.join(' or ');
-  } // if (typeof value === 'string') {
+  }
 
+  if (typeof value === 'string') {
+    return `${key}='${value}'`;
+  }
 
-  return `${key}='${value}'`; // }
-  // return `${key}=${value}`;
+  return `${key}=${value}`;
 }
 /**
- * 对query进行序列化
+ * 对query进行序列化，转化antd表格组件的页码请求
  * @param query
  * @example
+ *   // reference to stringifyParamValue
  *   transform({
  *    param: { a: 1, b: [2, 3] },
  *    page: 1
@@ -80,9 +101,11 @@ function stringifyParamValue(key, value) {
  */
 
 
-function transformQuery(query = {}) {
+function transformQuery(query) {
   const _query$param = query.param,
         param = _query$param === void 0 ? {} : _query$param,
+        page_num = query.current,
+        page_size = query.pageSize,
         restQuery = _objectWithoutProperties(query, _excluded);
 
   const nextParam = Object.entries(param).map(([paramName, paramValue]) => {
@@ -93,6 +116,8 @@ function transformQuery(query = {}) {
     return stringifyParamValue(paramName, paramValue);
   }).filter(row => row).join('|');
   return _queryString().default.stringify(_objectSpread(_objectSpread({}, restQuery), {}, {
-    param: nextParam || undefined
+    param: nextParam || undefined,
+    page_num,
+    page_size
   }));
 }

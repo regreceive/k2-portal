@@ -100,10 +100,30 @@ window.$$config = {
     window.moment = $$K2RootWindow.$$_K2_SDK.lib.basis.moment;
   } catch {}
 
+  const proxyWindow = new Proxy({}, {
+    get(target, key) {
+      // 防止有的代码会以window.document来访问document
+      if (key === 'document') {
+        return window.$$K2RootWindow.document;
+      }
+      const prop = Reflect.get(window, key);
+      if (typeof prop === 'function') {
+        return (...args) => {
+          return Reflect.apply(prop, window, args);
+        }
+      }
+      return prop;
+    },
+    set(target, key, value) {
+      return Reflect.set(window, key, value);
+    }
+  });
+
   window.addEventListener('bundleReady', function (event) {
     if ({{{ integrated }}}) {
       if (!window.React) {
         // 动态加载全局资源，此时作为独立应用
+        addLink('antd.css'),
         Promise.all([
           addScript('react.js'),
           addScript('react-dom.js'),
@@ -115,21 +135,27 @@ window.$$config = {
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(document);
+          event.detail.run(window, document);
         });
-        addLink('antd.css');
       } else {
-        // portal的moment没有加载中文语言包，这里加载一下会导致portal所有应用都有中文moment
-        if (moment.locale() === 'en') {  
-          addScript('zh-cn.js');
+        if (window.moment) {
+          // portal的moment没有加载中文语言包，这里加载一下会导致portal所有应用都有中文moment
+          if (moment.locale() === 'en') {
+            addScript('zh-cn.js');
+          }
+          event.detail.run(proxyWindow, window.$$K2RootWindow.document);
+        } else {
+          // 引用应用的未必是portal
+          addScript('moment.js').then(() => {
+            addScript('zh-cn.js');
+            event.detail.run(proxyWindow, window.$$K2RootWindow.document);
+          });
         }
-        // 修复：部分依赖包会引用监听子应用自己的document，比如echarts的mouseup/mousemove
-        event.detail.run(window.$$K2RootWindow.document);
       }
     } else {
       // 独立运行，自身含有依赖文件
       window.$$config.alone = true;
-      event.detail.run(document);
+      event.detail.run(window, document);
     }
   });
 })();

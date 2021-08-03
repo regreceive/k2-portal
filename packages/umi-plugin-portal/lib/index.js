@@ -138,7 +138,10 @@ function _ref() {
 
         onChange: api.ConfigChangeType.regenerateTmpFiles
       }
-    });
+    }); // 运行时调用主题样式
+
+    api.addRuntimePluginKey(() => 'lightTheme');
+    api.addRuntimePluginKey(() => 'darkTheme');
     api.addRuntimePlugin(() => [(0, _path().join)(api.paths.absTmpPath, 'plugin-portal/runtime.tsx')]);
     api.addEntryImportsAhead(() => {
       return [{
@@ -167,6 +170,11 @@ function _ref() {
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
+      }); // 生成ThemeLayout.tsx
+
+      api.writeTmpFile({
+        path: 'plugin-portal/ThemeLayout.tsx',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8')
       }); // 生成common.ts
 
       api.writeTmpFile({

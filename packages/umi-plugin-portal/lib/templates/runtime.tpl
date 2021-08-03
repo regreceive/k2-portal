@@ -3,6 +3,7 @@ import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import { RequestConfig } from 'umi';
 import { AppContext } from './sdk';
+import ThemeLayout from './ThemeLayout';
 
 let rootElement: HTMLDivElement;
 let appRender: Function;
@@ -39,7 +40,9 @@ export function rootContainer(container) {
   return (
     <AppContext.Provider value={appProps}>
       <ConfigProvider componentSize="middle" locale={zhCN}>
-        {container}
+        <ThemeLayout>
+          {container}
+        </ThemeLayout>
       </ConfigProvider>
     </AppContext.Provider>
   );
@@ -105,4 +108,18 @@ export const request: RequestConfig = {
       };
     },
   ],
+};
+
+export const lightTheme = {
+  '--portal-scroll-fore': '#ffffff',
+  '--portal-scroll-fore-0': 'rgba(255, 255, 255, 0)',
+  '--portal-scroll-inverse': 'rgba(0, 0, 0, 0)',
+  '--portal-scroll-inverse-2': 'rgba(0, 0, 0, 0.2)',
+};
+
+export const darkTheme = {
+  '--portal-scroll-fore': '#000000',
+  '--portal-scroll-fore-0': 'rgba(0, 0, 0, 0)',
+  '--portal-scroll-inverse': 'rgba(255, 255, 255, 0.2)',
+  '--portal-scroll-inverse-2': 'rgba(255, 255, 255, 0.5)',
 };

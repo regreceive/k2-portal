@@ -77,6 +77,10 @@ export default async function (api: IApi) {
     },
   });
 
+  // 运行时调用主题样式
+  api.addRuntimePluginKey(() => 'lightTheme');
+  api.addRuntimePluginKey(() => 'darkTheme');
+
   api.addRuntimePlugin(() => [
     join(api.paths.absTmpPath!, 'plugin-portal/runtime.tsx'),
   ]);
@@ -111,6 +115,15 @@ export default async function (api: IApi) {
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[api?.env ?? 'development'],
         },
+      ),
+    });
+
+    // 生成ThemeLayout.tsx
+    api.writeTmpFile({
+      path: 'plugin-portal/ThemeLayout.tsx',
+      content: readFileSync(
+        join(__dirname, 'templates', 'ThemeLayout.tpl'),
+        'utf-8',
       ),
     });
 

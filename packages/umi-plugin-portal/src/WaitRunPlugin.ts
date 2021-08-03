@@ -26,8 +26,8 @@ class WaitRunPlugin {
         Object.keys(assets).forEach((key) => {
           if (options.test?.test(key)) {
             const wrapper = `(function () {
-              var run = function (document) {
-              ${assets[key].source()}
+              var run = function (window, document) {
+                ${assets[key].source()}
               };
               var evt = document.createEvent('CustomEvent');
               evt.initCustomEvent('bundleReady', false, false, {run: run});
