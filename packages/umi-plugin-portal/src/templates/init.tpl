@@ -107,7 +107,7 @@ window.$$config = {
         return window.$$K2RootWindow.document;
       }
       const prop = Reflect.get(window, key);
-      if (typeof prop === 'function') {
+      if (typeof prop === 'function' && !prop['prototype']) {
         return (...args) => {
           return Reflect.apply(prop, window, args);
         }
