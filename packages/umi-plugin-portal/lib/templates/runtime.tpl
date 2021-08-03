@@ -96,8 +96,7 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization:
-          'Basic YWRtaW46MjEyMzJmMjk3YTU3YTVhNzQzODk0YTBlNGE4MDFmYzM=',
+        Authorization: '{{{ authorization }}}',
       };
       return {
         url,
