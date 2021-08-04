@@ -110,6 +110,7 @@ export const request: RequestConfig = {
 };
 
 export const lightTheme = {
+  '--portal-boxArea-bgColor': '#ffffff',
   '--portal-scroll-fore': '#ffffff',
   '--portal-scroll-fore-0': 'rgba(255, 255, 255, 0)',
   '--portal-scroll-inverse': 'rgba(0, 0, 0, 0)',
@@ -117,6 +118,7 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
+  '--portal-boxArea-bgColor': '#000000',
   '--portal-scroll-fore': '#000000',
   '--portal-scroll-fore-0': 'rgba(0, 0, 0, 0)',
   '--portal-scroll-inverse': 'rgba(255, 255, 255, 0.2)',

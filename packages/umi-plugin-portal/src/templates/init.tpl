@@ -104,7 +104,7 @@ window.$$config = {
     get(target, key) {
       // 防止有的代码会以window.document来访问document
       if (key === 'document') {
-        return window.$$K2RootWindow.document;
+        return window.parent.document;
       }
       const prop = Reflect.get(window, key);
       if (typeof prop === 'function' && !prop['prototype']) {
@@ -143,12 +143,12 @@ window.$$config = {
           if (moment.locale() === 'en') {
             addScript('zh-cn.js');
           }
-          event.detail.run(proxyWindow, window.$$K2RootWindow.document);
+          event.detail.run(proxyWindow, window.parent.document);
         } else {
           // 引用应用的未必是portal
           addScript('moment.js').then(() => {
             addScript('zh-cn.js');
-            event.detail.run(proxyWindow, window.$$K2RootWindow.document);
+            event.detail.run(proxyWindow, window.parent.document);
           });
         }
       }

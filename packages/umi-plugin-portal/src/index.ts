@@ -254,7 +254,12 @@ export default async function (api: IApi) {
 
       // lerna
       if (root !== api.cwd) {
-        relative = winPath(path.relative(api.cwd, root)) + '/';
+        if (root.endsWith('k2-portal')) {
+          // 本地link过去的
+          relative = winPath(path.relative(api.cwd, '../../')) + '/';
+        } else {
+          relative = winPath(path.relative(api.cwd, root)) + '/';
+        }
       }
     } catch {}
 

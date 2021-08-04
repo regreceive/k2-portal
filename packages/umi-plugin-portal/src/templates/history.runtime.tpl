@@ -41,7 +41,7 @@ function wrapHistory(history) {
     push: history.push,
   };
 
-  let nextHistory = window.$$K2RootWindow?.$$_K2_SDK?.lib.utils.getHistory(window, history);
+  let nextHistory = window.$$K2RootWindow?.$$_K2_SDK?.lib.utils.getHistory(self, history);
 
   if (nextHistory) {
     nextHistory.listen = history.listen;

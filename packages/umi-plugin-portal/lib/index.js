@@ -264,7 +264,12 @@ function _ref() {
 
 
         if (root !== api.cwd) {
-          relative = winPath(_path().default.relative(api.cwd, root)) + '/';
+          if (root.endsWith('k2-portal')) {
+            // 本地link过去的
+            relative = winPath(_path().default.relative(api.cwd, '../../')) + '/';
+          } else {
+            relative = winPath(_path().default.relative(api.cwd, root)) + '/';
+          }
         }
       } catch (_unused2) {}
 
