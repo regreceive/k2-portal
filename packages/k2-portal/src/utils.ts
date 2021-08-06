@@ -1,3 +1,5 @@
+// @ts-ignore
+import { sdk } from '@@/plugin-portal/sdk';
 import moment from 'moment';
 import React from 'react';
 
@@ -64,4 +66,19 @@ export function warn(str: string) {
 
 export function formatDateTime(value: number | string) {
   return value ? moment(value).format('YYYY-MM-DD HH:mm:ss') : '--';
+}
+
+/**
+ * 应用内打开其它app
+ * @param opt
+ */
+export function openApp(opt: {
+  /** appKey */
+  appKey: string;
+  /** 应用内部路由 */
+  path: string;
+  /** 路由是否replace模式 */
+  isReplace?: boolean;
+}) {
+  sdk.lib.utils.openApp({ isReplace: false, ...opt }, null);
 }

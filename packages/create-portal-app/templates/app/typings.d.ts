@@ -24,6 +24,8 @@ interface Window {
   ht: any;
   $$K2RootWindow: PortalWindow | Window;
   $$k2App: {};
-  $$config: { [key: string]: any };
-  env: { [key: string]: any };
+  $$config: {
+    service: { [key: string]: string };
+    [key: string]: any;
+  };  env: { [key: string]: any };
 }

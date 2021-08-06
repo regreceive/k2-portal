@@ -80,6 +80,7 @@ const mockSDK = {
     utils: {
       service,
       getHistory: (win: Window, history: History): History => history,
+      openApp: (opt: {appKey: string, path: string, isReplace?: boolean}) => {},
     },
     central: {
       appConfig: {
