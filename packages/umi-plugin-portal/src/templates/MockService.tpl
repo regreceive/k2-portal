@@ -48,6 +48,25 @@ export default class MockService {
     };
   };
 
+  delete = (url: string) => {
+    const host = this.host;
+    const withDB = this.withDB;
+
+    return {
+      end: function () {
+        let nextUrl = url;
+        if (withDB) {
+          nextUrl = url + '&db={namespace_name}';
+        }
+        return observeRequest(
+          request(adapt(host, nextUrl), {
+            method: 'DELETE',
+          })
+        );
+      },
+    };
+  };
+
   post = (url: string, data: any) => {
     const host = this.host;
     return {
@@ -56,9 +75,23 @@ export default class MockService {
           request(adapt(host, url), {
             method: 'POST',
             data,
-          }),
+          })
         );
       },
     };
+  };
+
+  put = (url: string, data: any) => {
+    const host = this.host;
+    return {
+      end: () => {
+        return observeRequest(
+          request(adapt(host, url), {
+            method: 'PUT',
+            data,
+          })
+        )
+      }
+    }
   };
 }

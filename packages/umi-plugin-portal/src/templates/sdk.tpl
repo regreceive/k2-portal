@@ -49,7 +49,9 @@ interface PortalResponseData {
 
 interface SemiService {
   get: <T = any>(url: string) => Promise<ResponseData<T>>;
+  delete: <T = any>(url: string) => Promise<ResponseData<T>>;
   post: <T = any>(url: string, data: any) => Promise<ResponseData<T>>;
+  put: <T = any>(url: string, data: any) => Promise<ResponseData<T>>;
 }
 
 export type AppMapValueType = {
@@ -95,7 +97,7 @@ const mockSDK = {
 };
 
 function proxyFact(service: MockService) {
-  const proxyMethod = ['get', 'post'];
+  const proxyMethod = ['get', 'post', 'put', 'delete'];
   return new Proxy(service, {
     get(target: MockService, p: string) {
       if (proxyMethod.includes(p)) {

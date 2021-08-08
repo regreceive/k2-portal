@@ -13,6 +13,7 @@ type ResponseInstance = {
 interface ResponseRelation {
   attributes: { [key: string]: any };
   entity_id: number;
+  relationship_id: number;
   relation_type: string;
   data: ResponseRelation[];
 }
