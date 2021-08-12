@@ -101,11 +101,16 @@ function _ref() {
             gateway: '//fill_api_here',
             influxdb: '//fill_api_here',
             repo: '//fill_api_here'
-          }
+          },
+          buttonPermissionCheck: false,
+          bearer: ''
         },
 
         schema(joi) {
           return joi.object({
+            /** appKey默认名称，集成到portal里面会替换成正确名称 */
+            appKey: joi.string().required(),
+
             /** app传参默认值 */
             appDefaultProps: joi.object(),
 
@@ -128,11 +133,15 @@ function _ref() {
             /** nacos配置地址 */
             nacos: joi.string(),
 
+            /** 是否开启按钮级别权限验证 */
+            buttonPermissionCheck: joi.boolean(),
+
             /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
             integration: joi.object({
               development: joi.boolean(),
               production: joi.boolean()
-            })
+            }),
+            bearer: joi.string()
           });
         },
 
@@ -152,10 +161,13 @@ function _ref() {
       var _api$config$portal, _api$config, _api$env;
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
+            appKey = _ref3.appKey,
             service = _ref3.service,
             nacos = _ref3.nacos,
             appDefaultProps = _ref3.appDefaultProps,
-            auth = _ref3.auth; // 生成portal.less
+            auth = _ref3.auth,
+            buttonPermissionCheck = _ref3.buttonPermissionCheck,
+            bearer = _ref3.bearer; // 生成portal.less
 
 
       api.writeTmpFile({
@@ -185,6 +197,8 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/sdk.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
+          appKey: appKey,
+          buttonPermissionCheck,
           appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(service)
         })
@@ -199,6 +213,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
+          bearer,
           authorization: base64,
           appDefaultProps: JSON.stringify(appDefaultProps)
         })

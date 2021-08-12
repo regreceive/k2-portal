@@ -1,33 +1,38 @@
-// @ts-ignore
+// @ts-nocheck
 import { getInstance } from '@@/plugin-portal/common';
+import { appKey } from '@@/plugin-portal/sdk';
 import { useEffect, useState } from 'react';
 import { warn } from './utils';
 
-let cacheAppConfig = new Map();
+let cacheAppConfig = new Map<string, Promise<any>>();
+
 /**
  * 取得应用配置
  * @param key 注册的应用名
  * @returns
  */
-export async function getAppConfig<T extends {}>(key: string) {
+export async function getAppConfig<T extends {}>(key: string): Promise<T> {
   if (cacheAppConfig.has(key)) {
-    return cacheAppConfig.get(key);
+    const value = await cacheAppConfig.get(key);
+    return value;
   }
 
-  const res = await getInstance('bcf_ui_config', {
+  const promise = getInstance('bcf_ui_config', {
     param: { key },
     attributes: 'value',
+  }).then((res: any) => {
+    const text = res.data?.[0].attributes.value ?? '{}';
+    try {
+      const json = eval('(' + text + ')');
+      return json;
+    } catch {
+      warn(`应用[${key}]配置解析失败`);
+      return {};
+    }
   });
-  const text = res.data?.[0].attributes.value ?? '{}';
 
-  try {
-    cacheAppConfig.set(key, eval('(' + text + ')'));
-  } catch {
-    warn('应用配置解析失败');
-    cacheAppConfig.set(key, {});
-  }
-
-  return cacheAppConfig.get(key) as T;
+  cacheAppConfig.set(key, promise);
+  return await promise;
 }
 
 /**
@@ -53,52 +58,21 @@ export function useAppConfig<T>(
 
 /**
  * 获得定制列，并与本地列定义合并
- * @param key 注册的应用名
- * @param defaultColumns 默认列
- * @param fn 返回结果处理，会预置一个callback，将配置列、增强列与保留列合并
+ * @param callback 获得应用配置回调
+ * @param deps 依赖项
  * @returns
  */
 export function useConfigColumns<T = any>(
-  key: string,
-  defaultColumns: T[],
-  fn: (
-    config: any,
-    callback: (
-      configColumns: T[],
-      enhanceColumns: T[],
-      optionColumns: T[],
-    ) => T[],
-  ) => T[],
+  callback: (config: any) => T[],
+  deps: any[] = [],
 ) {
-  const [columns, setColumns] = useState(defaultColumns);
+  const [columns, setColumns] = useState<T[]>([]);
 
   useEffect(() => {
-    /**
-     *
-     * @param configColumns 配置的columns
-     * @param enhanceColumns 增强的columns，可以额外增加配置的columns的属性
-     * @param optionColumns 保留的columns，比如操作列
-     * @returns
-     */
-    function callback(
-      configColumns: T[],
-      enhanceColumns: T[],
-      optionColumns: T[],
-    ) {
-      const mergedColumns = configColumns.map((column) => {
-        return {
-          // @ts-ignore
-          ...enhanceColumns.find((c) => c.dataIndex === column.dataIndex),
-          ...column,
-        };
-      });
-
-      return [...mergedColumns, ...optionColumns];
-    }
-    getAppConfig(key).then((config) => {
-      setColumns(fn(config, callback));
+    getAppConfig(appKey).then((config) => {
+      setColumns(callback(config));
     });
-  }, []);
+  }, deps);
 
   return columns;
 }

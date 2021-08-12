@@ -13,9 +13,13 @@ var _usePrevious = _interopRequireDefault(require("ahooks/es/usePrevious"));
 
 var _antd = require("antd");
 
+var _classnames = _interopRequireDefault(require("classnames"));
+
 var _isEqual = _interopRequireDefault(require("lodash/isEqual"));
 
-var _utils = require("./utils");
+var _utils = require("../utils");
+
+require("./style.css");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -99,7 +103,7 @@ var Widget = function Widget(props) {
     style: _objectSpread({
       height: '100%'
     }, props.style),
-    className: props.className
+    className: (0, _classnames.default)('k2-umi-widget', props.className)
   }, /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "style",
     ref: link

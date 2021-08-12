@@ -45,9 +45,13 @@ export default async function (api: IApi) {
           influxdb: '//fill_api_here',
           repo: '//fill_api_here',
         },
+        buttonPermissionCheck: false,
+        bearer: '',
       },
       schema(joi) {
         return joi.object({
+          /** appKey默认名称，集成到portal里面会替换成正确名称 */
+          appKey: joi.string().required(),
           /** app传参默认值 */
           appDefaultProps: joi.object(),
           /** Basic认证插入请求头部，仅限开发 */
@@ -66,11 +70,14 @@ export default async function (api: IApi) {
           }),
           /** nacos配置地址 */
           nacos: joi.string(),
+          /** 是否开启按钮级别权限验证 */
+          buttonPermissionCheck: joi.boolean(),
           /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
           integration: joi.object({
             development: joi.boolean(),
             production: joi.boolean(),
           }),
+          bearer: joi.string(),
         });
       },
       onChange: api.ConfigChangeType.regenerateTmpFiles,
@@ -94,7 +101,15 @@ export default async function (api: IApi) {
   });
 
   api.onGenerateFiles(async () => {
-    const { service, nacos, appDefaultProps, auth } = api.config?.portal ?? {};
+    const {
+      appKey,
+      service,
+      nacos,
+      appDefaultProps,
+      auth,
+      buttonPermissionCheck,
+      bearer,
+    } = api.config?.portal ?? {};
 
     // 生成portal.less
     api.writeTmpFile({
@@ -142,6 +157,8 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'sdk.tpl'), 'utf-8'),
         {
+          appKey: appKey,
+          buttonPermissionCheck,
           appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(service),
         },
@@ -171,6 +188,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
+          bearer,
           authorization: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
         },

@@ -28,4 +28,5 @@ interface Window {
     service: { [key: string]: string };
     [key: string]: any;
   };  env: { [key: string]: any };
+  URL: typeof URL;
 }

@@ -39,7 +39,7 @@ const ThemeLayout: React.FC = (props) => {
 
   return (
     <AppContext.Provider value={{ ...appProps, theme }}>
-      <div style={{ height: '100%' }} ref={ref}>
+      <div id="k2-umi-root" style={{ height: '100%' }} ref={ref}>
         {props.children}
       </div>
     </AppContext.Provider>

@@ -1,8 +1,10 @@
 import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
+import { plugin, ApplyPluginsType } from 'umi';
 import { RequestConfig } from 'umi';
-import { AppContext } from './sdk';
+import { utils } from 'k2-portal';
+import { AppContext, sdk } from './sdk';
 import ThemeLayout from './ThemeLayout';
 
 let rootElement: HTMLDivElement;
@@ -96,7 +98,7 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: '{{{ authorization }}}',
+        Authorization: utils.isInPortal ? ('Bearer ' + sdk.lib.central.userInfo.boxState.accessToken) : ('{{{ bearer }}}' || '{{{ authorization }}}'),
       };
       return {
         url,
@@ -111,6 +113,8 @@ export const request: RequestConfig = {
 
 export const lightTheme = {
   '--portal-boxArea-bgColor': '#ffffff',
+  '--portal-scrollbar-fore': 'rgb(190, 190, 190)',
+  '--portal-scrollbar-back': 'rgba(219, 219, 219, .5)',
   '--portal-scroll-fore': '#ffffff',
   '--portal-scroll-fore-0': 'rgba(255, 255, 255, 0)',
   '--portal-scroll-inverse': 'rgba(0, 0, 0, 0)',
@@ -119,6 +123,8 @@ export const lightTheme = {
 
 export const darkTheme = {
   '--portal-boxArea-bgColor': '#000000',
+  '--portal-scrollbar-fore': 'rgb(150, 150, 150)',
+  '--portal-scrollbar-back': 'rgba(219, 219, 219, .3)',
   '--portal-scroll-fore': '#000000',
   '--portal-scroll-fore-0': 'rgba(0, 0, 0, 0)',
   '--portal-scroll-inverse': 'rgba(255, 255, 255, 0.2)',

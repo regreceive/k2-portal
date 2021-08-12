@@ -1,7 +1,7 @@
 {
   "private": true,
   "workspaces": [
-	  "packages/*"
+    "packages/*"
   ],
   "publishConfig": {
     "registry": "http://registry.npmjs.org/"
@@ -57,5 +57,8 @@
   },
   "gitHooks": {
     "pre-commit": "lint-staged"
+  },
+  "dependencies": {
+    "classnames": "^2.3.1"
   }
 }

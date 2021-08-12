@@ -48,7 +48,7 @@ export default class MockService {
     };
   };
 
-  delete = (url: string) => {
+  del = (url: string) => {
     const host = this.host;
     const withDB = this.withDB;
 

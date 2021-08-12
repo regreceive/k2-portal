@@ -8,7 +8,7 @@ exports.mergeTimeSeries = mergeTimeSeries;
 exports.log = log;
 exports.warn = warn;
 exports.formatDateTime = formatDateTime;
-exports.openApp = openApp;
+exports.isInPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -42,15 +42,17 @@ function _moment() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+// @ts-ignore
 function pickProps(component) {
   return component;
 }
+/**
+ * 当前应用是否集成在portal中运行
+ * @returns
+ */
+
+
+const isInPortal = window !== _sdk().portalWindow;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
@@ -58,6 +60,8 @@ function pickProps(component) {
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
 
+
+exports.isInPortal = isInPortal;
 
 function mergeTimeSeries(...params) {
   const map = new Map();
@@ -104,15 +108,4 @@ function warn(str) {
 
 function formatDateTime(value) {
   return value ? (0, _moment().default)(value).format('YYYY-MM-DD HH:mm:ss') : '--';
-}
-/**
- * 应用内打开其它app
- * @param opt
- */
-
-
-function openApp(opt) {
-  _sdk().sdk.lib.utils.openApp(_objectSpread({
-    isReplace: false
-  }, opt), null);
 }

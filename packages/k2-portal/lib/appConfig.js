@@ -27,17 +27,21 @@ function _common() {
   return data;
 }
 
+function _sdk() {
+  const data = require("@@/plugin-portal/sdk");
+
+  _sdk = function _sdk() {
+    return data;
+  };
+
+  return data;
+}
+
 var _utils = require("./utils");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
@@ -76,28 +80,31 @@ function getAppConfig(_x) {
 
 function _getAppConfig() {
   _getAppConfig = _asyncToGenerator(function* (key) {
-    var _res$data$0$attribute, _res$data;
-
     if (cacheAppConfig.has(key)) {
-      return cacheAppConfig.get(key);
+      const value = yield cacheAppConfig.get(key);
+      return value;
     }
 
-    const res = yield (0, _common().getInstance)('bcf_ui_config', {
+    const promise = (0, _common().getInstance)('bcf_ui_config', {
       param: {
         key
       },
       attributes: 'value'
+    }).then(res => {
+      var _res$data$0$attribute, _res$data;
+
+      const text = (_res$data$0$attribute = (_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data[0].attributes.value) !== null && _res$data$0$attribute !== void 0 ? _res$data$0$attribute : '{}';
+
+      try {
+        const json = eval('(' + text + ')');
+        return json;
+      } catch (_unused) {
+        (0, _utils.warn)(`应用[${key}]配置解析失败`);
+        return {};
+      }
     });
-    const text = (_res$data$0$attribute = (_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data[0].attributes.value) !== null && _res$data$0$attribute !== void 0 ? _res$data$0$attribute : '{}';
-
-    try {
-      cacheAppConfig.set(key, eval('(' + text + ')'));
-    } catch (_unused) {
-      (0, _utils.warn)('应用配置解析失败');
-      cacheAppConfig.set(key, {});
-    }
-
-    return cacheAppConfig.get(key);
+    cacheAppConfig.set(key, promise);
+    return yield promise;
   });
   return _getAppConfig.apply(this, arguments);
 }
@@ -119,37 +126,22 @@ function useAppConfig(key, defaultConfig, fn) {
 }
 /**
  * 获得定制列，并与本地列定义合并
- * @param key 注册的应用名
- * @param defaultColumns 默认列
- * @param fn 返回结果处理，会预置一个callback，将配置列、增强列与保留列合并
+ * @param callback 获得应用配置回调
+ * @param deps 依赖项
  * @returns
  */
 
 
-function useConfigColumns(key, defaultColumns, fn) {
-  const _useState3 = (0, _react().useState)(defaultColumns),
+function useConfigColumns(callback, deps = []) {
+  const _useState3 = (0, _react().useState)([]),
         _useState4 = _slicedToArray(_useState3, 2),
         columns = _useState4[0],
         setColumns = _useState4[1];
 
   (0, _react().useEffect)(() => {
-    /**
-     *
-     * @param configColumns 配置的columns
-     * @param enhanceColumns 增强的columns，可以额外增加配置的columns的属性
-     * @param optionColumns 保留的columns，比如操作列
-     * @returns
-     */
-    function callback(configColumns, enhanceColumns, optionColumns) {
-      const mergedColumns = configColumns.map(column => {
-        return _objectSpread(_objectSpread({}, enhanceColumns.find(c => c.dataIndex === column.dataIndex)), column);
-      });
-      return [...mergedColumns, ...optionColumns];
-    }
-
-    getAppConfig(key).then(config => {
-      setColumns(fn(config, callback));
+    getAppConfig(_sdk().appKey).then(config => {
+      setColumns(callback(config));
     });
-  }, []);
+  }, deps);
   return columns;
 }

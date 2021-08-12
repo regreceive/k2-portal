@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import './style.css';
 declare type Props = {
     /** 应用地址，一定要同域 */
     src: string;

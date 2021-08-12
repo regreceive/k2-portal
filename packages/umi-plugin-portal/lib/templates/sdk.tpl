@@ -2,7 +2,9 @@
  * 模拟portal的sdk，用于当前子应用独立运行
  */
 import { createContext, useContext } from 'react';
-import { History } from 'umi';
+import { History, history } from 'umi';
+import qs from 'query-string';
+import { utils } from 'k2-portal';
 import MockService from './MockService';
 
 interface PortalWindow extends Window {
@@ -39,6 +41,9 @@ export interface ResponseData<T> {
       type: string;
     }[];
     [key: string]: any;
+  };
+  page_info?: {
+    total: number;
   }
 }
 
@@ -88,6 +93,15 @@ const mockSDK = {
       appConfig: {
         state: appMap,
       },
+      userInfo: {
+        boxState: {
+          accessToken: '',
+          purview: {
+            isEnable: window.$$config.nacos ? !window.$$config.purviewClose : {{{ buttonPermissionCheck }}},
+            permission: new Map<string, { appKey: string, operations: string[] }>(),
+          }
+        }
+      },
     },
   },
   config: {
@@ -96,18 +110,48 @@ const mockSDK = {
   },
 };
 
+// 如果formData有二进制文件，则取出
+function extractFile(form: FormData) {
+  let ret = [];
+  form.forEach((value, key) => {
+    if (Object.prototype.toString.call(value).includes('File')) {
+      ret = [key, value];
+    }
+  });  
+
+  return ret;
+}
+
 function proxyFact(service: MockService) {
   const proxyMethod = ['get', 'post', 'put', 'delete'];
   return new Proxy(service, {
     get(target: MockService, p: string) {
       if (proxyMethod.includes(p)) {
         return (...args: any[]) => {
-          return Reflect.apply(Reflect.get(target, p), target, args)
+          if (utils.isInPortal && p === 'post' && args[1] instanceof FormData) {
+            const [key, value] = extractFile(args[1]);            
+            if (key) {
+              // cuteBo秘制了上传功能，所以要单独适配一下
+              return Reflect.apply(target.post, target, [args[0]])
+                .reqFs(
+                  target['reqFs'].filter((xx) => xx.name !== 'addContentType'),
+                )
+                .field(key, value)
+                .end(null)
+                .then((res) => res);
+            }
+          }
+
+          return Reflect.apply(
+            Reflect.get(target, p.replace('delete', 'del')),
+            target,
+            args,
+          )
             .end()
             .then((response: PortalResponseData) => {
-              // bobo写死了服务返回数据解析(封装到依赖包里了)，如果解析失败就返回res，所以需要重新返回res.body
+              // cuteBo写死了服务返回数据解析(封装到依赖包里了)，如果解析失败就返回res，所以需要重新返回res.body
               // @ts-ignore
-              if (response.res?.req) {                
+              if (response.res?.req) {
                 return Promise.resolve(response.res.body);
               }
               return Promise.resolve(response?.res ?? {});
@@ -135,6 +179,7 @@ type SemiServiceList = Convert<
   SemiService
 >;
 
+export const appKey = qs.parse(history.location.search)?.key as string ?? '{{{ appKey }}}';
 export const sdk = defaultSDK;
 export const portalWindow = window.$$K2RootWindow;
 export const api = Object.entries(defaultSDK.lib.utils.service).reduce(

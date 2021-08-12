@@ -1,8 +1,10 @@
 import usePrevious from 'ahooks/es/usePrevious';
 import { Spin } from 'antd';
+import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { warn } from './utils';
+import { warn } from '../utils';
+import './style.css';
 
 type Props = {
   /** 应用地址，一定要同域 */
@@ -64,7 +66,7 @@ const Widget: FC<Props> = (props) => {
     <div
       data-name="widget"
       style={{ height: '100%', ...props.style }}
-      {...{ className: props.className }}
+      className={classNames('k2-umi-widget', props.className)}
     >
       <div data-name="style" ref={link} />
       <iframe
