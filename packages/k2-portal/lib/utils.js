@@ -30,6 +30,8 @@ function _moment() {
   return data;
 }
 
+var _window$$$K2RootWindo;
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function pickProps(component) {
@@ -42,7 +44,7 @@ function pickProps(component) {
 
 
 const isInPortal = // @ts-ignore
-window !== window.$$K2RootWindow && window.$$K2RootWindow.$$_K2_SDK;
+window !== window.$$K2RootWindow && ((_window$$$K2RootWindo = window.$$K2RootWindow) === null || _window$$$K2RootWindo === void 0 ? void 0 : _window$$$K2RootWindo.$$_K2_SDK);
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
