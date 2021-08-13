@@ -7,7 +7,7 @@ declare type Props = {
         [key: string]: any;
     };
     /** 子节点更新依赖项 */
-    deps: any;
+    deps?: any;
 };
 export declare const ButtonPermissionCheck: FC<Props>;
 export declare function useButtonPermissionCheck(accessKey: string): boolean;

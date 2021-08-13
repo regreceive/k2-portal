@@ -17,7 +17,7 @@ window.micPack = {
     rootElement = obj.appBody;
     // 如果在portal通过本地调试，portal会把sdk传过来，所以不接收
     if (props.sdk === undefined) {
-      appProps = props;
+      appProps = {...appProps, ...props};
     }
     appRender();
   },

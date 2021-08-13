@@ -20,16 +20,6 @@ function _react() {
   return data;
 }
 
-function _sdk() {
-  const data = require("@@/plugin-portal/sdk");
-
-  _sdk = function _sdk() {
-    return data;
-  };
-
-  return data;
-}
-
 function _moment() {
   const data = _interopRequireDefault(require("moment"));
 
@@ -42,7 +32,6 @@ function _moment() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// @ts-ignore
 function pickProps(component) {
   return component;
 }
@@ -52,14 +41,14 @@ function pickProps(component) {
  */
 
 
-const isInPortal = window !== _sdk().portalWindow;
+const isInPortal = // @ts-ignore
+window !== window.$$K2RootWindow && window.$$K2RootWindow.$$_K2_SDK;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
  * @example mergeTimeSeries(ts1, ts2)
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
-
 
 exports.isInPortal = isInPortal;
 

@@ -66,8 +66,6 @@ Object.keys(_appConfig).forEach(function (key) {
   });
 });
 
-var _openApp = _interopRequireDefault(require("./openApp"));
-
 var _ButtonPermissionCheck = require("./ButtonPermissionCheck");
 
 Object.keys(_ButtonPermissionCheck).forEach(function (key) {
@@ -81,6 +79,8 @@ Object.keys(_ButtonPermissionCheck).forEach(function (key) {
     }
   });
 });
+
+var _openApp = _interopRequireDefault(require("./openApp"));
 
 var _transformRequest = require("./transformRequest");
 

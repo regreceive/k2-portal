@@ -9,7 +9,7 @@ type Props = {
   /** 禁止当前访问key情况下，子组件的属性 */
   forbiddenFieldProps: { [key: string]: any };
   /** 子节点更新依赖项 */
-  deps: any;
+  deps?: any;
 };
 
 type AppPermission = { name: string; parent_id: number; id: number };
