@@ -126,6 +126,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
+          appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[api?.env ?? 'development'],
@@ -188,6 +189,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
+          appKey,
           bearer,
           authorization: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),

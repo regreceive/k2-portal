@@ -178,6 +178,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/init.js',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
+          appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
           integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
@@ -213,6 +214,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
+          appKey,
           bearer,
           authorization: base64,
           appDefaultProps: JSON.stringify(appDefaultProps)

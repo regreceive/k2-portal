@@ -138,6 +138,17 @@ window.$$config = {
           event.detail.run(window, document);
         });
       } else {
+        // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
+        const doc = window.parent.document;
+        if (!doc.querySelector('#{{{ appKey }}}')) {
+          const antPopContainer = doc.createElement('div');
+          antPopContainer.id = '{{{ appKey }}}';
+          doc.body.appendChild(antPopContainer);
+          window.addEventListener('unload', () => {
+            doc.body.removeChild(antPopContainer);
+          });
+        }
+        
         if (window.moment) {
           // portal的moment没有加载中文语言包，这里加载一下会导致portal所有应用都有中文moment
           if (moment.locale() === 'en') {

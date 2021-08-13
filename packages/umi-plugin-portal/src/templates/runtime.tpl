@@ -4,7 +4,7 @@ import React from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
 import { RequestConfig } from 'umi';
 import { utils } from 'k2-portal';
-import { AppContext, sdk } from './sdk';
+import { AppContext, sdk, portalWindow } from './sdk';
 import ThemeLayout from './ThemeLayout';
 
 let rootElement: HTMLDivElement;
@@ -17,7 +17,7 @@ window.micPack = {
     rootElement = obj.appBody;
     // 如果在portal通过本地调试，portal会把sdk传过来，所以不接收
     if (props.sdk === undefined) {
-      appProps = {...appProps, ...props};
+      appProps = {...appProps, ...props, asWidget: true};
     }
     appRender();
   },
@@ -41,10 +41,17 @@ export function rootContainer(container) {
   // 不管是独立应用还是子应用，都要使用antd中文包
   return (
     <AppContext.Provider value={appProps}>
-      <ConfigProvider componentSize="middle" locale={zhCN}>
-        <ThemeLayout>
-          {container}
-        </ThemeLayout>
+      <ConfigProvider
+        componentSize="middle"
+        locale={zhCN}
+        getPopupContainer={(triggerNode) => {
+          if (utils.isInPortal) {
+            return window.parent.document.querySelector('#{{{ appKey }}}');
+          }
+          return triggerNode;
+        }}
+      >
+        <ThemeLayout>{container}</ThemeLayout>
       </ConfigProvider>
     </AppContext.Provider>
   );
