@@ -27,7 +27,7 @@ function _webpack() {
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-class WaitRunPlugin {
+class WaitRunWebpackPlugin {
   constructor(options) {
     this.options = void 0;
     this.options = options;
@@ -51,7 +51,10 @@ class WaitRunPlugin {
           evt.initCustomEvent('bundleReady', false, false, {run: run});
           window.dispatchEvent(evt);
         })();`];
+        return true;
       }
+
+      return false;
     });
     return ret;
   }
@@ -96,5 +99,5 @@ class WaitRunPlugin {
 
 }
 
-var _default = WaitRunPlugin;
+var _default = WaitRunWebpackPlugin;
 exports.default = _default;

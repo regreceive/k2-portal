@@ -1,4 +1,3 @@
-import { readFileSync } from 'fs';
 import webpack, { Compiler } from 'webpack';
 
 type Options = {
@@ -6,7 +5,7 @@ type Options = {
   initFile?: string;
 };
 
-class WaitRunPlugin {
+class WaitRunWebpackPlugin {
   constructor(private options: Options) {
     if (typeof options.test !== 'object') {
       throw new TypeError('Argument must be an RegExp.');
@@ -28,7 +27,9 @@ class WaitRunPlugin {
           window.dispatchEvent(evt);
         })();`,
         ];
+        return true;
       }
+      return false;
     });
     return ret;
   }
@@ -65,13 +66,13 @@ class WaitRunPlugin {
               );
             }
 
-            if (this.options.initFile) {
-              const content = readFileSync(this.options.initFile, 'utf-8');
-              compilation.emitAsset(
-                'init.js',
-                new webpack.sources.RawSource(content),
-              );
-            }
+            // if (this.options.initFile) {
+            //   const content = readFileSync(this.options.initFile, 'utf-8');
+            //   compilation.emitAsset(
+            //     'init.js',
+            //     new webpack.sources.RawSource(content),
+            //   );
+            // }
           },
         );
       },
@@ -79,4 +80,4 @@ class WaitRunPlugin {
   }
 }
 
-export default WaitRunPlugin;
+export default WaitRunWebpackPlugin;

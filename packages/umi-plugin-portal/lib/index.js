@@ -268,13 +268,15 @@ function _ref() {
       config.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
         test: /umi\.\w*\.?js$/,
         initFile
-      }]);
-      config.entry('init').add(initFile);
+      }]); // config
+      //   .entry('init')
+      //   .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
+
       return config;
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
-      var _api$env3, _api$env4, _api$env5;
+      var _ref4, _api$paths, _api$env3, _api$env4, _api$env5;
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
       let relative = '';
@@ -293,7 +295,10 @@ function _ref() {
         }
       } catch (_unused3) {}
 
-      const copy = [...(memo.copy || []), 'develop.js'];
+      const copy = [...(memo.copy || []), 'develop.js', {
+        from: `${api.paths.absTmpPath.replace((_ref4 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref4 !== void 0 ? _ref4 : '', '')}/plugin-portal/init.js`,
+        to: 'init.js'
+      }];
 
       if (memo.portal.integration[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
         copy.push(...[{
@@ -364,6 +369,7 @@ function _ref() {
         src: 'init.js'
       }];
       return _objectSpread(_objectSpread({}, memo), {}, {
+        // chunks: ['init', 'umi'],
         externals: externals,
         antd: memo.portal.integration[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? false : memo.antd,
         copy: api.env === 'test' ? memo.copy : copy,

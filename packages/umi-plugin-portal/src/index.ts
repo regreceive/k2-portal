@@ -255,6 +255,10 @@ export default async function (api: IApi) {
     config
       .plugin('WaitRunWebpackPlugin')
       .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/, initFile }]);
+
+    // config
+    //   .entry('init')
+    //   .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
     return config;
   });
 
@@ -281,7 +285,17 @@ export default async function (api: IApi) {
       }
     } catch {}
 
-    const copy = [...(memo.copy || []), 'develop.js'];
+    const copy = [
+      ...(memo.copy || []),
+      'develop.js',
+      {
+        from: `${api.paths.absTmpPath!.replace(
+          api.paths?.cwd + '/' ?? '',
+          '',
+        )}/plugin-portal/init.js`,
+        to: 'init.js',
+      },
+    ];
 
     if (memo.portal.integration[api?.env ?? 'development']) {
       copy.push(
@@ -368,6 +382,7 @@ export default async function (api: IApi) {
 
     return {
       ...memo,
+      // chunks: ['init', 'umi'],
       externals: externals,
       antd: memo.portal.integration[api?.env ?? 'development']
         ? false
