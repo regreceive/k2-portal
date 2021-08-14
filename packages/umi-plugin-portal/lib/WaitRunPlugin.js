@@ -15,6 +15,16 @@ function _react() {
   return data;
 }
 
+function _webpack() {
+  const data = _interopRequireDefault(require("webpack"));
+
+  _webpack = function _webpack() {
+    return data;
+  };
+
+  return data;
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 class WaitRunPlugin {
@@ -25,44 +35,63 @@ class WaitRunPlugin {
     if (typeof options.test !== 'object') {
       throw new TypeError('Argument must be an RegExp.');
     }
-  } // checkIgnore(resolveData: any) {
-  //   if (/^antd\/es\/\S+\/style/.test(resolveData.request)) {
-  //     return false;
-  //   }
-  //   return undefined;
-  // }
+  }
 
+  wrapContent(assets) {
+    let ret = [];
+    Object.keys(assets).some(key => {
+      var _this$options$test;
+
+      if ((_this$options$test = this.options.test) === null || _this$options$test === void 0 ? void 0 : _this$options$test.test(key)) {
+        ret = [key, `(function () {
+          var run = function (window, document) {
+            ${assets[key].source()}
+          };
+          var evt = document.createEvent('CustomEvent');
+          evt.initCustomEvent('bundleReady', false, false, {run: run});
+          window.dispatchEvent(evt);
+        })();`];
+      }
+    });
+    return ret;
+  }
 
   apply(compiler) {
-    compiler.hooks.emit.tap('wait-run-plugin', Compilation => {
-      const options = this.options;
-      return new Promise((resolve, reject) => {
-        const assets = Compilation.assets;
-        Object.keys(assets).forEach(key => {
-          var _options$test;
+    if (_webpack().default.version.startsWith('4.')) {
+      compiler.hooks.emit.tap('WaitRunWebpackPlugin', compilation => {
+        const values = this.wrapContent(compilation.assets);
 
-          if ((_options$test = options.test) === null || _options$test === void 0 ? void 0 : _options$test.test(key)) {
-            const wrapper = `(function () {
-              var run = function (window, document) {
-                ${assets[key].source()}
-              };
-              var evt = document.createEvent('CustomEvent');
-              evt.initCustomEvent('bundleReady', false, false, {run: run});
-              window.dispatchEvent(evt);
-            })();`;
+        if (values.length > 0) {
+          compilation.assets[values[0]].source = () => {
+            return values[1];
+          };
 
-            assets[key].source = () => {
-              return wrapper;
-            };
-
-            assets[key].size = () => wrapper.length;
-          }
-        });
-        resolve(null);
+          compilation.assets[values[0]].size = () => values[1].length;
+        }
       });
-    }); // compiler.hooks.normalModuleFactory.tap('IgnorePlugin', (nmf) => {
-    //   nmf.hooks.beforeResolve.tap('IgnorePlugin', this.checkIgnore);
-    // });
+      return;
+    }
+
+    compiler.hooks.thisCompilation.tap('WaitRunWebpackPlugin', compilation => {
+      compilation.hooks.processAssets.tap({
+        name: 'WaitRunWebpackPlugin',
+        // https://webpack.docschina.org/api/compilation-hooks/#list-of-asset-processing-stages
+        stage: _webpack().default.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL
+      }, assets => {
+        const values = this.wrapContent(assets);
+
+        if (values.length > 0) {
+          compilation.updateAsset(values[0], new (_webpack().default.sources.RawSource)(values[1]));
+        } // if (this.options.initFile) {
+        //   const content = readFileSync(this.options.initFile, 'utf-8');
+        //   compilation.emitAsset(
+        //     'init.js',
+        //     new webpack.sources.RawSource(content),
+        //   );
+        // }
+
+      });
+    });
   }
 
 }

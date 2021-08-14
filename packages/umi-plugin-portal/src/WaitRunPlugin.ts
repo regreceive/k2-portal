@@ -1,7 +1,9 @@
-import { Compiler } from 'webpack';
+import { readFileSync } from 'fs';
+import webpack, { Compiler } from 'webpack';
 
 type Options = {
   test: RegExp;
+  initFile?: string;
 };
 
 class WaitRunPlugin {
@@ -11,41 +13,69 @@ class WaitRunPlugin {
     }
   }
 
-  // checkIgnore(resolveData: any) {
-  //   if (/^antd\/es\/\S+\/style/.test(resolveData.request)) {
-  //     return false;
-  //   }
-  //   return undefined;
-  // }
+  wrapContent(assets: any) {
+    let ret: string[] = [];
+    Object.keys(assets).some((key) => {
+      if (this.options.test?.test(key)) {
+        ret = [
+          key,
+          `(function () {
+          var run = function (window, document) {
+            ${assets[key].source()}
+          };
+          var evt = document.createEvent('CustomEvent');
+          evt.initCustomEvent('bundleReady', false, false, {run: run});
+          window.dispatchEvent(evt);
+        })();`,
+        ];
+      }
+    });
+    return ret;
+  }
 
   apply(compiler: Compiler) {
-    compiler.hooks.emit.tap('wait-run-plugin', (Compilation) => {
-      const options = this.options;
-      return new Promise((resolve, reject) => {
-        const assets = Compilation.assets;
-        Object.keys(assets).forEach((key) => {
-          if (options.test?.test(key)) {
-            const wrapper = `(function () {
-              var run = function (window, document) {
-                ${assets[key].source()}
-              };
-              var evt = document.createEvent('CustomEvent');
-              evt.initCustomEvent('bundleReady', false, false, {run: run});
-              window.dispatchEvent(evt);
-            })();`;
-            assets[key].source = () => {
-              return wrapper;
-            };
-            assets[key].size = () => wrapper.length;
-          }
-        });
-        resolve(null);
+    if (webpack.version.startsWith('4.')) {
+      compiler.hooks.emit.tap('WaitRunWebpackPlugin', (compilation) => {
+        const values = this.wrapContent(compilation.assets);
+        if (values.length > 0) {
+          compilation.assets[values[0]].source = () => {
+            return values[1];
+          };
+          compilation.assets[values[0]].size = () => values[1].length;
+        }
       });
-    });
+      return;
+    }
 
-    // compiler.hooks.normalModuleFactory.tap('IgnorePlugin', (nmf) => {
-    //   nmf.hooks.beforeResolve.tap('IgnorePlugin', this.checkIgnore);
-    // });
+    compiler.hooks.thisCompilation.tap(
+      'WaitRunWebpackPlugin',
+      (compilation) => {
+        compilation.hooks.processAssets.tap(
+          {
+            name: 'WaitRunWebpackPlugin',
+            // https://webpack.docschina.org/api/compilation-hooks/#list-of-asset-processing-stages
+            stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+          },
+          (assets) => {
+            const values = this.wrapContent(assets);
+            if (values.length > 0) {
+              compilation.updateAsset(
+                values[0],
+                new webpack.sources.RawSource(values[1]),
+              );
+            }
+
+            if (this.options.initFile) {
+              const content = readFileSync(this.options.initFile, 'utf-8');
+              compilation.emitAsset(
+                'init.js',
+                new webpack.sources.RawSource(content),
+              );
+            }
+          },
+        );
+      },
+    );
   }
 }
 

@@ -246,17 +246,15 @@ export default async function (api: IApi) {
 
   // webpack额外配置
   api.chainWebpack((config) => {
+    let initFile = '';
+    try {
+      // @ts-ignore
+      initFile = path.resolve(api.paths.absTmpPath, 'plugin-portal/init.js');
+    } catch {}
     // 阻止bundle载入后立即启动。具体控制在init.js中
     config
-      .plugin('WaitRun')
-      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }]);
-
-    // 阻止直接加载antd/es/xx/style形式的样式
-    // config.plugin('Ignore').use(IgnorePlugin, [
-    //   {
-    //     resourceRegExp: /^antd\/es\/[\w\-]+\/style/,
-    //   },
-    // ]);
+      .plugin('WaitRunWebpackPlugin')
+      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/, initFile }]);
     return config;
   });
 
@@ -283,17 +281,7 @@ export default async function (api: IApi) {
       }
     } catch {}
 
-    const copy = [
-      ...(memo.copy || []),
-      'develop.js',
-      {
-        from: `${api.paths.absTmpPath!.replace(
-          api.paths?.cwd + '/' ?? '',
-          '',
-        )}/plugin-portal/init.js`,
-        to: 'init.js',
-      },
-    ];
+    const copy = [...(memo.copy || []), 'develop.js'];
 
     if (memo.portal.integration[api?.env ?? 'development']) {
       copy.push(
