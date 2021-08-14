@@ -232,11 +232,12 @@ export default async function (api: IApi) {
 
   // 阻止antd被优化加载，否则antd无法被externals
   api.modifyBabelPresetOpts((opts) => {
-    let importList = opts.import;
+    let importList = opts.import || [];
     if (api.config.portal.integration[api?.env ?? 'development']) {
       importList =
         opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
     }
+    importList.push({ libraryName: 'lodash', libraryDirectory: '' });
 
     return {
       ...opts,

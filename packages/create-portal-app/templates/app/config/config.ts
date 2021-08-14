@@ -15,7 +15,9 @@ export default defineConfig({
   hash: true,
   routes,
   portal,
+  webpack5: {},
   dynamicImportSyntax: {},
   ignoreMomentLocale: true,
+  manifest: {},
   proxy: proxy[(process.env.REACT_APP_ENV as 'dev') || 'dev'],
 });

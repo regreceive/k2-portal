@@ -243,7 +243,7 @@ function _ref() {
     api.modifyBabelPresetOpts(opts => {
       var _api$env2;
 
-      let importList = opts.import;
+      let importList = opts.import || [];
 
       if (api.config.portal.integration[(_api$env2 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env2 !== void 0 ? _api$env2 : 'development']) {
         var _opts$import$filter, _opts$import;
@@ -251,6 +251,10 @@ function _ref() {
         importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
       }
 
+      importList.push({
+        libraryName: 'lodash',
+        libraryDirectory: ''
+      });
       return _objectSpread(_objectSpread({}, opts), {}, {
         import: importList
       });
