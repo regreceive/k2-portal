@@ -65,14 +65,6 @@ class WaitRunWebpackPlugin {
                 new webpack.sources.RawSource(values[1]),
               );
             }
-
-            // if (this.options.initFile) {
-            //   const content = readFileSync(this.options.initFile, 'utf-8');
-            //   compilation.emitAsset(
-            //     'init.js',
-            //     new webpack.sources.RawSource(content),
-            //   );
-            // }
           },
         );
       },

@@ -247,19 +247,16 @@ export default async function (api: IApi) {
 
   // webpack额外配置
   api.chainWebpack((config) => {
-    let initFile = '';
-    try {
-      // @ts-ignore
-      initFile = path.resolve(api.paths.absTmpPath, 'plugin-portal/init.js');
-    } catch {}
     // 阻止bundle载入后立即启动。具体控制在init.js中
     config
       .plugin('WaitRunWebpackPlugin')
-      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/, initFile }]);
+      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }]);
 
-    // config
-    //   .entry('init')
-    //   .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
+    config
+      .entry('init')
+      .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
+
+    config.optimization.set('runtimeChunk', 'single');
     return config;
   });
 
@@ -289,13 +286,13 @@ export default async function (api: IApi) {
     const copy = [
       ...(memo.copy || []),
       'develop.js',
-      {
-        from: `${api.paths.absTmpPath!.replace(
-          api.paths?.cwd + '/' ?? '',
-          '',
-        )}/plugin-portal/init.js`,
-        to: 'init.js',
-      },
+      // {
+      //   from: `${api.paths.absTmpPath!.replace(
+      //     api.paths?.cwd + '/' ?? '',
+      //     '',
+      //   )}/plugin-portal/init.js`,
+      //   to: 'init.js',
+      // },
     ];
 
     if (memo.portal.integration[api?.env ?? 'development']) {
@@ -379,11 +376,14 @@ export default async function (api: IApi) {
     }
 
     // 引用init.js
-    const headScripts = [...(memo.headScripts || []), { src: 'init.js' }];
+    const headScripts = [
+      ...(memo.headScripts || []),
+      //  { src: 'init.js' },
+    ];
 
     return {
       ...memo,
-      // chunks: ['init', 'umi'],
+      chunks: ['runtime', 'init', 'umi'],
       externals: externals,
       antd: memo.portal.integration[api?.env ?? 'development']
         ? false

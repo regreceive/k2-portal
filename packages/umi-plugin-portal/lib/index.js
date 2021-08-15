@@ -261,26 +261,17 @@ function _ref() {
     }); // webpack额外配置
 
     api.chainWebpack(config => {
-      let initFile = '';
-
-      try {
-        // @ts-ignore
-        initFile = _path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.js');
-      } catch (_unused2) {} // 阻止bundle载入后立即启动。具体控制在init.js中
-
-
+      // 阻止bundle载入后立即启动。具体控制在init.js中
       config.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
-        test: /umi\.\w*\.?js$/,
-        initFile
-      }]); // config
-      //   .entry('init')
-      //   .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
-
+        test: /umi\.\w*\.?js$/
+      }]);
+      config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.js'));
+      config.optimization.set('runtimeChunk', 'single');
       return config;
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
-      var _ref4, _api$paths, _api$env3, _api$env4, _api$env5;
+      var _api$env3, _api$env4, _api$env5;
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
       let relative = '';
@@ -297,12 +288,16 @@ function _ref() {
             relative = winPath(_path().default.relative(api.cwd, root)) + '/';
           }
         }
-      } catch (_unused3) {}
+      } catch (_unused2) {}
 
-      const copy = [...(memo.copy || []), 'develop.js', {
-        from: `${api.paths.absTmpPath.replace((_ref4 = ((_api$paths = api.paths) === null || _api$paths === void 0 ? void 0 : _api$paths.cwd) + '/') !== null && _ref4 !== void 0 ? _ref4 : '', '')}/plugin-portal/init.js`,
-        to: 'init.js'
-      }];
+      const copy = [...(memo.copy || []), 'develop.js' // {
+      //   from: `${api.paths.absTmpPath!.replace(
+      //     api.paths?.cwd + '/' ?? '',
+      //     '',
+      //   )}/plugin-portal/init.js`,
+      //   to: 'init.js',
+      // },
+      ];
 
       if (memo.portal.integration[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
         copy.push(...[{
@@ -369,11 +364,10 @@ function _ref() {
       } // 引用init.js
 
 
-      const headScripts = [...(memo.headScripts || []), {
-        src: 'init.js'
-      }];
+      const headScripts = [...(memo.headScripts || []) //  { src: 'init.js' },
+      ];
       return _objectSpread(_objectSpread({}, memo), {}, {
-        // chunks: ['init', 'umi'],
+        chunks: ['runtime', 'init', 'umi'],
         externals: externals,
         antd: memo.portal.integration[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? false : memo.antd,
         copy: api.env === 'test' ? memo.copy : copy,
