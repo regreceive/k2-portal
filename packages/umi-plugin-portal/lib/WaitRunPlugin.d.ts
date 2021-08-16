@@ -1,7 +1,6 @@
 import { Compiler } from 'webpack';
 declare type Options = {
     test: RegExp;
-    initFile?: string;
 };
 declare class WaitRunWebpackPlugin {
     private options;

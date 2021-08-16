@@ -59,15 +59,8 @@ export default async function (api: IApi) {
             username: joi.string().required(),
             password: joi.string().required(),
           }),
-          /** 服务枚举，太过冗余，是为了适配portal， */
-          service: joi.object({
-            dataService: joi.string(),
-            datalabModeler: joi.string(),
-            gateway: joi.string(),
-            influxdb: joi.string(),
-            repo: joi.string(),
-            dev: joi.string(),
-          }),
+          /** 服务枚举 */
+          service: joi.object().pattern(joi.string(), joi.string()),
           /** nacos配置地址 */
           nacos: joi.string(),
           /** 是否开启按钮级别权限验证 */

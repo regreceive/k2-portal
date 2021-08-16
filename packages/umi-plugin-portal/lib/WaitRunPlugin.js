@@ -73,7 +73,8 @@ class WaitRunWebpackPlugin {
         }
       });
       return;
-    }
+    } // 适配webpack5
+
 
     compiler.hooks.thisCompilation.tap('WaitRunWebpackPlugin', compilation => {
       compilation.hooks.processAssets.tap({

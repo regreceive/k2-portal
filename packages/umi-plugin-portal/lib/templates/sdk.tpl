@@ -182,12 +182,12 @@ type SemiServiceList = Convert<
 export const appKey = qs.parse(history.location.search)?.key as string ?? '{{{ appKey }}}';
 export const sdk = defaultSDK;
 export const portalWindow = window.$$K2RootWindow;
-export const api = Object.entries(defaultSDK.lib.utils.service).reduce(
-  (prev, [key, value]) => {
-    return { ...prev, [key]: proxyFact(value) };
-  },
-  {} as SemiServiceList,
-);
+export const api = Object.entries({
+  ...service, // nacos的service补齐
+  ...defaultSDK.lib.utils.service,
+}).reduce((prev, [key, value]) => {
+  return { ...prev, [key]: proxyFact(value) };
+}, {} as SemiServiceList);
 
 /**
  * 应用之间传递传递参数，通过此context接收数据

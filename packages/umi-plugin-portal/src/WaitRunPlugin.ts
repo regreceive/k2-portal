@@ -2,7 +2,6 @@ import webpack, { Compiler } from 'webpack';
 
 type Options = {
   test: RegExp;
-  initFile?: string;
 };
 
 class WaitRunWebpackPlugin {
@@ -48,6 +47,7 @@ class WaitRunWebpackPlugin {
       return;
     }
 
+    // 适配webpack5
     compiler.hooks.thisCompilation.tap(
       'WaitRunWebpackPlugin',
       (compilation) => {

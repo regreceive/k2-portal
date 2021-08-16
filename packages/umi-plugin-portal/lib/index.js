@@ -121,14 +121,7 @@ function _ref() {
             }),
 
             /** 服务枚举，太过冗余，是为了适配portal， */
-            service: joi.object({
-              dataService: joi.string(),
-              datalabModeler: joi.string(),
-              gateway: joi.string(),
-              influxdb: joi.string(),
-              repo: joi.string(),
-              dev: joi.string()
-            }),
+            service: joi.object().pattern(joi.string(), joi.string()),
 
             /** nacos配置地址 */
             nacos: joi.string(),
