@@ -183,7 +183,7 @@ export const appKey = qs.parse(history.location.search)?.key as string ?? '{{{ a
 export const sdk = defaultSDK;
 export const portalWindow = window.$$K2RootWindow;
 export const api = Object.entries({
-  ...service, // nacos的service补齐
+  ...service, // 如果有新的service，不用在portal源码上增加，直接在portal.ts和nancos创建服务即可
   ...defaultSDK.lib.utils.service,
 }).reduce((prev, [key, value]) => {
   return { ...prev, [key]: proxyFact(value) };

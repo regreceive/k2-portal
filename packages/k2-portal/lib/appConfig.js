@@ -66,7 +66,7 @@ let cacheAppConfig = new Map();
  * @returns
  */
 
-function getAppConfig(_x) {
+function getAppConfig() {
   return _getAppConfig.apply(this, arguments);
 }
 /**
@@ -79,7 +79,7 @@ function getAppConfig(_x) {
 
 
 function _getAppConfig() {
-  _getAppConfig = _asyncToGenerator(function* (key) {
+  _getAppConfig = _asyncToGenerator(function* (key = _sdk().appKey) {
     if (cacheAppConfig.has(key)) {
       const value = yield cacheAppConfig.get(key);
       return value;

@@ -20,8 +20,7 @@
     "src/**/*",
     "config/**/*",
     ".umirc.ts",
-    "typings.d.ts",
-    "headScript.ts"
+    "typings.d.ts"
   ],
   "exclude": [
     "node_modules",

@@ -243,7 +243,7 @@ export default async function (api: IApi) {
     // 阻止bundle载入后立即启动。具体控制在init.js中
     config
       .plugin('WaitRunWebpackPlugin')
-      .use(WaitRunWebpackPlugin, [{ test: /umi\.\w*\.?js$/ }]);
+      .use(WaitRunWebpackPlugin, [{ test: /umi(\.\w+)*\.?js$/ }]);
 
     config
       .entry('init')

@@ -11,7 +11,9 @@ let cacheAppConfig = new Map<string, Promise<any>>();
  * @param key 注册的应用名
  * @returns
  */
-export async function getAppConfig<T extends {}>(key: string): Promise<T> {
+export async function getAppConfig<T extends {} = any>(
+  key: string = appKey,
+): Promise<T> {
   if (cacheAppConfig.has(key)) {
     const value = await cacheAppConfig.get(key);
     return value;

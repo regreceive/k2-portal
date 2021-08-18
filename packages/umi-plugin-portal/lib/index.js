@@ -120,7 +120,7 @@ function _ref() {
               password: joi.string().required()
             }),
 
-            /** 服务枚举，太过冗余，是为了适配portal， */
+            /** 服务枚举 */
             service: joi.object().pattern(joi.string(), joi.string()),
 
             /** nacos配置地址 */
@@ -256,7 +256,7 @@ function _ref() {
     api.chainWebpack(config => {
       // 阻止bundle载入后立即启动。具体控制在init.js中
       config.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
-        test: /umi\.\w*\.?js$/
+        test: /umi(\.\w+)*\.?js$/
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.js'));
       config.optimization.set('runtimeChunk', 'single');

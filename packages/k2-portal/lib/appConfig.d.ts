@@ -3,7 +3,7 @@
  * @param key 注册的应用名
  * @returns
  */
-export declare function getAppConfig<T extends {}>(key: string): Promise<T>;
+export declare function getAppConfig<T extends {} = any>(key?: string): Promise<T>;
 /**
  * 取得应用配置
  * @param key 注册的应用名
