@@ -1,6 +1,6 @@
 {
   "name": "create-portal-app",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "k2/create-portal-app",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -27,7 +27,7 @@
     "@umijs/utils": "^3.4.25"
   },
   "devDependencies": {
-    "k2-portal": "^1.1.11",
-    "umi-plugin-portal": "^1.1.11"
+    "k2-portal": "^1.1.12",
+    "umi-plugin-portal": "^1.1.12"
   }
 }
