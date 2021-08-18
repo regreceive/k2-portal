@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "name": "app-doc",
+  "version": "1.1.11",
+    "scripts": {
+    "start": "dumi dev",
+    "build": "dumi build",
+    "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\""
+  },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "typings": "dist/index.d.ts",
+  "devDependencies": {
+    "dumi": "^1.0.13"
+  }
+}
