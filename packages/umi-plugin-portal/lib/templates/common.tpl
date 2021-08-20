@@ -3,7 +3,7 @@
  */
 import { useState, useEffect } from 'react';
 import { api } from './sdk';
-import { transformQuery, warn } from 'k2-portal';
+import { utils, warn } from 'k2-portal';
 
 type ResponseInstance = {
   attributes: any;
@@ -43,7 +43,7 @@ export async function getInstance(
   query?: Partial<RequestEntity>,
 ) {
   return api.dataService.get<ResponseInstance[]>(
-    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${transformQuery(
+    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities?${utils.transformQuery(
       query,
     )}`,
   );
@@ -60,7 +60,7 @@ export async function getRelation(
   query?: Partial<RequestRelation>,
 ) {
   return api.dataService.get<ResponseRelation[]>(
-    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities_via_relation_types?${transformQuery(
+    `/data/namespaces/{namespace_name}/entity_types/${entityName}/entities_via_relation_types?${utils.transformQuery(
       query,
     )}`,
   );

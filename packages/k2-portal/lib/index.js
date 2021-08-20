@@ -82,20 +82,6 @@ Object.keys(_ButtonPermissionCheck).forEach(function (key) {
 
 var _openApp = _interopRequireDefault(require("./openApp"));
 
-var _transformRequest = require("./transformRequest");
-
-Object.keys(_transformRequest).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _transformRequest[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _transformRequest[key];
-    }
-  });
-});
-
 var utils_1 = _interopRequireWildcard(require("./utils"));
 
 exports.utils = utils_1;

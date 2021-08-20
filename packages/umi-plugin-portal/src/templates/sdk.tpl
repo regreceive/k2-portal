@@ -179,7 +179,10 @@ type SemiServiceList = Convert<
   SemiService
 >;
 
-export const appKey = qs.parse(history.location.search)?.key as string ?? '{{{ appKey }}}';
+export const appKey = '{{{ appKey }}}';
+/**
+ * @deprecated 
+ */
 export const sdk = defaultSDK;
 export const portalWindow = window.$$K2RootWindow;
 export const api = Object.entries({
