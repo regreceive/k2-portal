@@ -300,7 +300,7 @@ export default () => {
 import { useChart } from 'k2-portal';
 
 export default () => {
-  const { ref, chart } = useChart();
+  const { ref, chart, setOption } = useChart();
 
   useEffect(() => {
     setOption({

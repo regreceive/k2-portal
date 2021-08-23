@@ -113,8 +113,6 @@ export function useButtonPermissionCheck(accessKey: string) {
     }
 
     getPurview().then((map) => {
-      console.log(map);
-
       const allow = map.get(appKey)?.operations.includes(accessKey) ?? false;
       setAllow(allow);
     });

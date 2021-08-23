@@ -195,7 +195,6 @@ function useButtonPermissionCheck(accessKey) {
     getPurview().then(function (map) {
       var _map$get$operations$i2, _map$get2;
 
-      console.log(map);
       var allow = (_map$get$operations$i2 = (_map$get2 = map.get(_sdk.appKey)) === null || _map$get2 === void 0 ? void 0 : _map$get2.operations.includes(accessKey)) !== null && _map$get$operations$i2 !== void 0 ? _map$get$operations$i2 : false;
       setAllow(allow);
     });

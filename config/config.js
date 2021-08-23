@@ -5,8 +5,11 @@ export default {
   logo: '/logo.png',
   navs: [
     null,
-    { title: 'GitHub', path: 'https://github.com/umijs/dumi' },
-    { title: '更新日志', path: 'https://github.com/umijs/dumi/releases' },
+    {
+      title: 'GitLab',
+      path: 'https://gitlab.kstonedata.k2/bcf/front-end/k2-portal',
+    },
+    // { title: '更新日志', path: 'https://github.com/umijs/dumi/releases' },
   ],
 
   exportStatic: {},
@@ -15,7 +18,7 @@ export default {
   },
   copy: [
     {
-      from: 'docs/assets/logo.png',
+      from: 'docs/assets/logo1.png',
       to: 'logo.png',
     },
   ],

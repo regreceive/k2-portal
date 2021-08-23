@@ -30,7 +30,7 @@ const Widget: FC<Props> = (props) => {
       // @ts-ignore
       frame.current?.contentWindow?.micPack?.default(
         { appBody: bodyRef.current! },
-        props.appProps,
+        { ...props.appProps, asWidget: true },
       );
     } catch {
       warn(`${props.src}子应用跨域了`);

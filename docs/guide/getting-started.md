@@ -1,6 +1,6 @@
 ---
 title: 快速上手
-order: 1
+order: 2
 toc: menu
 ---
 

@@ -63,7 +63,9 @@ var Widget = function Widget(props) {
       // @ts-ignore
       (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : (_frame$current$conten2 = _frame$current$conten.micPack) === null || _frame$current$conten2 === void 0 ? void 0 : _frame$current$conten2.default({
         appBody: bodyRef.current
-      }, props.appProps);
+      }, _objectSpread(_objectSpread({}, props.appProps), {}, {
+        asWidget: true
+      }));
     } catch (_unused) {
       (0, _utils.warn)("".concat(props.src, "\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86"));
     }
