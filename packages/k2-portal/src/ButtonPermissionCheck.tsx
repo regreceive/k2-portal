@@ -14,15 +14,22 @@ type Props = {
 
 type AppPermission = { name: string; parent_id: number; id: number };
 
+function flattenChildren(id: number, nodes: AppPermission[]): AppPermission[] {
+  return nodes.reduce<AppPermission[]>((prev, curr) => {
+    if (curr.parent_id === id) {
+      return [...prev, curr, ...flattenChildren(curr.id, nodes)];
+    }
+    return prev;
+  }, []);
+}
+
 function mergeHierarchy(data: AppPermission[]) {
   return data.reduce<[string, { appKey: string; operations: string[] }][]>(
     (prev, curr) => {
       if (curr.parent_id === 0) {
         const perm = {
           appKey: curr.name,
-          operations: data
-            .filter((item) => item.parent_id === curr.id)
-            .map((item) => item.name),
+          operations: flattenChildren(curr.id, data).map((item) => item.name),
         };
         return [...prev, [curr.name, perm]];
       }
@@ -32,7 +39,7 @@ function mergeHierarchy(data: AppPermission[]) {
   );
 }
 
-let isInitial = false;
+let hasCached = false;
 let cache = Promise.resolve(
   new Map<string, { appKey: string; operations: string[] }>(),
 );
@@ -43,7 +50,7 @@ async function getPurview() {
   }
 
   // 有过请求，就传缓存
-  if (isInitial) {
+  if (hasCached) {
     return cache;
   }
 
@@ -59,6 +66,7 @@ async function getPurview() {
         );
         return new Map(init);
       });
+    hasCached = true;
   }
   return cache;
 }
@@ -105,6 +113,8 @@ export function useButtonPermissionCheck(accessKey: string) {
     }
 
     getPurview().then((map) => {
+      console.log(map);
+
       const allow = map.get(appKey)?.operations.includes(accessKey) ?? false;
       setAllow(allow);
     });

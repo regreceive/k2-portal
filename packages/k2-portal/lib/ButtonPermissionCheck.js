@@ -54,14 +54,22 @@ function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToAr
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
+function flattenChildren(id, nodes) {
+  return nodes.reduce(function (prev, curr) {
+    if (curr.parent_id === id) {
+      return [].concat(_toConsumableArray(prev), [curr], _toConsumableArray(flattenChildren(curr.id, nodes)));
+    }
+
+    return prev;
+  }, []);
+}
+
 function mergeHierarchy(data) {
   return data.reduce(function (prev, curr) {
     if (curr.parent_id === 0) {
       var perm = {
         appKey: curr.name,
-        operations: data.filter(function (item) {
-          return item.parent_id === curr.id;
-        }).map(function (item) {
+        operations: flattenChildren(curr.id, data).map(function (item) {
           return item.name;
         })
       };
@@ -72,7 +80,7 @@ function mergeHierarchy(data) {
   }, []);
 }
 
-var isInitial = false;
+var hasCached = false;
 var cache = Promise.resolve(new Map());
 
 function getPurview() {
@@ -97,7 +105,7 @@ function _getPurview() {
             return _context.abrupt("return", (_sdk$lib$central$user5 = (_sdk$lib$central$user6 = _sdk.sdk.lib.central.userInfo.boxState.purview) === null || _sdk$lib$central$user6 === void 0 ? void 0 : _sdk$lib$central$user6.permission) !== null && _sdk$lib$central$user5 !== void 0 ? _sdk$lib$central$user5 : new Map());
 
           case 2:
-            if (!isInitial) {
+            if (!hasCached) {
               _context.next = 4;
               break;
             }
@@ -116,6 +124,7 @@ function _getPurview() {
                 })) !== null && _res$data$map !== void 0 ? _res$data$map : []);
                 return new Map(init);
               });
+              hasCached = true;
             }
 
             return _context.abrupt("return", cache);
@@ -186,6 +195,7 @@ function useButtonPermissionCheck(accessKey) {
     getPurview().then(function (map) {
       var _map$get$operations$i2, _map$get2;
 
+      console.log(map);
       var allow = (_map$get$operations$i2 = (_map$get2 = map.get(_sdk.appKey)) === null || _map$get2 === void 0 ? void 0 : _map$get2.operations.includes(accessKey)) !== null && _map$get$operations$i2 !== void 0 ? _map$get$operations$i2 : false;
       setAllow(allow);
     });
