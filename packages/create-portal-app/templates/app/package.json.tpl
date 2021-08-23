@@ -24,13 +24,13 @@
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/preset-react": "1.x",
     "k2-portal": "^{{{ version }}}",
-    "umi": "^3.5.0"
+    "umi": "^3.5.17"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@umijs/test": "^3.5.0",
+    "@umijs/test": "^3.5.17",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "react": "17.x",

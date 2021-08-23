@@ -22,20 +22,20 @@ function _react() {
   return data;
 }
 
-function _moment() {
-  const data = _interopRequireDefault(require("moment"));
+function _isNil() {
+  const data = _interopRequireDefault(require("lodash/isNil"));
 
-  _moment = function _moment() {
+  _isNil = function _isNil() {
     return data;
   };
 
   return data;
 }
 
-function _isNil() {
-  const data = _interopRequireDefault(require("lodash/isNil"));
+function _moment() {
+  const data = _interopRequireDefault(require("moment"));
 
-  _isNil = function _isNil() {
+  _moment = function _moment() {
     return data;
   };
 
