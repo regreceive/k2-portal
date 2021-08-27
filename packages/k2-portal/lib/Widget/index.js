@@ -17,6 +17,8 @@ var _classnames = _interopRequireDefault(require("classnames"));
 
 var _isEqual = _interopRequireDefault(require("lodash/isEqual"));
 
+var _ = require("../");
+
 var _utils = require("../utils");
 
 require("./style.css");
@@ -112,6 +114,10 @@ var Widget = function Widget(props) {
   }), /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
+      if (props.appRoot) {
+        (0, _.getPortal)().setAppIframe(frame.current);
+      }
+
       setLoading(false);
       moveCSS();
       renderApp();

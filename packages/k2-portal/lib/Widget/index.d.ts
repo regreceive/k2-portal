@@ -10,6 +10,8 @@ declare type Props = {
     appProps?: {
         [key: string]: any;
     };
+    /** 是否作为app容器 */
+    appRoot?: boolean;
 };
 declare const Widget: FC<Props>;
 export default Widget;

@@ -3,6 +3,8 @@ import { Spin } from 'antd';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
+// @ts-ignore
+import { getPortal } from '../';
 import { warn } from '../utils';
 import './style.css';
 
@@ -16,6 +18,8 @@ type Props = {
   appProps?: {
     [key: string]: any;
   };
+  /** 是否作为app容器 */
+  appRoot?: boolean;
 };
 
 const Widget: FC<Props> = (props) => {
@@ -72,6 +76,9 @@ const Widget: FC<Props> = (props) => {
       <iframe
         ref={frame}
         onLoad={() => {
+          if (props.appRoot) {
+            getPortal().setAppIframe(frame.current);
+          }
           setLoading(false);
           moveCSS();
           renderApp();

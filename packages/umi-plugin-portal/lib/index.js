@@ -160,8 +160,9 @@ function _ref() {
             appDefaultProps = _ref3.appDefaultProps,
             auth = _ref3.auth,
             buttonPermissionCheck = _ref3.buttonPermissionCheck,
-            bearer = _ref3.bearer; // 生成portal.less
+            bearer = _ref3.bearer;
 
+      const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64'); // 生成portal.less
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.less',
@@ -186,6 +187,14 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/common.ts',
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'common.tpl'), 'utf-8')
+      }); // 生成portal.ts
+
+      api.writeTmpFile({
+        path: 'plugin-portal/portal.ts',
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.tpl'), 'utf-8'), {
+          bearer,
+          authorization: base64
+        })
       }); // 生成sdk.ts
 
       api.writeTmpFile({
@@ -203,7 +212,6 @@ function _ref() {
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'MockService.tpl'), 'utf-8')
       }); // 生成runtime
 
-      const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64');
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {

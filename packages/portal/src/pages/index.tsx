@@ -14,7 +14,13 @@ const Portal: FC = (props) => {
     }
   }, [location.search]);
 
-  return <Widget src="/apps/case/" style={{ height: '100%' }} />;
+  return (
+    <Widget
+      src="http://localhost.k2assets.k2:3100/"
+      style={{ height: '100%' }}
+      appRoot
+    />
+  );
 };
 
 export default Portal;

@@ -182,6 +182,7 @@ type SemiServiceList = Convert<
 export const appKey = '{{{ appKey }}}';
 /**
  * @deprecated 
+ * @description 下个大版本升级咱就不用它了
  */
 export const sdk = defaultSDK;
 export const portalWindow = window.$$K2RootWindow;

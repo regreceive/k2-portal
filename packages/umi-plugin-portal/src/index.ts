@@ -104,6 +104,14 @@ export default async function (api: IApi) {
       bearer,
     } = api.config?.portal ?? {};
 
+    const base64 =
+      api.env === 'production'
+        ? ''
+        : 'Basic ' +
+          Buffer.from(`${auth.username}:${md5(auth.password)}`).toString(
+            'base64',
+          );
+
     // 生成portal.less
     api.writeTmpFile({
       path: 'plugin-portal/portal.less',
@@ -145,6 +153,18 @@ export default async function (api: IApi) {
       ),
     });
 
+    // 生成portal.ts
+    api.writeTmpFile({
+      path: 'plugin-portal/portal.ts',
+      content: Mustache.render(
+        readFileSync(join(__dirname, 'templates', 'portal.tpl'), 'utf-8'),
+        {
+          bearer,
+          authorization: base64,
+        },
+      ),
+    });
+
     // 生成sdk.ts
     api.writeTmpFile({
       path: 'plugin-portal/sdk.ts',
@@ -169,14 +189,6 @@ export default async function (api: IApi) {
     });
 
     // 生成runtime
-    const base64 =
-      api.env === 'production'
-        ? ''
-        : 'Basic ' +
-          Buffer.from(`${auth.username}:${md5(auth.password)}`).toString(
-            'base64',
-          );
-
     api.writeTmpFile({
       path: 'plugin-portal/runtime.tsx',
       content: Mustache.render(

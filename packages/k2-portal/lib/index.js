@@ -52,6 +52,20 @@ Object.keys(_sdk).forEach(function (key) {
   });
 });
 
+var _portal = require("@@/plugin-portal/portal");
+
+Object.keys(_portal).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _portal[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _portal[key];
+    }
+  });
+});
+
 var _appConfig = require("./appConfig");
 
 Object.keys(_appConfig).forEach(function (key) {
