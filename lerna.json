@@ -3,7 +3,8 @@
   "packages": [
     "packages/k2-portal",
     "packages/umi-plugin-portal",
-    "packages/create-portal-app"
+    "packages/create-portal-app",
+    "packages/portal"
   ],
   "npmClient": "yarn",
   "useWorkspaces": true,
