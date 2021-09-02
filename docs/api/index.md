@@ -54,7 +54,7 @@ api.dataService.get('/xxx').then((res) => {
 
 ### getInstance
 
-建模器单实体查询，封装`dataService.get`，区别是新增对请求参数对象化
+建模器单实体查询，封装`dataService.get`，区别在于请求参数实现了对象化
 
 ```ts
 getInstance('entity', {
@@ -97,7 +97,7 @@ type ResponseInstance = {
 
 ### getRelation
 
-建模器关联实体查询，封装`dataService.get`，区别是新增对请求参数对象化
+建模器关联实体查询，封装`dataService.get`，区别在于请求参数实现了对象化，具体使用与`getInstance`调用方法相同
 
 ```ts
 getRelation('entity');

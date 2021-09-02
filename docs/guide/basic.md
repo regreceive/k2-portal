@@ -103,3 +103,45 @@ export const darkTheme = {
   background-color: var(--myApp-bgColor);
 }
 ```
+
+## 自定义接口服务
+
+`k2-portal`兼容老版本的通用接口服务，具体请查阅[api](/api#api-1)。如果在开发过程中需要新增一个接口服务，比如`repo`。
+
+_在老版本环境中_
+
+- 😖 创建`repo`，修改并重新打包 Portal 项目
+- 😟 在 nacos 中填写`repo`接口地址
+- 😨 开发的时候要提防其它同事修改`repo`在 nacos 的接口地址
+- 🤧 创建其它接口服务，还要重复以上 3 步
+
+_在`k2-portal`中。只要这样做：_
+
+修改`config/portal.ts`，增加一个 service
+
+```ts
+// portal.ts
+const portal: IConfigFromPlugins['portal'] = {
+  service: {
+    repo: '/repo/repos/xxx',
+  },
+};
+```
+
+成功！可以直接使用了
+
+```ts
+import { api } from 'k2-portal';
+
+api.repo.get('/columns').then((res) => {
+  // bla...
+});
+```
+
+- 😀 不改 Portal 项目
+- 😆 不用创建 nacos 相关接口地址
+- 😁 因为不是全局配置，防止和其它同事冲突
+
+<Alert type="warning">还有一个问题，为方便管理需要走 nacos 配置，怎么做？</Alert>
+
+✨ 答：在 nacos 添加相同的服务接口名称和地址，应用会优先选择 nacos 的配置。
