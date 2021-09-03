@@ -1,10 +1,12 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { DatePicker, message } from 'antd';
-import { EventValue, RangeValue } from 'rc-picker/lib/interface';
+import { RangeValue } from 'rc-picker/lib/interface';
 import moment, { Moment } from 'moment';
 import { usePrevious } from 'ahooks';
 
 interface Props {
+  show?: boolean;
+  defaultValue?: [number, number];
   /**
    * 时间范围限制天数，默认不限制
    */
@@ -12,26 +14,57 @@ interface Props {
   /**
    * 显示最近几天
    */
-  lastDays?: number;
+  preset?: {
+    recentDays?: number;
+    recentHours?: number;
+    recentMinutes?: number;
+  };
   /** 是否展示时间，默认展示 */
-  withTime?: boolean;
-
-  onChange: (range: [EventValue<Moment>, EventValue<Moment>]) => void;
+  showTime?: boolean;
+  onChange?: (range: Moment[]) => void;
 }
 
 const DateRange: FC<Props> = (props) => {
-  const [range, setRange] = useState<RangeValue<Moment>>([null, null]);
+  const [range, setRange] = useState<[Moment | null, Moment | null]>([
+    null,
+    null,
+  ]);
   const previous = usePrevious(range);
-  const rangeRef = useRef<any>(null);
 
   // 默认时间范围
   useEffect(() => {
-    if (props.lastDays) {
-      setLastDays(props.lastDays);
-    } else {
-      setPrevDayDuty();
+    let range: RangeValue<Moment> = null;
+
+    if (Array.isArray(props.defaultValue)) {
+      range = [moment(props.defaultValue[0]), moment(props.defaultValue[1])];
     }
-  }, []);
+    if (props.preset?.recentDays) {
+      range = [
+        moment().startOf('second').subtract(props.preset.recentDays, 'day'),
+        moment().startOf('second'),
+      ];
+    } else if (props.preset?.recentHours) {
+      range = [
+        moment().startOf('second').subtract(props.preset.recentHours, 'hour'),
+        moment().startOf('second'),
+      ];
+    } else if (props.preset?.recentMinutes) {
+      range = [
+        moment()
+          .startOf('second')
+          .subtract(props.preset.recentMinutes, 'minute'),
+        moment().startOf('second'),
+      ];
+    }
+    if (range !== null) {
+      setRange(range);
+    }
+  }, [
+    props.preset?.recentDays,
+    props.preset?.recentHours,
+    props.preset?.recentMinutes,
+    props.defaultValue,
+  ]);
 
   //  默认起止时间
   const defaultTimeRange = useMemo(() => {
@@ -51,36 +84,16 @@ const DateRange: FC<Props> = (props) => {
           message.error(`时间范围不能超过${props.limitDays}天`);
           return;
         }
-        props.onChange(range);
+        props.onChange?.(range as Moment[]);
       }
     }
   }, [range, props.limitDays]);
-
-  // 设为最近几天
-  const setLastDays = useCallback((days: number) => {
-    const today = moment().startOf('day');
-    const range: RangeValue<Moment> = [
-      today.clone().subtract(days - 1, 'day'),
-      today.endOf('day'),
-    ];
-    rangeRef.current?.blur();
-    setRange(range);
-  }, []);
-
-  // 设置为上一个班次的时间范围
-  const setPrevDayDuty = useCallback(() => {
-    const range: RangeValue<Moment> = [
-      moment().startOf('day').subtract(1, 'd').add(8, 'hour'),
-      moment().startOf('day').add(Math.min(8, moment().hour()), 'hour'),
-    ];
-    setRange(range);
-  }, []);
 
   // 响应时间范围组件
   const handleChange = useCallback(
     (range: RangeValue<Moment>) => {
       if (range && range[0] && range[1]) {
-        if (!props.withTime) {
+        if (!props.showTime) {
           range[0].startOf('day');
           range[1].endOf('day');
         }
@@ -89,39 +102,61 @@ const DateRange: FC<Props> = (props) => {
         setRange([null, null]);
       }
     },
-    [range, props.withTime],
+    [range, props.showTime],
   );
 
   // 昨天白班的时间范围
-  const getShortcut = useCallback((): { [range: string]: [Moment, Moment] } => {
-    return {
-      昨天白班: [
-        moment().startOf('day').subtract(1, 'd').add(8, 'hour'),
-        moment().startOf('day').subtract(1, 'd').add(20, 'hour'),
-      ],
-      昨天夜班: [
-        moment().startOf('day').subtract(1, 'd').add(20, 'hour'),
-        moment().startOf('day').add(8, 'hour'),
-      ],
-    };
-  }, []);
+  const shortcut = useMemo<any>(() => {
+    if (range[0] !== null && range[1]) {
+      return {
+        前1分钟: [
+          range[0].clone().startOf('minute').subtract(1, 'minute'),
+          range[0].clone().startOf('minute'),
+        ],
+        后1分钟: [
+          range[1].clone().startOf('minute'),
+          range[1].clone().startOf('minute').add(1, 'minute'),
+        ],
+        前1小时: [
+          range[0].clone().startOf('hour').subtract(1, 'h'),
+          range[0].clone().startOf('hour'),
+        ],
+        后1小时: [
+          range[1].clone().startOf('hour'),
+          range[1].clone().startOf('hour').add(1, 'hour'),
+        ],
+      };
 
-  return (
+      // return {
+      //   前1天: [
+      //     range[0].clone().startOf('day').subtract(1, 'day'),
+      //     range[0].clone().startOf('day'),
+      //   ],
+      //   后1天: [
+      //     range[1].clone().startOf('day'),
+      //     range[1].clone().startOf('day').add(1, 'day'),
+      //   ],
+      // };
+    }
+    return {};
+  }, [range, props.preset]);
+
+  return props.show ? (
     <DatePicker.RangePicker
-      ref={rangeRef}
       value={range}
       onChange={handleChange}
       showTime={{
         format: 'HH:mm:ss',
         defaultValue: defaultTimeRange,
       }}
-      ranges={getShortcut()}
+      ranges={shortcut}
+      allowClear={false}
     />
-  );
+  ) : null;
 };
 
 DateRange.defaultProps = {
-  withTime: true,
+  showTime: true,
 };
 
 export default DateRange;
