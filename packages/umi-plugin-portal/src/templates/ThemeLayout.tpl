@@ -2,6 +2,7 @@ import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
 import { AppContext, useAppProps } from './sdk';
+import sso from './sso';
 
 const rgb2hex = (rgba: string) =>
   `${rgba

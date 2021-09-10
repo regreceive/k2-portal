@@ -21,4 +21,5 @@ const mockPortal =  {
 }
 
 // @ts-ignore
-export const getPortal = () => top.g_portal as typeof mockPortal || mockPortal;
+export const getPortal = () =>
+  (top.g_portal as typeof mockPortal) || mockPortal;

@@ -26,6 +26,9 @@ function freezeDeep<T>(obj: any): T {
     if (Object.prototype.toString.call(obj[curr]) === '[object Object]') {
       return { ...prev, [curr]: freezeDeep(clone(obj[curr])) };
     }
+    if (Array.isArray(obj[curr])) {
+      return { ...prev, [curr]: Object.freeze(obj[curr]) };
+    }
     return { ...prev, [curr]: obj[curr] };
   }, {} as T);
 
@@ -43,7 +46,7 @@ export const getAccessToken = () => {
 
 let _appKey = '';
 let _appIframe: HTMLIFrameElement;
-let _iframe: { [key: string]: HTMLIFrameElement[] } = {};
+let _pathListenerIframe: { [key: string]: HTMLIFrameElement[] } = {};
 
 // 封印，防止不讲究的代码
 export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
@@ -95,7 +98,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
     get() {
       return (appKey: string, path: string, replace = false) => {
         const url =
-          '/apps/' + appKey + path.startsWith('/') ? path : '/' + path;
+          '/apps/' + appKey + (path.startsWith('/') ? path : '/' + path);
         if (replace) {
           history.replace(url);
         } else {
@@ -107,7 +110,10 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
   shareHistory: {
     get() {
       return (appKey: string, iframe: HTMLIFrameElement) => {
-        _iframe[appKey] = [...(_iframe?.[appKey] ?? []), iframe];
+        _pathListenerIframe[appKey] = [
+          ...(_pathListenerIframe?.[appKey] ?? []),
+          iframe,
+        ];
       };
     },
   },
@@ -118,18 +124,35 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
       };
     },
   },
+  currAppUrl: {
+    get() {
+      const result = portalMather.exec(history.location.pathname);
+      if (result) {
+        const [_, appKey, path = '/'] = result;
+        const url = location.href;
+        if (url) {
+          return `${window.$$config.appPath}/${appKey}/#${path}`.replace(
+            '//',
+            '/',
+          );
+        }
+      }
+      return '';
+    },
+  },
 });
 
 // portal路由
-const portalMather = /^\/apps\/([^\/]+)(?:\/(\S*))?/;
+const portalMather = /^\/app\-([^\/]+)(?:\/(\S*))?/;
 // 主应用路由
 const appMatcher = /\/[^\/\.]+\/#\S*$/;
 history.listen((listener) => {
   const result = portalMather.exec(listener.pathname);
   if (result) {
     const [_, appKey, path = '/'] = result;
-    _iframe[appKey] = _iframe[appKey]?.filter((item) => item) ?? [];
-    _iframe[appKey]?.forEach((iframe) => {
+    _pathListenerIframe[appKey] =
+      _pathListenerIframe[appKey]?.filter((item) => item) ?? [];
+    _pathListenerIframe[appKey]?.forEach((iframe) => {
       const url = iframe.contentWindow?.location.href;
       if (url) {
         iframe.contentWindow?.location.replace(
@@ -147,9 +170,11 @@ history.listen((listener) => {
   }
 });
 
+export const getPortal = () => portal;
+
 window.g_portal = portal;
 
 // 登录
-if (process.env.NODE_ENV !== 'development' && !getAccessToken()) {
+if (process.env.NODE_ENV !== 'development' && {{{ sso }}} && !getAccessToken()) {
   sso.signIn();
 }

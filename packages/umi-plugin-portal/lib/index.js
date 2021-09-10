@@ -120,6 +120,18 @@ function _ref() {
               password: joi.string().required()
             }),
 
+            /** 当前应用是否作为主应用 */
+            mainApp: joi.object({
+              /** 应用路径，比如 /public/apps */
+              appPath: joi.string(),
+
+              /** 启动单点登录 */
+              sso: joi.object({
+                clientUrl: joi.string(),
+                clientId: joi.string()
+              })
+            }),
+
             /** 服务枚举 */
             service: joi.object().pattern(joi.string(), joi.string()),
 
@@ -151,7 +163,7 @@ function _ref() {
       }];
     });
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-      var _api$config$portal, _api$config, _api$env;
+      var _api$config$portal, _api$config, _mainApp$appPath, _api$env;
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
             appKey = _ref3.appKey,
@@ -160,7 +172,8 @@ function _ref() {
             appDefaultProps = _ref3.appDefaultProps,
             auth = _ref3.auth,
             buttonPermissionCheck = _ref3.buttonPermissionCheck,
-            bearer = _ref3.bearer;
+            bearer = _ref3.bearer,
+            mainApp = _ref3.mainApp;
 
       const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64'); // 生成portal.less
 
@@ -175,7 +188,9 @@ function _ref() {
           appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
-          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
+          appPath: (_mainApp$appPath = mainApp === null || mainApp === void 0 ? void 0 : mainApp.appPath) !== null && _mainApp$appPath !== void 0 ? _mainApp$appPath : '',
+          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development'],
+          sso: JSON.stringify(mainApp === null || mainApp === void 0 ? void 0 : mainApp.sso, null, 4) || false
         })
       }); // 生成ThemeLayout.tsx
 
@@ -187,13 +202,23 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/common.ts',
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'common.tpl'), 'utf-8')
-      }); // 生成portal.ts
+      });
+
+      if (mainApp) {
+        // 生成单点登录sso.ts
+        api.writeTmpFile({
+          path: 'plugin-portal/sso.ts',
+          content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sso.tpl'), 'utf-8')
+        });
+      } // 生成portal.ts
+
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.ts',
-        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.tpl'), 'utf-8'), {
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', `portal-${mainApp ? 'real' : 'mock'}.tpl`), 'utf-8'), {
           bearer,
-          authorization: base64
+          authorization: base64,
+          sso: !!mainApp.sso
         })
       }); // 生成sdk.ts
 

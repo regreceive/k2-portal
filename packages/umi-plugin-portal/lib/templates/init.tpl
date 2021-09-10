@@ -2,6 +2,8 @@
 window.$$config = {
   nacos: '{{{ nacos }}}',
   service: {{{ service }}},
+  appPath: '{{{ appPath }}}',
+  sso: {{{ sso }}},
   alone: false,
 };
 

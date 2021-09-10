@@ -59,6 +59,16 @@ export default async function (api: IApi) {
             username: joi.string().required(),
             password: joi.string().required(),
           }),
+          /** 当前应用是否作为主应用 */
+          mainApp: joi.object({
+            /** 应用路径，比如 /public/apps */
+            appPath: joi.string(),
+            /** 启动单点登录 */
+            sso: joi.object({
+              clientUrl: joi.string(),
+              clientId: joi.string(),
+            }),
+          }),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
           /** nacos配置地址 */
@@ -102,6 +112,7 @@ export default async function (api: IApi) {
       auth,
       buttonPermissionCheck,
       bearer,
+      mainApp,
     } = api.config?.portal ?? {};
 
     const base64 =
@@ -130,7 +141,9 @@ export default async function (api: IApi) {
           appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
+          appPath: mainApp?.appPath ?? '',
           integrated: api.config.portal.integration[api?.env ?? 'development'],
+          sso: JSON.stringify(mainApp?.sso, null, 4) || false,
         },
       ),
     });
@@ -153,14 +166,30 @@ export default async function (api: IApi) {
       ),
     });
 
+    if (mainApp) {
+      // 生成单点登录sso.ts
+      api.writeTmpFile({
+        path: 'plugin-portal/sso.ts',
+        content: readFileSync(join(__dirname, 'templates', 'sso.tpl'), 'utf-8'),
+      });
+    }
+
     // 生成portal.ts
     api.writeTmpFile({
       path: 'plugin-portal/portal.ts',
       content: Mustache.render(
-        readFileSync(join(__dirname, 'templates', 'portal.tpl'), 'utf-8'),
+        readFileSync(
+          join(
+            __dirname,
+            'templates',
+            `portal-${mainApp ? 'real' : 'mock'}.tpl`,
+          ),
+          'utf-8',
+        ),
         {
           bearer,
           authorization: base64,
+          sso: !!mainApp.sso,
         },
       ),
     });

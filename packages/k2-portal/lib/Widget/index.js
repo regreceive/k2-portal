@@ -102,6 +102,22 @@ var Widget = function Widget(props) {
       }
     }
   }, []);
+  var iframeUrl = (0, _react.useMemo)(function () {
+    // 作为根应用，url受控
+    if (props.appRoot) {
+      var url = (0, _.getPortal)().currAppUrl;
+
+      if (url) {
+        return url;
+      }
+    }
+
+    if (props.src.includes('#') || props.src.endsWith('/')) {
+      return props.src;
+    }
+
+    return props.src + '/';
+  }, [props.src, props.appRoot]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     style: _objectSpread({
@@ -122,7 +138,7 @@ var Widget = function Widget(props) {
       moveCSS();
       renderApp();
     },
-    src: props.src,
+    src: iframeUrl,
     style: {
       display: 'none'
     }

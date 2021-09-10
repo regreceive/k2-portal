@@ -1,7 +1,6 @@
 import { Widget } from 'k2-portal';
 import { FC, useEffect } from 'react';
 import { history, useLocation } from 'umi';
-import './portalInit';
 import sso from './sso';
 
 const Portal: FC = (props) => {
@@ -14,13 +13,7 @@ const Portal: FC = (props) => {
     }
   }, [location.search]);
 
-  return (
-    <Widget
-      src="http://localhost.k2assets.k2:3100/"
-      style={{ height: '100%' }}
-      appRoot
-    />
-  );
+  return <Widget src="/apps/point" style={{ height: '100%' }} appRoot />;
 };
 
 export default Portal;
