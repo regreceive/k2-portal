@@ -76,7 +76,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
     },
   },
   accessToken: {
-    get: () => getAccessToken(),
+    get: () => '{{{ authorization }}}' || 'Bearer ' + getAccessToken(),
   },
   config: {
     value: freezeDeep<Config>(window.$$config),

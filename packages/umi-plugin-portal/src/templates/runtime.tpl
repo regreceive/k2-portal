@@ -105,7 +105,10 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: utils.isInPortal ? ('Bearer ' + (getPortal().accessToken || sdk.lib.central.userInfo.boxState.accessToken)) : ('{{{ bearer }}}' || '{{{ authorization }}}'),
+        Authorization: utils.isInPortal
+          ? getPortal().accessToken ||
+            'Bearer ' + sdk.lib.central.userInfo.boxState.accessToken
+          : '{{{ bearer }}}' || '{{{ authorization }}}',
       };
       return {
         url,

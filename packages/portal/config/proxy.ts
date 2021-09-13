@@ -21,7 +21,9 @@ export default {
     },
     '/apps': {
       target: 'http://dfem.k2assets.k2:8082/web/public',
+      // target: 'http://localhost:3100/',
       changeOrigin: true,
+      // pathRewrite: { '^/point/': '/' },
     },
   },
 };
