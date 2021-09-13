@@ -13,7 +13,9 @@ export function pickProps<P>(component: React.FC<P>) {
  */
 export const isInPortal =
   // @ts-ignore
-  window !== window.$$K2RootWindow && window.$$K2RootWindow?.$$_K2_SDK;
+  (window !== window.$$K2RootWindow && window.$$K2RootWindow?.$$_K2_SDK) ||
+  // @ts-ignore
+  !!top?.g_portal;
 
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位

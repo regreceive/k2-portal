@@ -122,14 +122,8 @@ function _ref() {
 
             /** 当前应用是否作为主应用 */
             mainApp: joi.object({
-              /** 应用路径，比如 /public/apps */
-              appPath: joi.string(),
-
-              /** 启动单点登录 */
-              sso: joi.object({
-                clientUrl: joi.string(),
-                clientId: joi.string()
-              })
+              /** 应用目录的绝对路径，比如 /public/apps */
+              appPath: joi.string()
             }),
 
             /** 服务枚举 */
@@ -189,8 +183,7 @@ function _ref() {
           nacos,
           service: JSON.stringify(service, null, 4) || {},
           appPath: (_mainApp$appPath = mainApp === null || mainApp === void 0 ? void 0 : mainApp.appPath) !== null && _mainApp$appPath !== void 0 ? _mainApp$appPath : '',
-          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development'],
-          sso: JSON.stringify(mainApp === null || mainApp === void 0 ? void 0 : mainApp.sso, null, 4) || false
+          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
       }); // 生成ThemeLayout.tsx
 
@@ -217,8 +210,7 @@ function _ref() {
         path: 'plugin-portal/portal.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', `portal-${mainApp ? 'real' : 'mock'}.tpl`), 'utf-8'), {
           bearer,
-          authorization: base64,
-          sso: !!mainApp.sso
+          authorization: base64
         })
       }); // 生成sdk.ts
 

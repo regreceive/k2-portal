@@ -61,13 +61,8 @@ export default async function (api: IApi) {
           }),
           /** 当前应用是否作为主应用 */
           mainApp: joi.object({
-            /** 应用路径，比如 /public/apps */
+            /** 应用目录的绝对路径，比如 /public/apps */
             appPath: joi.string(),
-            /** 启动单点登录 */
-            sso: joi.object({
-              clientUrl: joi.string(),
-              clientId: joi.string(),
-            }),
           }),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
@@ -143,7 +138,6 @@ export default async function (api: IApi) {
           service: JSON.stringify(service, null, 4) || {},
           appPath: mainApp?.appPath ?? '',
           integrated: api.config.portal.integration[api?.env ?? 'development'],
-          sso: JSON.stringify(mainApp?.sso, null, 4) || false,
         },
       ),
     });
@@ -189,7 +183,6 @@ export default async function (api: IApi) {
         {
           bearer,
           authorization: base64,
-          sso: !!mainApp.sso,
         },
       ),
     });

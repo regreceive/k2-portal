@@ -3,7 +3,6 @@ window.$$config = {
   nacos: '{{{ nacos }}}',
   service: {{{ service }}},
   appPath: '{{{ appPath }}}',
-  sso: {{{ sso }}},
   alone: false,
 };
 
@@ -82,7 +81,7 @@ window.$$config = {
           if (!json) {
             throw Error;
           }
-          window.$$config = json;
+          window.$$config = {...window.$$config, ...json};
         })
         .catch(() => {
           fail();

@@ -4,68 +4,62 @@ const BASE_URL = location.origin + location.pathname; // 本地地址
 const CLIENT_URL = window.$$config.sso?.clientUrl; // hydra客户端地址
 const CLIENT_ID = window.$$config.sso?.clientId; // 客户端必须与之必须对应
 
-const mgr = new Oidc.UserManager({
-  userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }),
-  authority: CLIENT_URL,
-  client_id: CLIENT_ID, // 客户端必须与之必须对应
-  redirect_uri: `${BASE_URL}`,
-  response_type: 'code',
-  scope: 'openid offline',
-  silent_redirect_uri: `${BASE_URL}/silent-login.html`,
-  post_logout_redirect_uri: `${BASE_URL}`,
-  popup_redirect_uri: `${BASE_URL}`,
-  // requireConsent: false,
-  accessTokenExpiringNotificationTime: 60,
-  filterProtocolClaims: true,
-  // loadUserInfo: false,
-  revokeAccessTokenOnSignout: true,
-  automaticSilentRenew: false,
-  loadUserInfo: false,
-  response_mode: 'query',
+let mgr: Oidc.UserManager;
 
-  // metadata: {
-  //   issuer: `${CLIENT_URL}/`,
-  //   authorization_endpoint: `${CLIENT_URL}/oauth2/auth`,
-  //   userinfo_endpoint: `${CLIENT_URL}/userinfo`,
-  //   end_session_endpoint: `${CLIENT_URL}/oauth2/sessions/logout`,
-  //   jwks_uri: `${CLIENT_URL}/.well-known/jwks.json`,
-  //   includeIdTokenInSilentRenew: true,
-  // },
-  // includeIdTokenInSilentRenew: true,
-});
+if (CLIENT_URL && CLIENT_ID) {
+  mgr = new Oidc.UserManager({
+    userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }),
+    authority: CLIENT_URL,
+    client_id: CLIENT_ID, // 客户端必须与之必须对应
+    redirect_uri: `${BASE_URL}`,
+    response_type: 'code',
+    scope: 'openid offline',
+    silent_redirect_uri: `${BASE_URL}/silent-login.html`,
+    post_logout_redirect_uri: `${BASE_URL}`,
+    popup_redirect_uri: `${BASE_URL}`,
+    // requireConsent: false,
+    accessTokenExpiringNotificationTime: 60,
+    filterProtocolClaims: true,
+    // loadUserInfo: false,
+    revokeAccessTokenOnSignout: true,
+    automaticSilentRenew: false,
+    loadUserInfo: false,
+    response_mode: 'query',
+  });
 
-mgr.events.addAccessTokenExpiring(function () {
-  console.log('AccessToken Expiring：', arguments);
-});
+  mgr.events.addAccessTokenExpiring(function () {
+    console.log('AccessToken Expiring：', arguments);
+  });
 
-mgr.events.addAccessTokenExpired(() => {
-  // 超时
-  mgr
-    .signoutRedirect()
-    .then((resp) => {
-      console.log('signed out', resp);
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+  mgr.events.addAccessTokenExpired(() => {
+    // 超时
+    mgr
+      .signoutRedirect()
+      .then((resp) => {
+        console.log('signed out', resp);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
 
-mgr.events.addSilentRenewError(function () {
-  console.error('Silent Renew Error：', arguments);
-});
+  mgr.events.addSilentRenewError(function () {
+    console.error('Silent Renew Error：', arguments);
+  });
 
-mgr.events.addUserSignedOut(function () {
-  console.log('UserSignedOut：', arguments);
-  mgr
-    .signoutRedirect()
-    .then((resp) => {
-      console.log('signed out', resp);
-      window.location.href = BASE_URL;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-});
+  mgr.events.addUserSignedOut(function () {
+    console.log('UserSignedOut：', arguments);
+    mgr
+      .signoutRedirect()
+      .then((resp) => {
+        console.log('signed out', resp);
+        window.location.href = BASE_URL;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  });
+}
 
 class SecurityService {
   // Renew the token manually

@@ -1,10 +1,10 @@
 import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
-import { plugin, ApplyPluginsType } from 'umi';
 import { RequestConfig } from 'umi';
 import { utils } from 'k2-portal';
-import { AppContext, sdk, portalWindow } from './sdk';
+import { AppContext, sdk } from './sdk';
+import { getPortal } from './portal';
 import ThemeLayout from './ThemeLayout';
 
 let rootElement: HTMLDivElement;
@@ -105,7 +105,7 @@ export const request: RequestConfig = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: utils.isInPortal ? ('Bearer ' + sdk.lib.central.userInfo.boxState.accessToken) : ('{{{ bearer }}}' || '{{{ authorization }}}'),
+        Authorization: utils.isInPortal ? ('Bearer ' + (getPortal().accessToken || sdk.lib.central.userInfo.boxState.accessToken)) : ('{{{ bearer }}}' || '{{{ authorization }}}'),
       };
       return {
         url,

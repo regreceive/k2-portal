@@ -175,6 +175,11 @@ export const getPortal = () => portal;
 window.g_portal = portal;
 
 // 登录
-if (process.env.NODE_ENV !== 'development' && {{{ sso }}} && !getAccessToken()) {
-  sso.signIn();
+if (process.env.NODE_ENV !== 'development' && window.$$config.sso && !getAccessToken()) {
+  if (location.search.startsWith('?code=')) {
+    // 登录成功跳转
+    sso.signInCallback(history.replace);
+  } else {
+    sso.signIn();
+  }
 }

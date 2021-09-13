@@ -110,6 +110,8 @@ const res = await api.dataService.post(
 
 <Alert type="info">应用部署上线后，应用内的 nacos 网络请求会自动取消，读取到的配置均来自 Portal。</Alert>
 
+<Alert type="info">应用部署上线后，如果作为独立应用访问，仍然会访问 nacos 设置。</Alert>
+
 示例：
 
 ```js
@@ -147,6 +149,23 @@ const res = await api.dataService.post(
 
 ```js
 bearer: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTRiZWQtYTkyNi01N2MxM2UxZGMxNjQiLCJ0eXAiOiJKV1QifQ.eyJh.....';
+```
+
+### mainApp
+
+- 类型：`Object`
+- 默认值：undefined
+
+是否作为主应用入口，此时的应用会提供全局路由操作，以及单点登录。
+
+<Alert type="info">仅对开发环境有效，此设置不会被打包。</Alert>
+
+示例：
+
+```js
+  mainApp: {
+    appPath: '/public/apps',
+  }
 ```
 
 ## 运行时配置
