@@ -299,7 +299,7 @@ function _ref() {
 
 
         if (root !== api.cwd) {
-          if (root.endsWith('k2-portal')) {
+          if (root.includes('k2-portal')) {
             // 本地link过去的
             relative = winPath(_path().default.relative(api.cwd, '../../')) + '/';
           } else {

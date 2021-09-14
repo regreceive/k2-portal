@@ -301,7 +301,7 @@ export default async function (api: IApi) {
 
       // lerna
       if (root !== api.cwd) {
-        if (root.endsWith('k2-portal')) {
+        if (root.includes('k2-portal')) {
           // 本地link过去的
           relative = winPath(path.relative(api.cwd, '../../')) + '/';
         } else {

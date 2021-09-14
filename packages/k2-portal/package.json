@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "ahooks": "^2.10.6",
-    "echarts": "^5.x",
+    "echarts": "^5.2.0",
     "moment": "^2.29.1"
   },
   "devDependencies": {
