@@ -308,14 +308,7 @@ function _ref() {
         }
       } catch (_unused2) {}
 
-      const copy = [...(memo.copy || []), 'develop.js' // {
-      //   from: `${api.paths.absTmpPath!.replace(
-      //     api.paths?.cwd + '/' ?? '',
-      //     '',
-      //   )}/plugin-portal/init.js`,
-      //   to: 'init.js',
-      // },
-      ];
+      const copy = [...(memo.copy || [])];
 
       if (memo.portal.integration[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
         copy.push(...[{

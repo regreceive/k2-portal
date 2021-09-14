@@ -310,17 +310,7 @@ export default async function (api: IApi) {
       }
     } catch {}
 
-    const copy = [
-      ...(memo.copy || []),
-      'develop.js',
-      // {
-      //   from: `${api.paths.absTmpPath!.replace(
-      //     api.paths?.cwd + '/' ?? '',
-      //     '',
-      //   )}/plugin-portal/init.js`,
-      //   to: 'init.js',
-      // },
-    ];
+    const copy = [...(memo.copy || [])];
 
     if (memo.portal.integration[api?.env ?? 'development']) {
       copy.push(
