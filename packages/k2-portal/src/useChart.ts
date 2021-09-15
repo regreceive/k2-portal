@@ -63,7 +63,6 @@ export default function useChart<T extends HTMLDivElement>(
       notMerge?: boolean,
       lazyUpdate?: boolean,
     ) => {
-      chart.current?.clear();
       chart.current?.setOption(EChartsOption, notMerge, lazyUpdate);
     },
     [],
@@ -71,6 +70,7 @@ export default function useChart<T extends HTMLDivElement>(
 
   // 显示空数据界面
   const showEmpty = useCallback((text: string = '暂无数据') => {
+    chart.current?.clear();
     setOption({
       title: {
         text,

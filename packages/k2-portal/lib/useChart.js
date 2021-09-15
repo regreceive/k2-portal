@@ -88,13 +88,15 @@ function useChart(theme, opts) {
   }, []); // 图表选项设置
 
   const setOption = (0, _react().useCallback)((EChartsOption, notMerge, lazyUpdate) => {
-    var _chart$current, _chart$current2;
+    var _chart$current;
 
-    (_chart$current = chart.current) === null || _chart$current === void 0 ? void 0 : _chart$current.clear();
-    (_chart$current2 = chart.current) === null || _chart$current2 === void 0 ? void 0 : _chart$current2.setOption(EChartsOption, notMerge, lazyUpdate);
+    (_chart$current = chart.current) === null || _chart$current === void 0 ? void 0 : _chart$current.setOption(EChartsOption, notMerge, lazyUpdate);
   }, []); // 显示空数据界面
 
   const showEmpty = (0, _react().useCallback)((text = '暂无数据') => {
+    var _chart$current2;
+
+    (_chart$current2 = chart.current) === null || _chart$current2 === void 0 ? void 0 : _chart$current2.clear();
     setOption({
       title: {
         text,
