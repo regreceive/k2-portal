@@ -165,6 +165,12 @@ function stringifyParamValue(key, value) {
       return nextValue.join(` ${value[0].slice(1)} `);
     }
 
+    if ('$like' === value[0]) {
+      return value.slice(1).map(row => {
+        return `${key} like \'%${row}%\'`;
+      }).join(' or ');
+    }
+
     const nextValue = value.map(row => stringifyParamValue(key, row));
     return nextValue.join(' or ');
   }

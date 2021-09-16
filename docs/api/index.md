@@ -84,6 +84,13 @@ getInstance('entity', {
   },
 });
 // xxx/entities?name>=1 and name<=2
+
+getInstance('entity', {
+  param: {
+    name: ['$like', 'key'],
+  },
+});
+// xxx/entities?name like '%key%'
 ```
 
 返回数据类型
