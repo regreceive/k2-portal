@@ -138,7 +138,10 @@ function proxyFact(service: MockService) {
                 )
                 .field(key, value)
                 .end(null)
-                .then((res) => res);
+                .then((res) => {
+                  // bo这货对上传返回数据进行解析，这里修正一下返回真实数据
+                  return res.res;
+                });
             }
           }
 
