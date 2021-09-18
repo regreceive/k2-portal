@@ -24,6 +24,7 @@ export default function useChart<T extends HTMLDivElement>(
 ) {
   const chart = useRef<echarts.ECharts>();
   const ref = useRef<T>(null);
+  const emptyView = useRef(false);
   const update = useUpdate();
 
   useEffect(() => {
@@ -63,6 +64,10 @@ export default function useChart<T extends HTMLDivElement>(
       notMerge?: boolean,
       lazyUpdate?: boolean,
     ) => {
+      if (emptyView.current) {
+        chart.current?.clear();
+        emptyView.current = false;
+      }
       chart.current?.setOption(EChartsOption, notMerge, lazyUpdate);
     },
     [],
@@ -83,6 +88,7 @@ export default function useChart<T extends HTMLDivElement>(
       },
       backgroundColor: 'rgba(127,127,127,.05)',
     });
+    emptyView.current = true;
   }, []);
 
   return {

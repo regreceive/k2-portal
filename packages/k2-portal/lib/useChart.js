@@ -61,6 +61,7 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 function useChart(theme, opts) {
   const chart = (0, _react().useRef)();
   const ref = (0, _react().useRef)(null);
+  const emptyView = (0, _react().useRef)(false);
   const update = (0, _useUpdate().default)();
   (0, _react().useEffect)(() => {
     if (ref.current) {
@@ -88,15 +89,22 @@ function useChart(theme, opts) {
   }, []); // 图表选项设置
 
   const setOption = (0, _react().useCallback)((EChartsOption, notMerge, lazyUpdate) => {
-    var _chart$current;
+    var _chart$current2;
 
-    (_chart$current = chart.current) === null || _chart$current === void 0 ? void 0 : _chart$current.setOption(EChartsOption, notMerge, lazyUpdate);
+    if (emptyView.current) {
+      var _chart$current;
+
+      (_chart$current = chart.current) === null || _chart$current === void 0 ? void 0 : _chart$current.clear();
+      emptyView.current = false;
+    }
+
+    (_chart$current2 = chart.current) === null || _chart$current2 === void 0 ? void 0 : _chart$current2.setOption(EChartsOption, notMerge, lazyUpdate);
   }, []); // 显示空数据界面
 
   const showEmpty = (0, _react().useCallback)((text = '暂无数据') => {
-    var _chart$current2;
+    var _chart$current3;
 
-    (_chart$current2 = chart.current) === null || _chart$current2 === void 0 ? void 0 : _chart$current2.clear();
+    (_chart$current3 = chart.current) === null || _chart$current3 === void 0 ? void 0 : _chart$current3.clear();
     setOption({
       title: {
         text,
@@ -109,6 +117,7 @@ function useChart(theme, opts) {
       },
       backgroundColor: 'rgba(127,127,127,.05)'
     });
+    emptyView.current = true;
   }, []);
   return {
     ref,
