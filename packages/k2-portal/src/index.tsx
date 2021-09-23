@@ -1,7 +1,7 @@
 // @ts-ignore
 export * from '@@/plugin-portal/common';
 // @ts-ignore
-export * from '@@/plugin-portal/portal';
+// export * from '@@/plugin-portal/portal';
 // @ts-ignore
 export * from '@@/plugin-portal/sdk';
 export * from './appConfig';

@@ -2,9 +2,9 @@ import usePrevious from 'ahooks/es/usePrevious';
 import { Spin } from 'antd';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 // @ts-ignore
-import { getPortal } from '../';
+// import { getPortal } from '../';
 import { warn } from '../utils';
 import './style.css';
 
@@ -66,19 +66,19 @@ const Widget: FC<Props> = (props) => {
     }
   }, []);
 
-  const iframeUrl = useMemo(() => {
-    // 作为根应用，url受控
-    if (props.appRoot) {
-      const url = getPortal().currAppUrl;
-      if (url) {
-        return url;
-      }
-    }
-    if (props.src.includes('#') || props.src.endsWith('/')) {
-      return props.src;
-    }
-    return props.src + '/';
-  }, [props.src, props.appRoot]);
+  // const iframeUrl = useMemo(() => {
+  //   // 作为根应用，url受控
+  //   if (props.appRoot) {
+  //     const url = getPortal().currAppUrl;
+  //     if (url) {
+  //       return url;
+  //     }
+  //   }
+  //   if (props.src.includes('#') || props.src.endsWith('/')) {
+  //     return props.src;
+  //   }
+  //   return props.src + '/';
+  // }, [props.src, props.appRoot]);
 
   return (
     <div
@@ -90,14 +90,14 @@ const Widget: FC<Props> = (props) => {
       <iframe
         ref={frame}
         onLoad={() => {
-          if (props.appRoot) {
-            getPortal().setAppIframe(frame.current);
-          }
+          // if (props.appRoot) {
+          //   getPortal().setAppIframe(frame.current);
+          // }
           setLoading(false);
           moveCSS();
           renderApp();
         }}
-        src={iframeUrl}
+        src={props.src}
         style={{ display: 'none' }}
       />
       <Spin spinning={loading}>
