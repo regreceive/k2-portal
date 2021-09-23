@@ -17,8 +17,6 @@ var _classnames = _interopRequireDefault(require("classnames"));
 
 var _isEqual = _interopRequireDefault(require("lodash/isEqual"));
 
-var _ = require("../");
-
 var _utils = require("../utils");
 
 require("./style.css");
@@ -101,23 +99,20 @@ var Widget = function Widget(props) {
         (_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.appendChild(ele);
       }
     }
-  }, []);
-  var iframeUrl = (0, _react.useMemo)(function () {
-    // 作为根应用，url受控
-    if (props.appRoot) {
-      var url = (0, _.getPortal)().currAppUrl;
+  }, []); // const iframeUrl = useMemo(() => {
+  //   // 作为根应用，url受控
+  //   if (props.appRoot) {
+  //     const url = getPortal().currAppUrl;
+  //     if (url) {
+  //       return url;
+  //     }
+  //   }
+  //   if (props.src.includes('#') || props.src.endsWith('/')) {
+  //     return props.src;
+  //   }
+  //   return props.src + '/';
+  // }, [props.src, props.appRoot]);
 
-      if (url) {
-        return url;
-      }
-    }
-
-    if (props.src.includes('#') || props.src.endsWith('/')) {
-      return props.src;
-    }
-
-    return props.src + '/';
-  }, [props.src, props.appRoot]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     style: _objectSpread({
@@ -130,15 +125,14 @@ var Widget = function Widget(props) {
   }), /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
-      if (props.appRoot) {
-        (0, _.getPortal)().setAppIframe(frame.current);
-      }
-
+      // if (props.appRoot) {
+      //   getPortal().setAppIframe(frame.current);
+      // }
       setLoading(false);
       moveCSS();
       renderApp();
     },
-    src: iframeUrl,
+    src: props.src,
     style: {
       display: 'none'
     }

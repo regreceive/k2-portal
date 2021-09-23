@@ -1,5 +1,4 @@
 export * from '@@/plugin-portal/common';
-export * from '@@/plugin-portal/portal';
 export * from '@@/plugin-portal/sdk';
 export * from './appConfig';
 export * from './ButtonPermissionCheck';
