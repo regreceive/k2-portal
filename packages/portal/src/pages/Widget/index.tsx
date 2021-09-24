@@ -1,11 +1,9 @@
+import { portal } from '@@/plugin-portal/portal';
 import usePrevious from 'ahooks/es/usePrevious';
 import { Spin } from 'antd';
 import classNames from 'classnames';
 import isEqual from 'lodash/isEqual';
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-// @ts-ignore
-import { portal } from '../';
-import { warn } from '../utils';
 import './style.css';
 
 type Props = {
@@ -37,7 +35,7 @@ const Widget: FC<Props> = (props) => {
         props.appProps,
       );
     } catch {
-      warn(`${props.src} 子应用跨域了`);
+      console.log(`${props.src} 子应用跨域了`);
     }
   }, [props.appProps]);
 
@@ -91,7 +89,7 @@ const Widget: FC<Props> = (props) => {
         ref={frame}
         onLoad={() => {
           if (props.appRoot) {
-            portal.setAppIframe(frame.current);
+            portal.setAppIframe(frame.current!);
           }
           setLoading(false);
           moveCSS();

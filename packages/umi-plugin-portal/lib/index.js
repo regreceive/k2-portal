@@ -103,7 +103,7 @@ function _ref() {
             repo: '//fill_api_here'
           },
           buttonPermissionCheck: false,
-          bearer: ''
+          customToken: ''
         },
 
         schema(joi) {
@@ -140,7 +140,7 @@ function _ref() {
               development: joi.boolean(),
               production: joi.boolean()
             }),
-            bearer: joi.string()
+            customToken: joi.string()
           });
         },
 
@@ -166,7 +166,7 @@ function _ref() {
             appDefaultProps = _ref3.appDefaultProps,
             auth = _ref3.auth,
             buttonPermissionCheck = _ref3.buttonPermissionCheck,
-            bearer = _ref3.bearer,
+            customToken = _ref3.customToken,
             mainApp = _ref3.mainApp;
 
       const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64'); // 生成portal.less
@@ -177,7 +177,7 @@ function _ref() {
       }); // 生成init.js
 
       api.writeTmpFile({
-        path: 'plugin-portal/init.js',
+        path: 'plugin-portal/init.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
           appKey,
           nacos,
@@ -190,11 +190,11 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/ThemeLayout.tsx',
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8')
-      }); // 生成common.ts
+      }); // 生成CommonQuery.ts
 
       api.writeTmpFile({
-        path: 'plugin-portal/common.ts',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'common.tpl'), 'utf-8')
+        path: 'plugin-portal/CommonQuery.ts',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'CommonQuery.tpl'), 'utf-8')
       });
 
       if (mainApp) {
@@ -203,14 +203,34 @@ function _ref() {
           path: 'plugin-portal/sso.ts',
           content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sso.tpl'), 'utf-8')
         });
+      } else {
+        // 覆盖umi的history
+        const historyTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl'), 'utf-8');
+        const history = api.config.history; // @ts-ignore
+
+        const type = history.type,
+              _history$options = history.options,
+              options = _history$options === void 0 ? {} : _history$options; // 生成history
+
+        api.writeTmpFile({
+          path: 'core/history.ts',
+          content: Mustache.render(historyTpl, {
+            creator: `create${lodash.upperFirst(type)}History`,
+            options: JSON.stringify(_objectSpread(_objectSpread({}, options), type === 'browser' || type === 'hash' ? {
+              basename: api.config.base
+            } : {}), null, 2),
+            runtimePath,
+            appKey: api.env === 'production' ? appKey : ''
+          })
+        });
       } // 生成portal.ts
 
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.ts',
-        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', `portal-${mainApp ? 'real' : 'mock'}.tpl`), 'utf-8'), {
-          bearer,
-          authorization: base64
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', `portal.${mainApp ? 'real' : 'mock'}.tpl`), 'utf-8'), {
+          basic: base64,
+          version: require('../package').version
         })
       }); // 生成sdk.ts
 
@@ -222,38 +242,20 @@ function _ref() {
           appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(service)
         })
-      }); // 生成MockService.ts
+      }); // 生成CommonService.ts
 
       api.writeTmpFile({
-        path: 'plugin-portal/MockService.ts',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'MockService.tpl'), 'utf-8')
+        path: 'plugin-portal/CommonService.ts',
+        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'CommonService.tpl'), 'utf-8')
       }); // 生成runtime
 
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
           appKey,
-          bearer,
-          authorization: base64,
+          customToken,
+          basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps)
-        })
-      }); // 覆盖umi的history
-
-      const historyTpl = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl'), 'utf-8');
-      const history = api.config.history; // @ts-ignore
-
-      const type = history.type,
-            _history$options = history.options,
-            options = _history$options === void 0 ? {} : _history$options; // 生成history
-
-      api.writeTmpFile({
-        path: 'core/history.ts',
-        content: Mustache.render(historyTpl, {
-          creator: `create${lodash.upperFirst(type)}History`,
-          options: JSON.stringify(_objectSpread(_objectSpread({}, options), type === 'browser' || type === 'hash' ? {
-            basename: api.config.base
-          } : {}), null, 2),
-          runtimePath
         })
       });
     })); // 阻止antd被优化加载，否则antd无法被externals
@@ -283,7 +285,7 @@ function _ref() {
       config.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
         test: /umi(\.\w+)*\.?js$/
       }]);
-      config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.js'));
+      config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
       return config;
     }); // 复制资源文件到输出目录

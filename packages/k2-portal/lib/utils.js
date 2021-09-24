@@ -54,7 +54,7 @@ function _queryString() {
 
 const _excluded = ["param", "current", "pageSize"];
 
-var _window$$$K2RootWindo, _top;
+var _parent;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -75,11 +75,10 @@ function pickProps(component) {
  * 当前应用是否集成在portal中运行
  * @returns
  */
+// @ts-ignore
 
 
-const isInPortal = // @ts-ignore
-window !== window.$$K2RootWindow && ((_window$$$K2RootWindo = window.$$K2RootWindow) === null || _window$$$K2RootWindo === void 0 ? void 0 : _window$$$K2RootWindo.$$_K2_SDK) || // @ts-ignore
-!!((_top = top) === null || _top === void 0 ? void 0 : _top.g_portal);
+const isInPortal = parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params

@@ -1,10 +1,9 @@
 import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
-import { RequestConfig } from 'umi';
 import { utils } from 'k2-portal';
-import { AppContext, sdk } from './sdk';
-import { getPortal } from './portal';
+import { AppContext } from './sdk';
+import { portal } from './portal';
 import ThemeLayout from './ThemeLayout';
 
 let rootElement: HTMLDivElement;
@@ -12,15 +11,10 @@ let appRender: Function;
 let appProps = {{{ appDefaultProps }}};
 
 //@ts-ignore
-window.micPack = {
-  default: async (obj: any, props: any) => {
-    rootElement = obj.appBody;
-    // 如果在portal通过本地调试，portal会把sdk传过来，所以不接收
-    if (props.sdk === undefined) {
-      appProps = {...appProps, ...props};
-    }
-    appRender();
-  },
+window.renderChildApp =  (element: HTMLDivElement, props: any) => {
+  appProps = {...appProps, ...props, asWidget: true,};
+  rootElement = element;
+  appRender();
 };
 
 export function modifyClientRenderOpts(memo: any) {
@@ -30,10 +24,10 @@ export function modifyClientRenderOpts(memo: any) {
   };
 }
 
-export function render(oldRender: Function) {
-  appRender = oldRender;
-  if (window.$$config?.alone) {
-    oldRender();
+export function render(renderNow: Function) {
+  appRender = renderNow;
+  if (!utils.isInPortal) {
+    renderNow();
   }
 }
 
@@ -98,7 +92,7 @@ const errorHandler = (error: { response: Response }) => {
   });
 };
 
-export const request: RequestConfig = {
+export const request = {
   errorHandler,
   requestInterceptors: [
     (url, options) => {
@@ -106,9 +100,8 @@ export const request: RequestConfig = {
         ...options.headers,
         // k2assets接口需要添加权限字段
         Authorization: utils.isInPortal
-          ? getPortal().accessToken ||
-            'Bearer ' + sdk.lib.central.userInfo.boxState.accessToken
-          : '{{{ bearer }}}' || '{{{ authorization }}}',
+          ? portal.accessToken
+          : '{{{ customToken }}}' || '{{{ basic }}}',
       };
       return {
         url,

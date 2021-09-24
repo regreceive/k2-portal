@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getInstance } from '@@/plugin-portal/common';
+import { getInstance } from '@@/plugin-portal/CommonQuery';
 import { appKey } from '@@/plugin-portal/sdk';
 import { useEffect, useState } from 'react';
 import { warn } from './utils';

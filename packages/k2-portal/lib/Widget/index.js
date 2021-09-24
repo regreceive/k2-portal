@@ -17,6 +17,8 @@ var _classnames = _interopRequireDefault(require("classnames"));
 
 var _isEqual = _interopRequireDefault(require("lodash/isEqual"));
 
+var _ = require("../");
+
 var _utils = require("../utils");
 
 require("./style.css");
@@ -58,16 +60,12 @@ var Widget = function Widget(props) {
 
   var renderApp = (0, _react.useCallback)(function () {
     try {
-      var _frame$current, _frame$current$conten, _frame$current$conten2;
+      var _frame$current, _frame$current$conten;
 
       // @ts-ignore
-      (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : (_frame$current$conten2 = _frame$current$conten.micPack) === null || _frame$current$conten2 === void 0 ? void 0 : _frame$current$conten2.default({
-        appBody: bodyRef.current
-      }, _objectSpread(_objectSpread({}, props.appProps), {}, {
-        asWidget: true
-      }));
+      (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : _frame$current$conten.renderChildApp(bodyRef.current, props.appProps);
     } catch (_unused) {
-      (0, _utils.warn)("".concat(props.src, "\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86"));
+      (0, _utils.warn)("".concat(props.src, " \u5B50\u5E94\u7528\u8DE8\u57DF\u4E86"));
     }
   }, [props.appProps]);
   (0, _react.useEffect)(function () {
@@ -99,20 +97,23 @@ var Widget = function Widget(props) {
         (_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.appendChild(ele);
       }
     }
-  }, []); // const iframeUrl = useMemo(() => {
-  //   // 作为根应用，url受控
-  //   if (props.appRoot) {
-  //     const url = getPortal().currAppUrl;
-  //     if (url) {
-  //       return url;
-  //     }
-  //   }
-  //   if (props.src.includes('#') || props.src.endsWith('/')) {
-  //     return props.src;
-  //   }
-  //   return props.src + '/';
-  // }, [props.src, props.appRoot]);
+  }, []);
+  var iframeUrl = (0, _react.useMemo)(function () {
+    // 作为根应用，url受控
+    if (props.appRoot) {
+      var url = _.portal.currAppUrl;
 
+      if (url) {
+        return url;
+      }
+    }
+
+    if (props.src.includes('#') || props.src.endsWith('/')) {
+      return props.src;
+    }
+
+    return props.src + '/';
+  }, [props.src, props.appRoot]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     style: _objectSpread({
@@ -125,14 +126,15 @@ var Widget = function Widget(props) {
   }), /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
-      // if (props.appRoot) {
-      //   getPortal().setAppIframe(frame.current);
-      // }
+      if (props.appRoot) {
+        _.portal.setAppIframe(frame.current);
+      }
+
       setLoading(false);
       moveCSS();
       renderApp();
     },
-    src: props.src,
+    src: iframeUrl,
     style: {
       display: 'none'
     }

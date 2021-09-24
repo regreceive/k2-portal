@@ -17,10 +17,10 @@ function _react() {
   return data;
 }
 
-function _common() {
-  const data = require("@@/plugin-portal/common");
+function _CommonQuery() {
+  const data = require("@@/plugin-portal/CommonQuery");
 
-  _common = function _common() {
+  _CommonQuery = function _CommonQuery() {
     return data;
   };
 
@@ -85,7 +85,7 @@ function _getAppConfig() {
       return value;
     }
 
-    const promise = (0, _common().getInstance)('bcf_ui_config', {
+    const promise = (0, _CommonQuery().getInstance)('bcf_ui_config', {
       param: {
         key
       },

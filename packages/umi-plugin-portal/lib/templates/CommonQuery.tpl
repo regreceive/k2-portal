@@ -1,9 +1,8 @@
 /**
  * 建模器通用查表，如果不够请补充
  */
-import { useState, useEffect } from 'react';
 import { api } from './sdk';
-import { utils, warn } from 'k2-portal';
+import { utils } from 'k2-portal';
 
 type ResponseInstance = {
   attributes: any;

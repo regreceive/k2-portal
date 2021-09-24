@@ -17,7 +17,9 @@ type GlobalType = {
   config: Config;
   login: () => void;
   logout: () => void;
-  openApp: (appKey: string, path: string, replace?: boolean) => void;
+  openApp: (appKey: string, path: string, replace?: boolean) => {};
+  setAppIframe: (iframe: HTMLIFrameElement) => {};
+  currAppUrl: string;
 };
 
 // 深度冷冻对象
@@ -44,39 +46,33 @@ export const getAccessToken = () => {
   return _accessToken;
 };
 
-let _appKey = '';
 let _appIframe: HTMLIFrameElement;
-let _pathListenerIframe: { [key: string]: HTMLIFrameElement[] } = {};
 
 // 封印，防止不讲究的代码
 export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
   version: {
-    value: '',
+    value: '{{{ version }}}',
   },
   handleHistory: {
     get() {
-      return (appHistory: History) => {
-        Object.create(appHistory, {
-          push: {
-            get() {
-              return (path: string) => {
-                portal.openApp(_appKey, path);
-              };
-            },
+      return (appHistory: History, appKey: string) => {
+        return Object.assign(appHistory, {
+          push: (arg: any) => {
+            const path =
+              typeof arg === 'object' ? arg.pathname + arg.search : arg;
+            portal.openApp(appKey, path);
           },
-          replace: {
-            get() {
-              return (path: string) => {
-                portal.openApp(_appKey, path, true);
-              };
-            },
+          replace: (arg: any) => {
+            const path =
+              typeof arg === 'object' ? arg.pathname + arg.search : arg;
+            portal.openApp(appKey, path, true);
           },
         });
       };
     },
   },
   accessToken: {
-    get: () => '{{{ authorization }}}' || 'Bearer ' + getAccessToken(),
+    get: () => '{{{ basic }}}' || 'Bearer ' + getAccessToken(),
   },
   config: {
     value: freezeDeep<Config>(window.$$config),
@@ -98,22 +94,12 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
     get() {
       return (appKey: string, path: string, replace = false) => {
         const url =
-          '/apps/' + appKey + (path.startsWith('/') ? path : '/' + path);
+          '/app-' + appKey + (path.startsWith('/') ? path : '/' + path);
         if (replace) {
           history.replace(url);
         } else {
           history.push(url);
         }
-      };
-    },
-  },
-  shareHistory: {
-    get() {
-      return (appKey: string, iframe: HTMLIFrameElement) => {
-        _pathListenerIframe[appKey] = [
-          ...(_pathListenerIframe?.[appKey] ?? []),
-          iframe,
-        ];
       };
     },
   },
@@ -131,7 +117,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
         const [_, appKey, path = '/'] = result;
         const url = location.href;
         if (url) {
-          return `${window.$$config.appPath}/${appKey}/#${path}`.replace(
+          return `${window.$$config.appPath}/${appKey.replaceAll('.', '/')}/#${path}`.replace(
             '//',
             '/',
           );
@@ -145,27 +131,18 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
 // portal路由
 const portalMather = /^\/app\-([^\/]+)(?:\/(\S*))?/;
 // 主应用路由
-const appMatcher = /\/[^\/\.]+\/#\S*$/;
+const appMatcher = new RegExp('(?<=' + portal.config.appPath + '/).*');
 history.listen((listener) => {
   const result = portalMather.exec(listener.pathname);
   if (result) {
     const [_, appKey, path = '/'] = result;
-    _pathListenerIframe[appKey] =
-      _pathListenerIframe[appKey]?.filter((item) => item) ?? [];
-    _pathListenerIframe[appKey]?.forEach((iframe) => {
-      const url = iframe.contentWindow?.location.href;
-      if (url) {
-        iframe.contentWindow?.location.replace(
-          url.replace(/#\S*$/, `#${path}`),
-        );
-      }
-    });
-
     const url = _appIframe.contentWindow?.location.href;
     if (url) {
       _appIframe.contentWindow?.location.replace(
-        url.replace(appMatcher, `/${appKey}/#${path}`),
-      );
+        url
+          .replace(appMatcher, `/${appKey.replaceAll('.', '/')}/#/${path}`)
+          .replace(/(?<!:)\/\/+(?!:)/g, '/'),
+        );
     }
   }
 });

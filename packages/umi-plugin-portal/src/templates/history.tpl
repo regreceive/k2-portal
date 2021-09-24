@@ -1,4 +1,5 @@
 import { {{{ creator }}}, History } from '{{{ runtimePath }}}';
+import { portal } from '@@/plugin-portal/portal';
 
 let options = {{{ options }}};
 if ((<any>window).routerBase) {
@@ -12,14 +13,7 @@ export const createHistory = (hotReload = false) => {
 };
 
 function wrapHistory(history) {
-  let nextHistory = window.$$K2RootWindow?.$$_K2_SDK?.lib.utils.getHistory(self, history);
-
-  if (nextHistory) {
-    nextHistory.listen = history.listen;
-  } else {
-    nextHistory = history;
-  }
-
+  const nextHistory = portal.handleHistory(history, '{{{ appKey }}}');
   window.$$history = nextHistory;
   return nextHistory;
 }

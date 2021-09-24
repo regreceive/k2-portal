@@ -25,17 +25,6 @@ window.$$config = {
     console.log("%c"+str, "font-size:14px;color:#dd9900;text-shadow:1px 1px 2px #eee;");
   }
 
-  function getRootWindow(win) {
-    try {
-      if (win.parent === win) return win;
-      // @ts-ignore
-      if (win.parent['$$_K2_SDK']) return win.parent;
-      return getRootWindow(win.parent);
-    } catch (error) {
-      return window;
-    }
-  }
-
   function addScript(src) {
     const script = document.createElement('script');
     script.setAttribute('src', 'alone/' + src);
@@ -90,16 +79,11 @@ window.$$config = {
     return Promise.resolve();
   }
 
-  window.$$K2RootWindow = getRootWindow(window);
-
   // 使用portal的资源
-  window.React = window.$$K2RootWindow.React;
-  window.ReactDOM = window.$$K2RootWindow.ReactDOM;
-  window.antd = window.$$K2RootWindow.antd;
-  try {
-    // portal的antd引用portal的moment，为了保证antd的moment受控，应用内也要引用它
-    window.moment = $$K2RootWindow.$$_K2_SDK.lib.basis.moment;
-  } catch {}
+  window.React = parent.React;
+  window.ReactDOM = parent.ReactDOM;
+  window.antd = parent.antd;
+  window.moment = parent.moment;
 
   const proxyWindow = new Proxy({}, {
     get(target, key) {
@@ -123,7 +107,7 @@ window.$$config = {
   window.addEventListener('bundleReady', function (event) {
     if ({{{ integrated }}}) {
       if (!window.React) {
-        // 动态加载全局资源，此时作为独立应用
+        // 动态加载全局资源，此时作为独立应用或者Portal
         addLink('antd.css'),
         Promise.all([
           addScript('react.js'),
@@ -149,23 +133,10 @@ window.$$config = {
             doc.body.removeChild(antPopContainer);
           });
         }
-        
-        if (window.moment) {
-          // portal的moment没有加载中文语言包，这里加载一下会导致portal所有应用都有中文moment
-          if (moment.locale() === 'en') {
-            addScript('zh-cn.js');
-          }
-          event.detail.run(proxyWindow, window.parent.document);
-        } else {
-          // 引用应用的未必是portal
-          addScript('moment.js').then(() => {
-            addScript('zh-cn.js');
-            event.detail.run(proxyWindow, window.parent.document);
-          });
-        }
+        event.detail.run(proxyWindow, window.parent.document);
       }
     } else {
-      // 独立运行，自身含有依赖文件
+      // js module
       window.$$config.alone = true;
       event.detail.run(window, document);
     }

@@ -46,7 +46,7 @@ export default async function (api: IApi) {
           repo: '//fill_api_here',
         },
         buttonPermissionCheck: false,
-        bearer: '',
+        customToken: '',
       },
       schema(joi) {
         return joi.object({
@@ -75,7 +75,7 @@ export default async function (api: IApi) {
             development: joi.boolean(),
             production: joi.boolean(),
           }),
-          bearer: joi.string(),
+          customToken: joi.string(),
         });
       },
       onChange: api.ConfigChangeType.regenerateTmpFiles,
@@ -106,7 +106,7 @@ export default async function (api: IApi) {
       appDefaultProps,
       auth,
       buttonPermissionCheck,
-      bearer,
+      customToken,
       mainApp,
     } = api.config?.portal ?? {};
 
@@ -129,7 +129,7 @@ export default async function (api: IApi) {
 
     // 生成init.js
     api.writeTmpFile({
-      path: 'plugin-portal/init.js',
+      path: 'plugin-portal/init.ts',
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
@@ -151,11 +151,11 @@ export default async function (api: IApi) {
       ),
     });
 
-    // 生成common.ts
+    // 生成CommonQuery.ts
     api.writeTmpFile({
-      path: 'plugin-portal/common.ts',
+      path: 'plugin-portal/CommonQuery.ts',
       content: readFileSync(
-        join(__dirname, 'templates', 'common.tpl'),
+        join(__dirname, 'templates', 'CommonQuery.tpl'),
         'utf-8',
       ),
     });
@@ -165,6 +165,39 @@ export default async function (api: IApi) {
       api.writeTmpFile({
         path: 'plugin-portal/sso.ts',
         content: readFileSync(join(__dirname, 'templates', 'sso.tpl'), 'utf-8'),
+      });
+    } else {
+      // 覆盖umi的history
+      const historyTpl = readFileSync(
+        join(
+          __dirname,
+          'templates',
+          api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl',
+        ),
+        'utf-8',
+      );
+      const history = api.config.history!;
+      // @ts-ignore
+      const { type, options = {} } = history;
+
+      // 生成history
+      api.writeTmpFile({
+        path: 'core/history.ts',
+        content: Mustache.render(historyTpl, {
+          creator: `create${lodash.upperFirst(type)}History`,
+          options: JSON.stringify(
+            {
+              ...options,
+              ...(type === 'browser' || type === 'hash'
+                ? { basename: api.config.base }
+                : {}),
+            },
+            null,
+            2,
+          ),
+          runtimePath,
+          appKey: api.env === 'production' ? appKey : '',
+        }),
       });
     }
 
@@ -176,13 +209,13 @@ export default async function (api: IApi) {
           join(
             __dirname,
             'templates',
-            `portal-${mainApp ? 'real' : 'mock'}.tpl`,
+            `portal.${mainApp ? 'real' : 'mock'}.tpl`,
           ),
           'utf-8',
         ),
         {
-          bearer,
-          authorization: base64,
+          basic: base64,
+          version: require('../package').version,
         },
       ),
     });
@@ -201,11 +234,11 @@ export default async function (api: IApi) {
       ),
     });
 
-    // 生成MockService.ts
+    // 生成CommonService.ts
     api.writeTmpFile({
-      path: 'plugin-portal/MockService.ts',
+      path: 'plugin-portal/CommonService.ts',
       content: readFileSync(
-        join(__dirname, 'templates', 'MockService.tpl'),
+        join(__dirname, 'templates', 'CommonService.tpl'),
         'utf-8',
       ),
     });
@@ -217,43 +250,11 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
           appKey,
-          bearer,
-          authorization: base64,
+          customToken,
+          basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
         },
       ),
-    });
-
-    // 覆盖umi的history
-    const historyTpl = readFileSync(
-      join(
-        __dirname,
-        'templates',
-        api.config.runtimeHistory ? 'history.runtime.tpl' : 'history.tpl',
-      ),
-      'utf-8',
-    );
-    const history = api.config.history!;
-    // @ts-ignore
-    const { type, options = {} } = history;
-
-    // 生成history
-    api.writeTmpFile({
-      path: 'core/history.ts',
-      content: Mustache.render(historyTpl, {
-        creator: `create${lodash.upperFirst(type)}History`,
-        options: JSON.stringify(
-          {
-            ...options,
-            ...(type === 'browser' || type === 'hash'
-              ? { basename: api.config.base }
-              : {}),
-          },
-          null,
-          2,
-        ),
-        runtimePath,
-      }),
     });
   });
 
@@ -281,7 +282,7 @@ export default async function (api: IApi) {
 
     config
       .entry('init')
-      .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.js'));
+      .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.ts'));
 
     config.optimization.set('runtimeChunk', 'single');
     return config;
