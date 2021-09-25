@@ -382,6 +382,9 @@ function _ref() {
         runtimePublicPath: true,
         publicPath: './',
         hash: true,
+        history: {
+          type: 'hash'
+        },
         chunks: ['runtime', 'init', 'umi'],
         externals: externals,
         antd: memo.portal.integration[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? false : memo.antd,

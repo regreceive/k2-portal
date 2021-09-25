@@ -46,14 +46,18 @@ class AppGenerator extends _utils().Generator {
     var _this = this;
 
     return _asyncToGenerator(function* () {
+      const version = require('../../package').version;
+
       _this.copyDirectory({
         context: {
-          version: require('../../package').version,
+          version,
           conventionRoutes: _this.args.conventionRoutes
         },
-        path: (0, _path().join)(__dirname, '../../templates/app'),
+        path: (0, _path().join)(__dirname, '../../templates/portal'),
         target: _this.cwd
       });
+
+      console.log('\nPortal 模板创建完成，版本：@%s', _utils().chalk.cyan(version));
     })();
   }
 
