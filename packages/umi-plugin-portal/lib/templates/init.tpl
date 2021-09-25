@@ -6,6 +6,9 @@ window.$$config = {
   alone: false,
 };
 
+// runtimePublicPath，渲染到主应用后的子应用，比如图片需要改成绝对路径
+window.publicPath = location.pathname;
+
 (function () {
   try {
     window.document.domain = window.location.host

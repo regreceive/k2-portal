@@ -61,8 +61,11 @@ export default async function (api: IApi) {
           }),
           /** 当前应用是否作为主应用 */
           mainApp: joi.object({
-            /** 应用目录的绝对路径，比如 /public/apps */
-            appPath: joi.string(),
+            /** 应用目录的绝对路径，比如 /public/apps，不能以反斜杠结尾 */
+            appPath: joi
+              .string()
+              .pattern(/^\/[\w\d\/]+[^\/]$/)
+              .required(),
           }),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
@@ -196,7 +199,7 @@ export default async function (api: IApi) {
             2,
           ),
           runtimePath,
-          appKey: api.env === 'production' ? appKey : '',
+          appKey,
         }),
       });
     }
@@ -394,13 +397,14 @@ export default async function (api: IApi) {
     }
 
     // 引用init.js
-    const headScripts = [
-      ...(memo.headScripts || []),
-      //  { src: 'init.js' },
-    ];
+    const headScripts = [...(memo.headScripts || [])];
 
     return {
       ...memo,
+      runtimePublicPath: true,
+      publicPath: './',
+      hash: true,
+      history: { type: 'hash' },
       chunks: ['runtime', 'init', 'umi'],
       externals: externals,
       antd: memo.portal.integration[api?.env ?? 'development']

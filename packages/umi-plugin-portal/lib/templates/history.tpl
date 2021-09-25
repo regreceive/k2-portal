@@ -13,7 +13,7 @@ export const createHistory = (hotReload = false) => {
 };
 
 function wrapHistory(history) {
-  const nextHistory = portal.handleHistory(history, '{{{ appKey }}}');
+  const nextHistory = portal.handleHistory(history, self.location.pathname);
   window.$$history = nextHistory;
   return nextHistory;
 }

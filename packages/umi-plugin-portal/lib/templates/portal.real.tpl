@@ -55,17 +55,23 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
   },
   handleHistory: {
     get() {
-      return (appHistory: History, appKey: string) => {
+      return (appHistory: History, pathname: string) => {
+        const appPathname = pathname // out: /apps/widget/line/
+          .replace(portal.config.appPath, '') // out: /widget/line/
+          .slice(1) // 去掉第一个反斜杠 out: widget/line/
+          .replaceAll('/', '-') // out: widget-line-
+          .replace(/\-$/, ''); // out: widget-line
+          
         return Object.assign(appHistory, {
           push: (arg: any) => {
             const path =
               typeof arg === 'object' ? arg.pathname + arg.search : arg;
-            portal.openApp(appKey, path);
+            portal.openApp(appPathname, path);
           },
           replace: (arg: any) => {
             const path =
               typeof arg === 'object' ? arg.pathname + arg.search : arg;
-            portal.openApp(appKey, path, true);
+            portal.openApp(appPathname, path, true);
           },
         });
       };
@@ -94,7 +100,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
     get() {
       return (appKey: string, path: string, replace = false) => {
         const url =
-          '/app-' + appKey + (path.startsWith('/') ? path : '/' + path);
+          '/app/' + appKey + (path.startsWith('/') ? path : '/' + path);
         if (replace) {
           history.replace(url);
         } else {
@@ -117,7 +123,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
         const [_, appKey, path = '/'] = result;
         const url = location.href;
         if (url) {
-          return `${window.$$config.appPath}/${appKey.replaceAll('.', '/')}/#${path}`.replace(
+          return `${portal.config.appPath}/${appKey.replaceAll('-', '/')}/#${path}`.replace(
             '//',
             '/',
           );
@@ -128,8 +134,8 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
   },
 });
 
-// portal路由
-const portalMather = /^\/app\-([^\/]+)(?:\/(\S*))?/;
+// portal的完整路径：app/子应用路径-子应用名称/子应用路由
+const portalMather = /^\/app\/([^\/]+)(?:\/(\S*))?/;
 // 主应用路由
 const appMatcher = new RegExp('(?<=' + portal.config.appPath + '/).*');
 history.listen((listener) => {
@@ -140,8 +146,9 @@ history.listen((listener) => {
     if (url) {
       _appIframe.contentWindow?.location.replace(
         url
-          .replace(appMatcher, `/${appKey.replaceAll('.', '/')}/#/${path}`)
-          .replace(/(?<!:)\/\/+(?!:)/g, '/'),
+          .replace(appMatcher, `/${appKey.replaceAll('-', '/')}/#/${path}`)
+          // 去重2个反斜杠
+          .replace(/(?<!:)\/{2}/g, '/'),
         );
     }
   }

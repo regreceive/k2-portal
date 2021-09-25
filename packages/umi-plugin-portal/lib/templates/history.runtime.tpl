@@ -37,7 +37,7 @@ export const setCreateHistoryOptions = (newOpts: any = {}) => {
 export const getCreateHistoryOptions = () => options;
 
 function wrapHistory(history) {
-  const nextHistory = getPortal().handleHistory(history,  '{{{ appKey }}}');
+  const nextHistory = getPortal().handleHistory(history,  self.location.pathname);
 
   window.$$history = nextHistory;
   return nextHistory;
