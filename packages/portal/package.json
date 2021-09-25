@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "portal",
-  "version": "1.1.15",
+  "version": "1.2.0-alpha.0",
   "scripts": {
     "start": "umi dev",
     "build": "umi build",
@@ -24,7 +24,7 @@
   "dependencies": {
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/preset-react": "1.x",
-    "k2-portal": "^1.1.15",
+    "k2-portal": "^1.2.0-alpha.0",
     "oidc-client": "^1.11.5",
     "umi": "^3.5.0"
   },
@@ -38,7 +38,7 @@
     "react": "17.x",
     "react-dom": "17.x",
     "typescript": "^4.1.2",
-    "umi-plugin-portal": "^1.1.15",
+    "umi-plugin-portal": "^1.2.0-alpha.0",
     "yorkie": "^2.0.0"
   }
 }
