@@ -8,6 +8,7 @@ type Config = {
     clientId: string;
     clientUrl: string;
   };
+  appPath: string;
 };
 
 type GlobalType = {
@@ -39,7 +40,7 @@ function freezeDeep<T>(obj: any): T {
 
 // 用户token
 let _accessToken: any = '';
-export const getAccessToken = () => {
+const getAccessToken = () => {
   if (_accessToken === '') {
     _accessToken = localStorage.getItem('token');
   }
@@ -49,7 +50,7 @@ export const getAccessToken = () => {
 let _appIframe: HTMLIFrameElement;
 
 // 封印，防止不讲究的代码
-export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
+export const portal: GlobalType = Object.defineProperties({} as GlobalType, {
   version: {
     value: '{{{ version }}}',
   },
@@ -58,7 +59,7 @@ export const portal = Object.defineProperties<GlobalType>({} as GlobalType, {
       return (appHistory: History, pathname: string) => {
         const appPathname = pathname // out: /apps/widget/line/
           .replace(portal.config.appPath, '') // out: /widget/line/
-          .slice(1) // 去掉第一个反斜杠 out: widget/line/
+          .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
           .replaceAll('/', '-') // out: widget-line-
           .replace(/\-$/, ''); // out: widget-line
           
