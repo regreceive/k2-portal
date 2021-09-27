@@ -35,6 +35,8 @@ const mockPortal =  {
   currAppUrl: '',
 }
 
+window.g_portal = mockPortal;
+
 // @ts-ignore
 export const portal = (parent.g_portal as typeof mockPortal) || mockPortal;
 // @ts-ignore
