@@ -90,6 +90,13 @@ window.publicPath = location.pathname;
 
   const proxyWindow = new Proxy({}, {
     get(target, key) {
+      if (key === 'window') {
+        return proxyWindow;
+      }
+      // 针对paper.js
+      if (key === 'HTMLCanvasElement') {
+        return parent.window.HTMLCanvasElement;
+      }
       // 防止有的代码会以window.document来访问document
       if (key === 'document') {
         return window.parent.document;
@@ -106,6 +113,8 @@ window.publicPath = location.pathname;
       return Reflect.set(window, key, value);
     }
   });
+
+  self = proxyWindow;
 
   window.addEventListener('bundleReady', function (event) {
     if ({{{ integrated }}}) {
