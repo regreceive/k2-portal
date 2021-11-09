@@ -44,7 +44,7 @@ class WaitRunWebpackPlugin {
 
       if ((_this$options$test = this.options.test) === null || _this$options$test === void 0 ? void 0 : _this$options$test.test(key)) {
         ret = [key, `(function () {
-          var run = function (window, document) {
+          var run = function (window, document, self) {
             ${assets[key].source()}
           };
           var evt = document.createEvent('CustomEvent');

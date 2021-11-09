@@ -18,7 +18,7 @@ class WaitRunWebpackPlugin {
         ret = [
           key,
           `(function () {
-          var run = function (window, document) {
+          var run = function (window, document, self) {
             ${assets[key].source()}
           };
           var evt = document.createEvent('CustomEvent');

@@ -90,10 +90,10 @@ window.publicPath = location.pathname;
 
   const proxyWindow = new Proxy({}, {
     get(target, key) {
+      // 针对paper.js: self.window
       if (key === 'window') {
         return proxyWindow;
       }
-      // 针对paper.js
       if (key === 'HTMLCanvasElement') {
         return parent.window.HTMLCanvasElement;
       }
@@ -114,8 +114,6 @@ window.publicPath = location.pathname;
     }
   });
 
-  self = proxyWindow;
-
   window.addEventListener('bundleReady', function (event) {
     if ({{{ integrated }}}) {
       if (!window.React) {
@@ -132,7 +130,7 @@ window.publicPath = location.pathname;
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(window, document);
+          event.detail.run(window, document, window);
         });
       } else {
         // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
@@ -145,12 +143,12 @@ window.publicPath = location.pathname;
             doc.body.removeChild(antPopContainer);
           });
         }
-        event.detail.run(proxyWindow, window.parent.document);
+        event.detail.run(proxyWindow, window.parent.document, proxyWindow);
       }
     } else {
       // js module
       window.$$config.alone = true;
-      event.detail.run(window, document);
+      event.detail.run(window, document, window);
     }
   });
 })();
