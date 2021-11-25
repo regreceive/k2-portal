@@ -48,27 +48,38 @@ class WaitRunWebpackPlugin {
     }
 
     // 适配webpack5
-    compiler.hooks.thisCompilation.tap(
-      'WaitRunWebpackPlugin',
-      (compilation) => {
-        compilation.hooks.processAssets.tap(
-          {
-            name: 'WaitRunWebpackPlugin',
-            // https://webpack.docschina.org/api/compilation-hooks/#list-of-asset-processing-stages
-            stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
-          },
-          (assets) => {
-            const values = this.wrapContent(assets);
-            if (values.length > 0) {
-              compilation.updateAsset(
-                values[0],
-                new webpack.sources.RawSource(values[1]),
-              );
+    const chunkNameMatcher = this.options.test;
+    compiler.hooks.compilation.tap('WaitRunWebpackPlugin', (compilation) => {
+      compilation.hooks.processAssets.tap(
+        {
+          name: 'WaitRunWebpackPlugin',
+          // https://webpack.docschina.org/api/compilation-hooks/#list-of-asset-processing-stages
+          stage: webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+        },
+        () => {
+          for (const chunk of compilation.chunks) {
+            if (chunk.canBeInitial()) {
+              for (const file of chunk.files) {
+                if (chunkNameMatcher.test(file)) {
+                  compilation.updateAsset(file, (old) => {
+                    return new webpack.sources.ConcatSource(
+                      `(function () {
+                        var run = function (window, document) {\n`,
+                      old,
+                      `\n };
+                        var evt = document.createEvent('CustomEvent');
+                        evt.initCustomEvent('bundleReady', false, false, {run: run});
+                        window.dispatchEvent(evt);
+                      })();`,
+                    );
+                  });
+                }
+              }
             }
-          },
-        );
-      },
-    );
+          }
+        },
+      );
+    });
   }
 }
 
