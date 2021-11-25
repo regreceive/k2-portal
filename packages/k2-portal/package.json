@@ -1,7 +1,7 @@
 {
   "name": "k2-portal",
-  "version": "2.0.0-alpha.0",
-  "description": "> TODO: description",
+  "version": "2.0.0",
+  "description": "k2-portal libraries",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
   "license": "MIT",
