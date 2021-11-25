@@ -107,7 +107,7 @@ class WaitRunWebpackPlugin {
                   if (chunkNameMatcher.test(file)) {
                     compilation.updateAsset(file, old => {
                       return new (_webpack().default.sources.ConcatSource)(`(function () {
-                        var run = function (window, document) {\n`, old, `\n };
+                        var run = function (window, document, self) {\n`, old, `\n };
                         var evt = document.createEvent('CustomEvent');
                         evt.initCustomEvent('bundleReady', false, false, {run: run});
                         window.dispatchEvent(evt);

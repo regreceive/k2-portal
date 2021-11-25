@@ -64,7 +64,7 @@ class WaitRunWebpackPlugin {
                   compilation.updateAsset(file, (old) => {
                     return new webpack.sources.ConcatSource(
                       `(function () {
-                        var run = function (window, document) {\n`,
+                        var run = function (window, document, self) {\n`,
                       old,
                       `\n };
                         var evt = document.createEvent('CustomEvent');
