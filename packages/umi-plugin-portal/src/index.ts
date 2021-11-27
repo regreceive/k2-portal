@@ -62,10 +62,7 @@ export default async function (api: IApi) {
           /** 当前应用是否作为主应用 */
           mainApp: joi.object({
             /** 应用目录的绝对路径，比如 /public/apps，不能以反斜杠结尾 */
-            appPath: joi
-              .string()
-              .pattern(/^\/[\w\d\/]+[^\/]$/)
-              .required(),
+            appPath: joi.string().required(),
           }),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
@@ -139,7 +136,7 @@ export default async function (api: IApi) {
           appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
-          appPath: mainApp?.appPath ?? '',
+          appPath: mainApp?.appPath?.replace(/\/*$/, '') ?? '',
           integrated: api.config.portal.integration[api?.env ?? 'development'],
         },
       ),
@@ -347,18 +344,24 @@ export default async function (api: IApi) {
       );
 
       if (api.env === 'development') {
-        copy.push({
-          from: `${relative}node_modules/antd/dist/antd.min.js.map`,
-          to: 'alone/antd.min.js.map',
-        });
-        copy.push({
-          from: `${relative}node_modules/moment/min/moment.min.js.map`,
-          to: 'alone/moment.min.js.map',
-        });
-        copy.push({
-          from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-          to: 'alone/antd.min.css.map',
-        });
+        copy.push(
+          {
+            from: `${relative}node_modules/antd/dist/antd.min.js.map`,
+            to: 'alone/antd.min.js.map',
+          },
+          {
+            from: `${relative}node_modules/moment/min/moment.min.js.map`,
+            to: 'alone/moment.min.js.map',
+          },
+          {
+            from: `${relative}node_modules/antd/dist/antd.min.css.map`,
+            to: 'alone/antd.min.css.map',
+          },
+          {
+            from: `${relative}node_modules/react-router-config/cjs/react-router-config.js.map`,
+            to: 'react-router-config.js.map',
+          },
+        );
       }
     }
 

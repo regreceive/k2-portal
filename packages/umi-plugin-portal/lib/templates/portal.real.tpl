@@ -20,6 +20,7 @@ type GlobalType = {
   logout: () => void;
   openApp: (appKey: string, path: string, replace?: boolean) => {};
   setAppIframe: (iframe: HTMLIFrameElement) => {};
+  currAppKey: string;
   currAppUrl: string;
 };
 
@@ -96,10 +97,16 @@ export const portal: GlobalType = Object.defineProperties({} as GlobalType, {
       sso.signOut();
     },
   },
-  // 应用间跳转
+
   openApp: {
     get() {
-      return (appKey: string, path: string, replace = false) => {
+      /**
+        * 应用间跳转
+        * @param appKey 应用路径，如果存在多级目录，用“-”连接
+        * @param path 应用自己的路由
+        * @param replace 是否跳转
+        */ 
+      return (appKey: string, path: string = '', replace = false) => {
         const url =
           '/app/' + appKey + (path.startsWith('/') ? path : '/' + path);
         if (replace) {
@@ -117,6 +124,17 @@ export const portal: GlobalType = Object.defineProperties({} as GlobalType, {
       };
     },
   },
+  // 返回当前运行appKey
+  currAppKey: {
+    get() {
+      const result = portalMather.exec(history.location.pathname);
+      if (result) {
+        const [_, appKey] = result;
+        return appKey;
+      }
+      return '';
+    }
+  },
   currAppUrl: {
     get() {
       const result = portalMather.exec(history.location.pathname);
@@ -124,7 +142,7 @@ export const portal: GlobalType = Object.defineProperties({} as GlobalType, {
         const [_, appKey, path = '/'] = result;
         const url = location.href;
         if (url) {
-          return `${portal.config.appPath}/${appKey.replaceAll('-', '/')}/#${path}`.replace(
+          return `/${appKey.replaceAll('-', '/')}/#${path}`.replace(
             '//',
             '/',
           );
@@ -164,6 +182,9 @@ if (process.env.NODE_ENV !== 'development' && window.$$config.sso && !getAccessT
   if (location.search.startsWith('?code=')) {
     // 登录成功跳转
     sso.signInCallback(history.replace);
+    sso.getAcessToken().then(res => {
+      localStorage.setItem('token', res);
+    });
   } else {
     sso.signIn();
   }

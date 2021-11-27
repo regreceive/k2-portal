@@ -123,7 +123,7 @@ function _ref() {
             /** 当前应用是否作为主应用 */
             mainApp: joi.object({
               /** 应用目录的绝对路径，比如 /public/apps，不能以反斜杠结尾 */
-              appPath: joi.string().pattern(/^\/[\w\d\/]+[^\/]$/).required()
+              appPath: joi.string().required()
             }),
 
             /** 服务枚举 */
@@ -157,7 +157,7 @@ function _ref() {
       }];
     });
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-      var _api$config$portal, _api$config, _mainApp$appPath, _api$env;
+      var _api$config$portal, _api$config, _mainApp$appPath$repl, _mainApp$appPath, _api$env;
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
             appKey = _ref3.appKey,
@@ -182,7 +182,7 @@ function _ref() {
           appKey,
           nacos,
           service: JSON.stringify(service, null, 4) || {},
-          appPath: (_mainApp$appPath = mainApp === null || mainApp === void 0 ? void 0 : mainApp.appPath) !== null && _mainApp$appPath !== void 0 ? _mainApp$appPath : '',
+          appPath: (_mainApp$appPath$repl = mainApp === null || mainApp === void 0 ? void 0 : (_mainApp$appPath = mainApp.appPath) === null || _mainApp$appPath === void 0 ? void 0 : _mainApp$appPath.replace(/\/*$/, '')) !== null && _mainApp$appPath$repl !== void 0 ? _mainApp$appPath$repl : '',
           integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
       }); // 生成ThemeLayout.tsx
@@ -337,14 +337,15 @@ function _ref() {
           copy.push({
             from: `${relative}node_modules/antd/dist/antd.min.js.map`,
             to: 'alone/antd.min.js.map'
-          });
-          copy.push({
+          }, {
             from: `${relative}node_modules/moment/min/moment.min.js.map`,
             to: 'alone/moment.min.js.map'
-          });
-          copy.push({
+          }, {
             from: `${relative}node_modules/antd/dist/antd.min.css.map`,
             to: 'alone/antd.min.css.map'
+          }, {
+            from: `${relative}node_modules/react-router-config/cjs/react-router-config.js.map`,
+            to: 'react-router-config.js.map'
           });
         }
       }

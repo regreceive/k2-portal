@@ -32,6 +32,7 @@ const mockPortal =  {
   logout: () => {},
   openApp: (appKey: string, path: string, replace?: boolean) => {},
   setAppIframe: (iframe: HTMLIFrameElement) => {},
+  currAppKey: '',
   currAppUrl: '',
 }
 

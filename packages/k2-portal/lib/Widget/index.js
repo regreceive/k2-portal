@@ -101,18 +101,20 @@ var Widget = function Widget(props) {
   var iframeUrl = (0, _react.useMemo)(function () {
     // 作为根应用，url受控
     if (props.appRoot) {
-      var url = _.portal.currAppUrl;
+      var url = _.portal.config.appPath + _.portal.currAppUrl;
 
       if (url) {
         return url;
       }
     }
 
+    var targetUrl = (_.portal.config.appPath + '/' + props.src).replace(/\/{2,}/g, '/');
+
     if (props.src.includes('#') || props.src.endsWith('/')) {
-      return props.src;
+      return targetUrl;
     }
 
-    return props.src + '/';
+    return targetUrl + '/';
   }, [props.src, props.appRoot]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",

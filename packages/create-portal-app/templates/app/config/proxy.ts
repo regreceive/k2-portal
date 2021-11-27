@@ -1,7 +1,7 @@
 export default {
   dev: {
     '/nacos/': {
-      target: 'http://dfem.k2assets.k2:8082',
+      target: 'http://192.167.2.11:8082',
       changeOrigin: true,
       // pathRewrite: { '^/nacos/': '/' },
     },
@@ -12,11 +12,11 @@ export default {
       secure: false,
     },
     '/data-service': {
-      target: 'http://dfem.k2assets.k2:8082',
+      target: 'http://192.167.2.11:8082',
       changeOrigin: true,
     },
     '/bcf': {
-      target: 'http://dfem.k2assets.k2:8082',
+      target: 'http://192.167.2.11:8082',
       changeOrigin: true,
     },
   },

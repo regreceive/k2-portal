@@ -25,7 +25,7 @@
     "@umijs/preset-react": "1.x",
     "k2-portal": "^{{{ version }}}",
     "oidc-client": "^1.11.5",
-    "umi": "^3.5.0"
+    "umi": "^3.5.20"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.170",
