@@ -30,7 +30,7 @@ const mockPortal =  {
   config: freezeDeep<Config>(window.$$config),
   login: () => {},
   logout: () => {},
-  openApp: (appKey: string, path: string, replace?: boolean) => {},
+  openApp: (appKey: string, path: string = '/', replace?: boolean) => {},
   setAppIframe: (iframe: HTMLIFrameElement) => {},
   currAppKey: '',
   currAppUrl: '',
@@ -40,6 +40,3 @@ window.g_portal = mockPortal;
 
 // @ts-ignore
 export const portal = (parent.g_portal as typeof mockPortal) || mockPortal;
-// @ts-ignore
-export const getPortal = () =>
-  (parent.g_portal as typeof mockPortal) || mockPortal;

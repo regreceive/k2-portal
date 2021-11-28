@@ -58,16 +58,32 @@ var Widget = function Widget(props) {
       loading = _useState2[0],
       setLoading = _useState2[1];
 
-  var renderApp = (0, _react.useCallback)(function () {
-    try {
-      var _frame$current, _frame$current$conten;
+  var iframeUrl = (0, _react.useMemo)(function () {
+    // 作为根应用，url受控
+    if (props.appRoot) {
+      var url = _.portal.config.appPath + _.portal.currAppUrl;
 
-      // @ts-ignore
-      (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : _frame$current$conten.renderChildApp(bodyRef.current, props.appProps);
-    } catch (_unused) {
-      (0, _utils.warn)("".concat(props.src, " \u5B50\u5E94\u7528\u8DE8\u57DF\u4E86"));
+      if (url) {
+        return url;
+      }
     }
-  }, [props.appProps]);
+
+    var targetUrl = (_.portal.config.appPath + '/' + props.src).replace(/\/{2,}/g, '/');
+
+    if (props.src === '' || props.src.includes('#') || props.src.endsWith('/')) {
+      return targetUrl;
+    }
+
+    return targetUrl + '/';
+  }, [props.src, props.appRoot]);
+  var renderApp = (0, _react.useCallback)(function () {
+    var _frame$current, _frame$current$conten, _frame$current$conten2;
+
+    // 有可能来自appProps的更新，此时iframe还没有加载完页面造成没有renderChildApp这个函数
+    // @ts-ignore
+    (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : (_frame$current$conten2 = _frame$current$conten.renderChildApp) === null || _frame$current$conten2 === void 0 ? void 0 : _frame$current$conten2.call(_frame$current$conten, bodyRef.current, props.appProps);
+  }, [props.appProps, iframeUrl]); // 应用的props更新，进行一次渲染
+
   (0, _react.useEffect)(function () {
     var _frame$current2;
 
@@ -78,6 +94,11 @@ var Widget = function Widget(props) {
       renderApp();
     }
   }, [props.appProps]);
+  (0, _react.useEffect)(function () {
+    if (props.appRoot) {
+      _.portal.setAppIframe(frame.current);
+    }
+  }, [props.appRoot]);
   var moveCSS = (0, _react.useCallback)(function () {
     var _frame$current3, _frame$current3$conte, _frame$current3$conte2;
 
@@ -98,24 +119,6 @@ var Widget = function Widget(props) {
       }
     }
   }, []);
-  var iframeUrl = (0, _react.useMemo)(function () {
-    // 作为根应用，url受控
-    if (props.appRoot) {
-      var url = _.portal.config.appPath + _.portal.currAppUrl;
-
-      if (url) {
-        return url;
-      }
-    }
-
-    var targetUrl = (_.portal.config.appPath + '/' + props.src).replace(/\/{2,}/g, '/');
-
-    if (props.src.includes('#') || props.src.endsWith('/')) {
-      return targetUrl;
-    }
-
-    return targetUrl + '/';
-  }, [props.src, props.appRoot]);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     style: _objectSpread({
@@ -128,13 +131,20 @@ var Widget = function Widget(props) {
   }), /*#__PURE__*/_react.default.createElement("iframe", {
     ref: frame,
     onLoad: function onLoad() {
-      if (props.appRoot) {
-        _.portal.setAppIframe(frame.current);
-      }
+      try {
+        var _frame$current4, _frame$current4$conte;
 
-      setLoading(false);
-      moveCSS();
-      renderApp();
+        // about: blank也会触发onload，这里判断一下
+        if (((_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentWindow) === null || _frame$current4$conte === void 0 ? void 0 : _frame$current4$conte.location.host) !== '') {
+          setLoading(false);
+          moveCSS();
+          renderApp();
+        }
+      } catch (e) {
+        var _frame$current5;
+
+        (0, _utils.warn)("Widget.src[".concat((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : _frame$current5.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
+      }
     },
     src: iframeUrl,
     style: {

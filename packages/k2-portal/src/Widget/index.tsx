@@ -29,18 +29,39 @@ const Widget: FC<Props> = (props) => {
   const previous = usePrevious(props.appProps);
   const [loading, setLoading] = useState(true);
 
-  const renderApp = useCallback(() => {
-    try {
-      // @ts-ignore
-      frame.current?.contentWindow?.renderChildApp(
-        bodyRef.current!,
-        props.appProps,
-      );
-    } catch {
-      warn(`${props.src} 子应用跨域了`);
+  const iframeUrl = useMemo(() => {
+    // 作为根应用，url受控
+    if (props.appRoot) {
+      const url = portal.config.appPath + portal.currAppUrl;
+      if (url) {
+        return url;
+      }
     }
-  }, [props.appProps]);
+    const targetUrl = (portal.config.appPath + '/' + props.src).replace(
+      /\/{2,}/g,
+      '/',
+    );
 
+    if (
+      props.src === '' ||
+      props.src.includes('#') ||
+      props.src.endsWith('/')
+    ) {
+      return targetUrl;
+    }
+    return targetUrl + '/';
+  }, [props.src, props.appRoot]);
+
+  const renderApp = useCallback(() => {
+    // 有可能来自appProps的更新，此时iframe还没有加载完页面造成没有renderChildApp这个函数
+    // @ts-ignore
+    frame.current?.contentWindow?.renderChildApp?.(
+      bodyRef.current!,
+      props.appProps,
+    );
+  }, [props.appProps, iframeUrl]);
+
+  // 应用的props更新，进行一次渲染
   useEffect(() => {
     const appWindow = frame.current?.contentWindow;
     if (!appWindow) return;
@@ -49,6 +70,12 @@ const Widget: FC<Props> = (props) => {
       renderApp();
     }
   }, [props.appProps]);
+
+  useEffect(() => {
+    if (props.appRoot) {
+      portal.setAppIframe(frame.current);
+    }
+  }, [props.appRoot]);
 
   const moveCSS = useCallback(() => {
     const url =
@@ -66,24 +93,6 @@ const Widget: FC<Props> = (props) => {
     }
   }, []);
 
-  const iframeUrl = useMemo(() => {
-    // 作为根应用，url受控
-    if (props.appRoot) {
-      const url = portal.config.appPath + portal.currAppUrl;
-      if (url) {
-        return url;
-      }
-    }
-    const targetUrl = (portal.config.appPath + '/' + props.src).replace(
-      /\/{2,}/g,
-      '/',
-    );
-    if (props.src.includes('#') || props.src.endsWith('/')) {
-      return targetUrl;
-    }
-    return targetUrl + '/';
-  }, [props.src, props.appRoot]);
-
   return (
     <div
       data-name="widget"
@@ -94,12 +103,18 @@ const Widget: FC<Props> = (props) => {
       <iframe
         ref={frame}
         onLoad={() => {
-          if (props.appRoot) {
-            portal.setAppIframe(frame.current);
+          try {
+            // about: blank也会触发onload，这里判断一下
+            if (frame.current?.contentWindow?.location.host !== '') {
+              setLoading(false);
+              moveCSS();
+              renderApp();
+            }
+          } catch (e) {
+            warn(
+              `Widget.src[${frame.current?.src}]\n子应用跨域了，返回403、404错误都会导致跨域。`,
+            );
           }
-          setLoading(false);
-          moveCSS();
-          renderApp();
         }}
         src={iframeUrl}
         style={{ display: 'none' }}

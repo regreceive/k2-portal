@@ -108,19 +108,20 @@ window.publicPath = location.pathname;
     if ({{{ integrated }}}) {
       if (!window.React) {
         // 动态加载全局资源，此时作为独立应用或者Portal
-        addLink('antd.css'),
-        Promise.all([
-          addScript('react.js'),
-          addScript('react-dom.js'),
-          addScript('moment.js').then(() => {
-            addScript('zh-cn.js')
-          }),
-          addScript('antd.js'),
-          getRuntimeConfig(),
-        ]).then(() => {
-          // 独立运行
-          window.$$config.alone = true;
-          event.detail.run(window, document, window);
+        addLink('antd.css');
+        addScript('react.js').then(() => {
+          Promise.all([
+            addScript('react-dom.js'),
+            addScript('moment.js').then(() => {
+              addScript('zh-cn.js');
+            }),
+            addScript('antd.js'),
+            getRuntimeConfig(),
+          ]).then(() => {
+            // 独立运行
+            window.$$config.alone = true;
+            event.detail.run(window, document, window);
+          });
         });
       } else {
         // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
