@@ -31,7 +31,7 @@
     "@types/lodash": "^4.14.170",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
-    "@umijs/test": "^3.5.0",
+    "@umijs/test": "^3.5.20",
     "lint-staged": "^10.0.7",
     "prettier": "^2.2.0",
     "react": "17.x",

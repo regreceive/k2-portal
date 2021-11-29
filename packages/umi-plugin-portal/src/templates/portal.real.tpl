@@ -40,7 +40,7 @@ type GlobalPortalType = {
    * 
   setAppIframe: (iframe: HTMLIFrameElement) => {};
   /**
-   * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“-”替代“/”
+   * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
    */
   currAppKey: string;
@@ -81,7 +81,7 @@ const getAccessToken = () => {
 };
 
 let _appIframe: HTMLIFrameElement;
-// portal的完整路径：app/子应用路径-子应用名称/子应用路由
+// portal的完整路径：app/子应用路径.子应用名称/子应用路由
 const portalMather = /^\/app\/([^\/]+)(?:\/(\S*))?/;
 
 // 封印，防止不讲究的代码
@@ -95,8 +95,8 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         const appPathname = pathname // out: /apps/widget/line/
           .replace(portal.config.appPath, '') // out: /widget/line/
           .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
-          .replaceAll('/', '-') // out: widget-line-
-          .replace(/\-$/, ''); // out: widget-line
+          .replaceAll('/', '\.') // out: widget.line.
+          .replace(/\.$/, ''); // out: widget.line
           
         return Object.assign(appHistory, {
           push: (arg: any) => {
@@ -133,13 +133,12 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
     get() {
       /**
         * 应用间跳转
-        * @param appKey 应用路径，如果存在多级目录，用“-”连接
+        * @param appKey 应用路径，如果存在多级目录，用“.”连接
         * @param path 应用自己的路由
         * @param replace 是否跳转
-        */ 
+        */
       return (appKey: string, path: string = '', replace = false) => {
-        const url =
-          '/app/' + appKey.replaceAll('/', '-') + (path.startsWith('/') ? path : '/' + path);
+        const url = ('/app/' + appKey + '/' + path).replace(/\/{2,}/g, '/');
         if (history.location.pathname === url) {
           return;
         }
@@ -185,7 +184,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         const [_, appKey, path = '/'] = result;
         const url = location.href;
         if (url) {
-          return `/${appKey.replaceAll('-', '/')}/#${path}`.replace(
+          return `/${appKey.replaceAll('.', '/')}/#${path}`.replace(
             /\/{2,}/g,
             '/',
           );
@@ -207,7 +206,7 @@ history.listen((listener) => {
   if (result) {
     const [_, appKey, path = '/'] = result;
     const url = `${portal.config.appPath}/${appKey.replaceAll(
-      '-',
+      '.',
       '/',
     )}/#/${path}`.replace(/\/{2,}/g, '/');
 

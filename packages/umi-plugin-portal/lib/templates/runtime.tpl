@@ -38,11 +38,11 @@ export function rootContainer(container) {
       <ConfigProvider
         componentSize="middle"
         locale={zhCN}
-        getPopupContainer={(triggerNode) => {
+        getPopupContainer={() => {
           if (utils.isInPortal) {
             return window.parent.document.querySelector('#{{{ appKey }}}');
           }
-          return triggerNode;
+          return document.body;
         }}
       >
         <ThemeLayout>{container}</ThemeLayout>
