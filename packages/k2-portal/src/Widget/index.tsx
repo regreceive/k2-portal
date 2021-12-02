@@ -30,7 +30,7 @@ const Widget: FC<Props> = (props) => {
   const [loading, setLoading] = useState(true);
 
   const iframeUrl = useMemo(() => {
-    // 作为根应用，url受控
+    // 作为主应用，url受控
     if (props.appRoot) {
       const url = portal.config.appPath + portal.currAppUrl;
       if (url) {

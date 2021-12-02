@@ -75,7 +75,7 @@ function freezeDeep<T>(obj: any): T {
 let _accessToken: any = '';
 const getAccessToken = () => {
   if (_accessToken === '') {
-    _accessToken = localStorage.getItem('token');
+    _accessToken = localStorage.getItem('k2_portal_token');
   }
   return _accessToken;
 };
@@ -92,7 +92,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   handleHistory: {
     get() {
       return (appHistory: History, pathname: string) => {
-        const appPathname = pathname // out: /apps/widget/line/
+        const appKey = pathname // out: /apps/widget/line/
           .replace(portal.config.appPath, '') // out: /widget/line/
           .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
           .replaceAll('/', '\.') // out: widget.line.
@@ -100,14 +100,23 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
           
         return Object.assign(appHistory, {
           push: (arg: any) => {
-            const path =
-              typeof arg === 'object' ? arg.pathname + arg.search : arg;
-            portal.openApp(appPathname, path);
+            if (portal.currAppKey === appKey) {
+              // 确保只有当前主应用的history受控
+              const path =
+                typeof arg === 'object' ? arg.pathname + arg.search : arg;
+              portal.openApp(appKey, path);
+            } else {
+              appHistory.replace(arg);
+            }
           },
           replace: (arg: any) => {
-            const path =
-              typeof arg === 'object' ? arg.pathname + arg.search : arg;
-            portal.openApp(appPathname, path, true);
+            if (portal.currAppKey === appKey) {
+              const path =
+                typeof arg === 'object' ? arg.pathname + arg.search : arg;
+              portal.openApp(appKey, path, true);
+            } else {
+              appHistory.replace(arg);
+            }
           },
         });
       };
@@ -121,12 +130,17 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   login: {
     get() {
-      sso.signIn;
+      return () => {
+        sso.signIn()
+      };
     },
   },
   logout: {
     get() {
-      sso.signOut;
+      return () => {
+        localStorage.removeItem('k2_portal_token');
+        sso.signOut();
+      };
     },
   },
   openApp: {
@@ -210,7 +224,11 @@ history.listen((listener) => {
       '/',
     )}/#/${path}`.replace(/\/{2,}/g, '/');
 
-    _appIframe.src = url;
+    try {
+      _appIframe.contentWindow.location.replace(url);
+    } catch(e) {
+      _appIframe.src = url;
+    }
   }
 });
 
@@ -226,7 +244,12 @@ if (
     // 登录成功跳转
     sso.mgr.signinCallback().then((res) => {
       localStorage.setItem('k2_portal_token', res.access_token);
+      // 去掉 ?code
+      location.replace(location.pathname);
+    }).catch(e => {
+      location.replace(location.pathname);
     });
+    
   } else {
     sso.signIn();
   }

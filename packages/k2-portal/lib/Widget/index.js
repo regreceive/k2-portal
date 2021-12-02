@@ -59,7 +59,7 @@ var Widget = function Widget(props) {
       setLoading = _useState2[1];
 
   var iframeUrl = (0, _react.useMemo)(function () {
-    // 作为根应用，url受控
+    // 作为主应用，url受控
     if (props.appRoot) {
       var url = _.portal.config.appPath + _.portal.currAppUrl;
 
