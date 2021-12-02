@@ -357,10 +357,10 @@ export default async function (api: IApi) {
             from: `${relative}node_modules/antd/dist/antd.min.css.map`,
             to: 'alone/antd.min.css.map',
           },
-          {
-            from: `${relative}node_modules/react-router-config/cjs/react-router-config.js.map`,
-            to: 'react-router-config.js.map',
-          },
+          // {
+          //   from: `${relative}node_modules/react-router-config/cjs/react-router-config.js.map`,
+          //   to: 'react-router-config.js.map',
+          // },
         );
       }
     }
