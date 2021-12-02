@@ -217,12 +217,15 @@ history.listen((listener) => {
 window.g_portal = portal;
 
 // 登录
-if (process.env.NODE_ENV !== 'development' && window.$$config.sso && !getAccessToken()) {
+if (
+  process.env.NODE_ENV !== 'development' &&
+  window.$$config.sso &&
+  !getAccessToken()
+) {
   if (location.search.startsWith('?code=')) {
     // 登录成功跳转
-    sso.signInCallback(history.replace);
-    sso.getAcessToken().then(res => {
-      localStorage.setItem('token', res);
+    sso.mgr.signinCallback().then((res) => {
+      localStorage.setItem('k2_portal_token', res.access_token);
     });
   } else {
     sso.signIn();

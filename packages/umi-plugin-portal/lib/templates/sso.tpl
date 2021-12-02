@@ -1,292 +1,105 @@
 import Oidc from 'oidc-client';
 
-const BASE_URL = location.origin + location.pathname; // 本地地址
-const CLIENT_URL = window.$$config.sso?.clientUrl; // hydra客户端地址
-const CLIENT_ID = window.$$config.sso?.clientId; // 客户端必须与之必须对应
-
-let mgr: Oidc.UserManager;
-
-if (CLIENT_URL && CLIENT_ID) {
-  mgr = new Oidc.UserManager({
-    userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }),
-    authority: CLIENT_URL,
-    client_id: CLIENT_ID, // 客户端必须与之必须对应
-    redirect_uri: `${BASE_URL}`,
-    response_type: 'code',
-    scope: 'openid offline',
-    silent_redirect_uri: `${BASE_URL}/silent-login.html`,
-    post_logout_redirect_uri: `${BASE_URL}`,
-    popup_redirect_uri: `${BASE_URL}`,
-    // requireConsent: false,
-    accessTokenExpiringNotificationTime: 60,
-    filterProtocolClaims: true,
-    // loadUserInfo: false,
-    revokeAccessTokenOnSignout: true,
-    automaticSilentRenew: false,
-    loadUserInfo: false,
-    response_mode: 'query',
-  });
-
-  mgr.events.addAccessTokenExpiring(function () {
-    console.log('AccessToken Expiring：', arguments);
-  });
-
-  mgr.events.addAccessTokenExpired(() => {
-    // 超时
-    mgr
-      .signoutRedirect()
-      .then((resp) => {
-        console.log('signed out', resp);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
-
-  mgr.events.addSilentRenewError(function () {
-    console.error('Silent Renew Error：', arguments);
-  });
-
-  mgr.events.addUserSignedOut(function () {
-    console.log('UserSignedOut：', arguments);
-    mgr
-      .signoutRedirect()
-      .then((resp) => {
-        console.log('signed out', resp);
-        window.location.href = BASE_URL;
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  });
-}
+Oidc.Log.logger = console;
+Oidc.Log.level = Oidc.Log.INFO;
 
 class SecurityService {
-  // Renew the token manually
-  renewToken() {
-    const self = this;
-    console.log('refresh token');
-    return new Promise((resolve, reject) => {
-      mgr
-        .signinSilent()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-          } else {
-            return resolve(user);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
+  private mgr: Oidc.UserManager;
+  private isLogout = false;
+  private sessionId = '';
+
+  constructor(authority_url: string, oidc_callback_url: string) {
+    this.mgr = new Oidc.UserManager({
+      userStore: new Oidc.WebStorageStateStore({ store: window.localStorage }),
+      authority: authority_url,
+      client_id: 'k2box-auth-code-client',
+      redirect_uri: oidc_callback_url,
+      response_type: 'code',
+      scope: 'openid offline',
+      post_logout_redirect_uri: oidc_callback_url,
+      silent_redirect_uri: oidc_callback_url,
+      automaticSilentRenew: true,
+      filterProtocolClaims: true,
+      loadUserInfo: false,
+      response_mode: 'query',
     });
+
+    this.mgr.events.addAccessTokenExpired(() => {
+      this.signOut();
+    });
+    this.mgr.events.addUserLoaded((user) => {
+      this.sessionId = user.profile.sid || '';
+      window.localStorage.setItem('sid', this.sessionId);
+    });
+  }
+
+  /**
+   * 判断session是否发生了变更。
+   *
+   * sid为hydra返回给浏览器端用于标识用户登录唯一的实例
+   * localStorage存储的sid在同域下不同的window中共享，用于存储最新的sid。
+   * window.sid存储的是当前window的sid（可能是历史的）。
+   *
+   * 解决的问题：浏览器中打开了多个window，且任一个window登录用户变更或者登出时，其他window也能得到感知，并刷新成最新的用户形态。
+   * 解决方式：任一个window中用户变更时，会将最新的sid保存到localStorage中。其他window调用后台接口时，http拦截器会首先调用isSessionChanged接口判断是否变更，如果变更则重新reload页面。
+   * @returns boolean
+   */
+  isSessionChanged() {
+    return this.sessionId != window.localStorage.getItem('sid');
   }
 
   // Get the user who is logged in
-  getUser() {
-    const self = this;
+  getUser(): Promise<{
+    username: string;
+    permissions: string;
+    accessToken: string;
+  }> {
     return new Promise((resolve, reject) => {
-      mgr
+      this.mgr
         .getUser()
-        .then((user) => {
+        .then((user: any) => {
           if (user == null) {
-            self.signIn();
-            return resolve(null);
+            this.signIn();
+          } else {
+            this.sessionId = user.profile.sid || '';
+            window.localStorage.setItem('sid', this.sessionId);
+            return resolve({
+              username: user.username,
+              permissions: user.permissions,
+              accessToken: user.accessToken,
+            });
           }
-          return resolve(user);
         })
-        .catch((err) => {
+        .catch(function (err) {
           console.log(err);
           return reject(err);
         });
     });
   }
-
-  // Check if there is any user logged in
-  getSignedIn() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(false);
-          }
-
-          // replace('/login')// fix this
-          return resolve(true);
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  signinSilentCallback = () => mgr.signinSilentCallback();
 
   // Redirect of the current window to the authorization endpoint.
-  signIn = () => {
-    if (window.location.pathname !== '/login') {
-      window.sessionStorage.setItem(
-        'login_redirect_url',
-        window.location.pathname,
-      );
-    }
-    mgr.signinRedirect().catch((err) => {
-      console.log(err);
-      if (err.message?.indexOf('404') > -1) {
+  signIn() {
+    this.mgr.signinRedirect().catch(function (err) {
+      console.error(err);
+      if (err.message.indexOf('404') > -1) {
         alert('OAuth2配置无效, 请联系管理员!');
       }
     });
-  };
-
-  signInCallback = async (replace: (arg: string) => void) => {
-    try {
-      await mgr.signinRedirectCallback();
-      replace(window.sessionStorage.getItem('login_redirect_url') || '/');
-    } catch (error) {
-      replace('/');
-      console.error(error);
-    }
-  };
+  }
 
   // Redirect of the current window to the end session endpoint
-  async signOut() {
-    const user = (await this.getUser()) as { id_token?: any };
-    if (user) {
-      mgr
-        .signoutRedirect({ id_token_hint: user.id_token, state: user })
-        .then(async () => {
-          await mgr.clearStaleState();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  signOut() {
+    if (this.isLogout) {
+      return;
     }
-  }
+    this.isLogout = true;
 
-  // Get the profile of the user logged in
-  getProfile() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.profile);
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  // Get the token id
-  getIdToken() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.id_token);
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  // Get the session state
-  getSessionState() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.session_state);
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  // Get the access token of the logged in user
-  getAcessToken() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.access_token);
-        })
-        .catch((err) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  // Takes the scopes of the logged in user
-  getScopes() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.scopes);
-        })
-        .catch((err: any) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
-  }
-
-  // Get the user roles logged in
-  getRole() {
-    const self = this;
-    return new Promise((resolve, reject) => {
-      mgr
-        .getUser()
-        .then((user) => {
-          if (user == null) {
-            self.signIn();
-            return resolve(null);
-          }
-          return resolve(user.profile.role);
-        })
-        .catch((err: any) => {
-          console.log(err);
-          return reject(err);
-        });
-    });
+    window.localStorage.removeItem('sid');
+    this.mgr.signoutRedirect();
   }
 }
 
-export default new SecurityService();
+export default new SecurityService(
+  window.$$config.sso?.clientUrl,
+  location.origin + location.pathname,
+);

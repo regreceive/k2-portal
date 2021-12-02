@@ -12,16 +12,11 @@ declare enum env {
   RUNTIME_NAMESPACE = '',
 }
 
-interface PortalWindow extends Window {
-  $$_K2_SDK: {};
-}
-
 interface Window {
   antd: any;
   React: any;
   ReactDOM: any;
   moment: any;
-  $$K2RootWindow: PortalWindow | Window;
   $$config: {
     service: { [key: string]: string };
     [key: string]: any;
