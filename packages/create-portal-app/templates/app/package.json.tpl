@@ -24,6 +24,7 @@
     "@ant-design/pro-layout": "^6.5.0",
     "@umijs/preset-react": "1.x",
     "k2-portal": "^{{{ version }}}",
+    "oidc-client": "^1.11.5",
     "umi": "^3.5.20"
   },
   "devDependencies": {

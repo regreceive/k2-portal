@@ -156,9 +156,11 @@ bearer: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTRiZWQt
 - 类型：`Object`
 - 默认值：undefined
 
-是否作为主应用入口，此时的应用会提供全局路由操作，以及单点登录。
+一旦设置此项，当前应用就转变为`Portal`。一般用于本地开发调试`Entry`，否则调用应用内的`openApp`不起作用。
 
-<Alert type="info">仅对开发环境有效，此设置不会被打包。</Alert>
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| appPath | web 服务中应用的绝对路径。比如当前应用`myapp`在 `/web/apps/myapp`位置上，则应该设置`/web/apps` | `string` | `''` |
 
 示例：
 

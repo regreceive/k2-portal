@@ -102,26 +102,6 @@ type ResponseInstance = {
 };
 ```
 
-### getRelation
-
-建模器关联实体查询，封装`dataService.get`，区别在于请求参数实现了对象化，具体使用与`getInstance`调用方法相同
-
-```ts
-getRelation('entity');
-```
-
-返回数据类型
-
-```ts
-interface ResponseRelation {
-  attributes: { [key: string]: any };
-  entity_id: number;
-  relationship_id: number;
-  relation_type: string;
-  data: ResponseRelation[];
-}
-```
-
 ## utils
 
 工具函数
@@ -131,31 +111,6 @@ interface ResponseRelation {
 判断当前应用是否在 Portal 中。有些情况，要考虑独立应用和被集成 Portal 场景，如果开发 k2portal 功能，使用会比较频繁。
 
 ## 其它
-
-### sdk <Badge>deprecated</Badge>
-
-k2-portal 封装了旧版本的方法，如果不能满足需求。sdk 返回 Portal 的$$\_K2_SDK。
-
-示例：
-
-```ts
-import { sdk } from 'k2-portal';
-```
-
-### portalWindow
-
-在应用内获得 Portal 的`window`对象。应用内的 window 是自身的`window`对象，但`window.document`则是 Portal 的`document`，这样处理是为了避免事件监听出错。
-
-<Alert type="info">如果应用独立运行，此时的`portalWindow`是其自身。</Alert>
-
-示例：
-
-```ts
-import { portalWindow } from 'k2-portal';
-
-// 创建二进制URL对象，必须引用Portal的URL，否则不起作用
-const url = portalWindow.URL.createObjectURL(new Blob([]));
-```
 
 ### appKey
 
