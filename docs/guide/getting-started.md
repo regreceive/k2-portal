@@ -6,33 +6,26 @@ toc: menu
 
 ## 脚手架
 
-先找个地方建个空目录。
+先找个地方建个空目录:
 
 ```shell
 $ mkdir myapp && cd myapp
 ```
 
-通过官方工具创建项目，
+通过应用生成器创建项目:
 
 ```shell
-yarn create portal-app
-# 或 npx create-portal-app
+# 如果要创建应用
+npx create-portal-app@latest
 
-Copy:  .editorconfig
-Copy:  .env
-Copy:  .npmignore
-Copy:  .prettierignore
-Copy:  .prettierrc
-Copy:  config/config.local.ts
-Copy:  config/config.ts
-Copy:  config/portal.ts
-Copy:  config/proxy.ts
+# 如果要创建Portal
+npx create-portal-app@latest --portal
 ```
 
 ## 安装依赖
 
 ```shell
-yarn
+yarn install
 ```
 
 ## 启动项目
@@ -48,9 +41,7 @@ Bundle with webpack 5...
 Starting the development server...
 ```
 
-在浏览器里打开 [http://localhost:3100/](http://localhost:3100/)，能看到以下界面，
-
-![](../assets/1.png)
+在浏览器里打开 [http://localhost:3100/](http://localhost:3100/)，如果创建的是 Portal，那么地址是[http://localhost:8000/](http://localhost:8000/)
 
 ## 构建
 

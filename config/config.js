@@ -1,6 +1,6 @@
 export default {
   hash: true,
-  title: 'k2portal',
+  title: 'k2-portal',
   mode: 'site',
   logo: '/logo.png',
   navs: [
@@ -18,7 +18,7 @@ export default {
   },
   copy: [
     {
-      from: 'docs/assets/logo1.png',
+      from: 'docs/assets/logo3.png',
       to: 'logo.png',
     },
   ],
