@@ -10,6 +10,7 @@ type Config = {
     clientUrl: string;
   };
   appPath: string;
+  namespace: string;
 };
 
 type GlobalPortalType = {
@@ -28,17 +29,17 @@ type GlobalPortalType = {
   logout: () => void;
   /**
    * 应用间跳转
-   * @param appKey 应用路径，如果存在多级目录，用“-”连接
+   * @param appKey 应用路径，如果存在多级目录，用“.”连接
    * @param path 应用自己的路由
    * @param replace 是否替换路由，默认push路由
    */ 
-  openApp: (appKey: string, path?: string, replace?: boolean) => {};
+  openApp: (appKey: string, path?: string, replace?: boolean) => void;
   /**
    * @private 设置主应用iframe，设置以后iframe会被portal的openApp和history.listen控制。
    * 仅限portal内部组件使用，比如<Widget appRoot />
    * @param iframe iframe元素
-   * 
-  setAppIframe: (iframe: HTMLIFrameElement) => {};
+   */
+  setAppIframe: (iframe: HTMLIFrameElement) => void;
   /**
    * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
@@ -72,12 +73,8 @@ function freezeDeep<T>(obj: any): T {
 }
 
 // 用户token
-let _accessToken: any = '';
 const getAccessToken = () => {
-  if (_accessToken === '') {
-    _accessToken = localStorage.getItem('k2_portal_token');
-  }
-  return _accessToken;
+  return localStorage.getItem('k2_portal_token');
 };
 
 let _appIframe: HTMLIFrameElement;
@@ -252,5 +249,12 @@ if (
     
   } else {
     sso.signIn();
+  }
+}
+
+if (window.$$config.sso) {
+  // 退出跳转
+  if (location.search.startsWith('?state=')) {
+    location.replace(location.pathname);
   }
 }

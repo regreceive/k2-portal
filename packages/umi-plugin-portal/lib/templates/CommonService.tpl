@@ -1,8 +1,14 @@
 import { request } from 'umi';
 
-export interface ResponseData<T> {
+export interface ResponseData {
   code?: number;
-  data?: T;
+  data?: {
+    rows: any[];
+    schema: {
+      name: string;
+      data_type: string;
+    }[];
+  };
   results?: {
     series?: {
       tags: { node_id: string; [key: string]: string };
@@ -32,43 +38,55 @@ export interface ResponseData<T> {
   };
 }
 
-const namespace = env.RUNTIME_NAMESPACE as string;
+export type CommonServiceType = {
+  get: (url: string) => Promise<ResponseData>;
+  post: {
+    /**
+     * @param data 发送的消息体
+     */
+    (data: {}): Promise<ResponseData>;
+    /**
+     * @param pathname 相对地址
+     * @param data 发送的消息体
+     */
+    (pathname: string, data: {}): Promise<ResponseData>;
+  };
+};
 
-// 方便mock和真实接口切换
-function adapt(host: string, url: string) {
-  if (/^\/mock/.test(url)) {
-    return url.replace('{namespace_name}', namespace).replace('/mock', '');
-  }
-  return host + url.replace('{namespace_name}', namespace);
-}
 
-export default class MockService {
+export default class CommonService {
   public host: string;
 
   constructor(host: string) {
     this.host = host;
   }
 
-  get<T = any>(url: string) {
-    return request<ResponseData<T>>(adapt(this.host, url));
+  get(url: string) {
+    return request<ResponseData>(this.host + nextUrl);
   }
 
   del = (url: string) => {
-    return request<ResponseData<any>>(adapt(this.host, url), {
+    return request<ResponseData>(this.host + url, {
       method: 'DELETE',
     });
   };
 
   post = (url: string, data: any) => {
-    return request<ResponseData<any>>(adapt(this.host, url), {
+    // for graphql
+    if (typeof url === 'string') {
+      return request<ResponseData>(this.host + url, {
+        method: 'POST',
+        data,
+      });
+    }
+    return request<ResponseData>(this.host, {
       method: 'POST',
-      data,
+      url,
     });
   };
 
   put = (url: string, data: any) => {
-    const host = this.host;
-    return request<ResponseData<any>>(adapt(this.host, url), {
+    return request<ResponseData>(this.host + url, {
       method: 'PUT',
       data,
     });

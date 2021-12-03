@@ -33,21 +33,6 @@ class SecurityService {
     });
   }
 
-  /**
-   * 判断session是否发生了变更。
-   *
-   * sid为hydra返回给浏览器端用于标识用户登录唯一的实例
-   * localStorage存储的sid在同域下不同的window中共享，用于存储最新的sid。
-   * window.sid存储的是当前window的sid（可能是历史的）。
-   *
-   * 解决的问题：浏览器中打开了多个window，且任一个window登录用户变更或者登出时，其他window也能得到感知，并刷新成最新的用户形态。
-   * 解决方式：任一个window中用户变更时，会将最新的sid保存到localStorage中。其他window调用后台接口时，http拦截器会首先调用isSessionChanged接口判断是否变更，如果变更则重新reload页面。
-   * @returns boolean
-   */
-  isSessionChanged() {
-    return this.sessionId != window.localStorage.getItem('sid');
-  }
-
   // Get the user who is logged in
   getUser(): Promise<{
     username: string;

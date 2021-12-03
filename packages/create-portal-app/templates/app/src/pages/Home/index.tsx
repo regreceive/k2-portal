@@ -1,7 +1,7 @@
 import { FC, useCallback, useState } from 'react';
 import { history } from 'umi';
 import { Button, Typography } from 'antd';
-import { getInstance, Widget } from 'k2-portal';
+import { Widget } from 'k2-portal';
 import BoxArea from '@/components/BoxArea';
 
 const Home: FC = () => {

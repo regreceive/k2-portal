@@ -1,14 +1,15 @@
 import { createContext, useContext } from 'react';
 import CommonService from './CommonService';
+import type { CommonServiceType } from './CommonService';
 
 type ServiceListType = {
   {{#service}}
-  {{.}}: CommonService;
+  {{.}}: CommonServiceType;
   {{/service}}
 };
 
 // @ts-ignore
-const service: ServiceListType = Object.entries(window.$$config.service)
+const service: ServiceListType = Object.entries<string>(window.$$config.service)
   .reduce((prev, [key, value]) => {
     return {...prev, [key]: new CommonService(value)};
   }, {});

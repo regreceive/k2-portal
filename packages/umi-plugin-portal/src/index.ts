@@ -39,11 +39,8 @@ export default async function (api: IApi) {
           password: 'admin',
         },
         service: {
-          dataService: '//fill_api_here',
-          datalabModeler: '//fill_api_here',
           gateway: '//fill_api_here',
-          influxdb: '//fill_api_here',
-          repo: '//fill_api_here',
+          graphql: '//fill_api_here',
         },
         buttonPermissionCheck: false,
         customToken: '',

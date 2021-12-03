@@ -6,6 +6,7 @@ type Config = {
     clientId: string;
     clientUrl: string;
   };
+  namespace: string;
 };
 
 type GlobalPortalType = {
@@ -24,17 +25,17 @@ type GlobalPortalType = {
   logout: () => void;
   /**
    * 应用间跳转
-   * @param appKey 应用路径，如果存在多级目录，用“-”连接
+   * @param appKey 应用路径，如果存在多级目录，用“.”连接
    * @param path 应用自己的路由
    * @param replace 是否替换路由，默认push路由
    */ 
-  openApp: (appKey: string, path?: string, replace?: boolean) => {};
+  openApp: (appKey: string, path?: string, replace?: boolean) => void;
   /**
    * @private 设置主应用iframe，设置以后iframe会被portal的openApp和history.listen控制。
    * 仅限portal内部组件使用，比如<Widget appRoot />
    * @param iframe iframe元素
-   * 
-  setAppIframe: (iframe: HTMLIFrameElement) => {};
+   */
+  setAppIframe: (iframe: HTMLIFrameElement) => void;
   /**
    * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
@@ -77,10 +78,8 @@ const mockPortal: GlobalPortalType =  {
   openApp: (appKey: string, path: string = '/', replace?: boolean) => {},
   setAppIframe: (iframe: HTMLIFrameElement) => {},
   currAppKey: '',
+  currAppPath: '',
   currAppUrl: '',
 }
 
-window.g_portal = mockPortal;
-
-// @ts-ignore
-export const portal = parent.g_portal;
+export const portal = parent.g_portal as GlobalPortalType || mockPortal;
