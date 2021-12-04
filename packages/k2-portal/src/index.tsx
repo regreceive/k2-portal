@@ -1,6 +1,4 @@
 // @ts-ignore
-export * from '@@/plugin-portal/CommonService';
-// @ts-ignore
 export * from '@@/plugin-portal/portal';
 // @ts-ignore
 export * from '@@/plugin-portal/sdk';

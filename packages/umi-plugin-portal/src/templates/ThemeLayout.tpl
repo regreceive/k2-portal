@@ -1,16 +1,14 @@
 import React from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, createContext, useContext } from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
-import { AppContext, useAppProps } from './sdk';
 
-const rgb2hex = (rgba: string) =>
-  `${rgba
-    .match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*\d+\.{0,1}\d*)?\)$/)
-    ?.slice(1)
-    .map((n, i) =>
-      parseFloat(n).toString(16).padStart(2, '0').replace('NaN', ''),
-    )
-    .join('')}` ?? 'ffffff';
+export const AppContext = createContext<any>({});
+/**
+ * 返回父级应用传入的属性
+ */
+export function useAppProps<T>() {
+  return useContext<T>(AppContext);
+}
 
 const ThemeLayout: React.FC = (props) => {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,11 +16,7 @@ const ThemeLayout: React.FC = (props) => {
   const appProps = useAppProps();
 
   useEffect(() => {
-    const bgColor = parseInt(
-      rgb2hex(getComputedStyle(document.body).backgroundColor),
-      16,
-    );
-    const themeKey = bgColor < 0x666666 ? 'dark' : 'light';
+    const themeKey = 'light';
     const theme = plugin.applyPlugins({
       key: themeKey + 'Theme',
       type: ApplyPluginsType.modify,
@@ -39,7 +33,7 @@ const ThemeLayout: React.FC = (props) => {
 
   return (
     <AppContext.Provider value={{ theme, ...appProps }}>
-      <div id="k2-umi-root" style={{ height: '100%' }} ref={ref}>
+      <div className="k2-umi-root" ref={ref}>
         {props.children}
       </div>
     </AppContext.Provider>

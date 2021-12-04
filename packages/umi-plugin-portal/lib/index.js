@@ -15,6 +15,16 @@ function _react() {
   return data;
 }
 
+function _diff() {
+  const data = require("diff");
+
+  _diff = function _diff() {
+    return data;
+  };
+
+  return data;
+}
+
 function _fs() {
   const data = require("fs");
 
@@ -99,7 +109,6 @@ function _ref() {
             gateway: '//fill_api_here',
             graphql: '//fill_api_here'
           },
-          buttonPermissionCheck: false,
           customToken: ''
         },
 
@@ -129,9 +138,6 @@ function _ref() {
             /** nacos配置地址 */
             nacos: joi.string(),
 
-            /** 是否开启按钮级别权限验证 */
-            buttonPermissionCheck: joi.boolean(),
-
             /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
             integration: joi.object({
               development: joi.boolean(),
@@ -153,8 +159,18 @@ function _ref() {
         source: './plugin-portal/portal.less'
       }];
     });
+    let prevConfig = {};
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
       var _api$config$portal, _api$config, _mainApp$appPath$repl, _mainApp$appPath, _api$env;
+
+      const configChanged = (0, _diff().diffJson)(prevConfig, api.config.portal).some(row => row.added || row.removed);
+
+      if (!configChanged) {
+        return;
+      }
+
+      prevConfig = api.config.portal;
+      api.logger.info('gen portal files...');
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
             appKey = _ref3.appKey,
@@ -162,11 +178,16 @@ function _ref() {
             nacos = _ref3.nacos,
             appDefaultProps = _ref3.appDefaultProps,
             auth = _ref3.auth,
-            buttonPermissionCheck = _ref3.buttonPermissionCheck,
             customToken = _ref3.customToken,
-            mainApp = _ref3.mainApp;
+            mainApp = _ref3.mainApp,
+            integration = _ref3.integration;
 
-      const base64 = api.env === 'production' ? '' : 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64'); // 生成portal.less
+      let base64 = '';
+
+      if (api.env !== 'production') {
+        base64 = 'Basic ' + Buffer.from(`${auth.username}:${(0, _md().default)(auth.password)}`).toString('base64');
+      } // 生成portal.less
+
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.less',
@@ -180,18 +201,13 @@ function _ref() {
           nacos,
           service: JSON.stringify(service, null, 4) || {},
           appPath: (_mainApp$appPath$repl = mainApp === null || mainApp === void 0 ? void 0 : (_mainApp$appPath = mainApp.appPath) === null || _mainApp$appPath === void 0 ? void 0 : _mainApp$appPath.replace(/\/*$/, '')) !== null && _mainApp$appPath$repl !== void 0 ? _mainApp$appPath$repl : '',
-          integrated: api.config.portal.integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
+          integrated: integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
       }); // 生成ThemeLayout.tsx
 
       api.writeTmpFile({
         path: 'plugin-portal/ThemeLayout.tsx',
         content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8')
-      }); // 生成CommonQuery.ts
-
-      api.writeTmpFile({
-        path: 'plugin-portal/CommonQuery.ts',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'CommonQuery.tpl'), 'utf-8')
       });
 
       if (mainApp) {
@@ -235,15 +251,9 @@ function _ref() {
         path: 'plugin-portal/sdk.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
           appKey: appKey,
-          buttonPermissionCheck,
           appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(service)
         })
-      }); // 生成CommonService.ts
-
-      api.writeTmpFile({
-        path: 'plugin-portal/CommonService.ts',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'CommonService.tpl'), 'utf-8')
       }); // 生成runtime
 
       api.writeTmpFile({
@@ -397,38 +407,4 @@ function runtimeEnv() {
   return Object.keys(process.env).filter(key => match.test(key)).reduce((prev, curr) => _objectSpread(_objectSpread({}, prev), {}, {
     ['env.' + curr]: process.env[curr]
   }), {});
-} // 提取图朴引用的js库名称
-
-
-function extractJS() {
-  const set = new Set();
-  const filePath = (0, _path().resolve)(__dirname, '../ht/storage');
-
-  try {
-    const files = (0, _fs().readdirSync)(filePath);
-    files.forEach(filename => {
-      try {
-        if (filename.endsWith('.html')) {
-          const content = (0, _fs().readFileSync)((0, _path().join)(filePath, filename), 'utf-8');
-          const matches = content.match(/\.\.\/libs\/ht-\w+\.js/g);
-
-          if (Array.isArray(matches)) {
-            matches.forEach(row => {
-              var _row$match;
-
-              set.add((_row$match = row.match(/ht-\w+\.js/)) === null || _row$match === void 0 ? void 0 : _row$match[0]);
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('获取文件图朴html的stats失败');
-      }
-    });
-  } catch (e) {
-    console.warn('没有找到输出文件');
-    return [];
-  }
-
-  const libs = Array.from(set);
-  return libs.length > 0 ? ['ht.js', ...libs] : [];
 }

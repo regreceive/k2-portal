@@ -1,8 +1,6 @@
 // @ts-nocheck
-import { getInstance } from '@@/plugin-portal/CommonQuery';
 import { appKey } from '@@/plugin-portal/sdk';
 import { useEffect, useState } from 'react';
-import { warn } from './utils';
 
 let cacheAppConfig = new Map<string, Promise<any>>();
 
@@ -19,22 +17,8 @@ export async function getAppConfig<T extends {} = any>(
     return value;
   }
 
-  const promise = getInstance('bcf_ui_config', {
-    param: { key },
-    attributes: 'value',
-  }).then((res: any) => {
-    const text = res.data?.[0].attributes.value ?? '{}';
-    try {
-      const json = eval('(' + text + ')');
-      return json;
-    } catch {
-      warn(`应用[${key}]配置解析失败`);
-      return {};
-    }
-  });
-
-  cacheAppConfig.set(key, promise);
-  return await promise;
+  cacheAppConfig.set(key, Promise.resolve([]));
+  return await Promise.resolve();
 }
 
 /**

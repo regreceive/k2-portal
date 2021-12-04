@@ -5,8 +5,8 @@ function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "functi
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.useButtonPermissionCheck = useButtonPermissionCheck;
 exports.ButtonPermissionCheck = void 0;
+exports.useButtonPermissionCheck = useButtonPermissionCheck;
 
 var _sdk = require("@@/plugin-portal/sdk");
 

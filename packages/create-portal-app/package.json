@@ -25,9 +25,5 @@
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
   "dependencies": {
     "@umijs/utils": "^3.4.25"
-  },
-  "devDependencies": {
-    "k2-portal": "^1.2.0",
-    "umi-plugin-portal": "^1.2.0"
   }
 }

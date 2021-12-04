@@ -1,10 +1,11 @@
 // ref:
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
-import { readdirSync, readFileSync } from 'fs';
+import { diffJson } from 'diff';
+import { readFileSync } from 'fs';
 // @ts-ignore
 import md5 from 'md5';
-import path, { dirname, join, resolve } from 'path';
+import path, { dirname, join } from 'path';
 import WaitRunWebpackPlugin from './WaitRunPlugin';
 
 export default async function (api: IApi) {
@@ -42,7 +43,6 @@ export default async function (api: IApi) {
           gateway: '//fill_api_here',
           graphql: '//fill_api_here',
         },
-        buttonPermissionCheck: false,
         customToken: '',
       },
       schema(joi) {
@@ -65,8 +65,6 @@ export default async function (api: IApi) {
           service: joi.object().pattern(joi.string(), joi.string()),
           /** nacos配置地址 */
           nacos: joi.string(),
-          /** 是否开启按钮级别权限验证 */
-          buttonPermissionCheck: joi.boolean(),
           /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
           integration: joi.object({
             development: joi.boolean(),
@@ -95,25 +93,36 @@ export default async function (api: IApi) {
     ];
   });
 
+  let prevConfig = {};
   api.onGenerateFiles(async () => {
+    const configChanged = diffJson(prevConfig, api.config.portal).some(
+      (row) => row.added || row.removed,
+    );
+    if (!configChanged) {
+      return;
+    }
+    prevConfig = api.config.portal;
+    api.logger.info('gen portal files...');
+
     const {
       appKey,
       service,
       nacos,
       appDefaultProps,
       auth,
-      buttonPermissionCheck,
       customToken,
       mainApp,
+      integration,
     } = api.config?.portal ?? {};
 
-    const base64 =
-      api.env === 'production'
-        ? ''
-        : 'Basic ' +
-          Buffer.from(`${auth.username}:${md5(auth.password)}`).toString(
-            'base64',
-          );
+    let base64 = '';
+    if (api.env !== 'production') {
+      base64 =
+        'Basic ' +
+        Buffer.from(`${auth.username}:${md5(auth.password)}`).toString(
+          'base64',
+        );
+    }
 
     // 生成portal.less
     api.writeTmpFile({
@@ -134,7 +143,7 @@ export default async function (api: IApi) {
           nacos,
           service: JSON.stringify(service, null, 4) || {},
           appPath: mainApp?.appPath?.replace(/\/*$/, '') ?? '',
-          integrated: api.config.portal.integration[api?.env ?? 'development'],
+          integrated: integration[api?.env ?? 'development'],
         },
       ),
     });
@@ -144,15 +153,6 @@ export default async function (api: IApi) {
       path: 'plugin-portal/ThemeLayout.tsx',
       content: readFileSync(
         join(__dirname, 'templates', 'ThemeLayout.tpl'),
-        'utf-8',
-      ),
-    });
-
-    // 生成CommonQuery.ts
-    api.writeTmpFile({
-      path: 'plugin-portal/CommonQuery.ts',
-      content: readFileSync(
-        join(__dirname, 'templates', 'CommonQuery.tpl'),
         'utf-8',
       ),
     });
@@ -224,19 +224,9 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'sdk.tpl'), 'utf-8'),
         {
           appKey: appKey,
-          buttonPermissionCheck,
           appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(service),
         },
-      ),
-    });
-
-    // 生成CommonService.ts
-    api.writeTmpFile({
-      path: 'plugin-portal/CommonService.ts',
-      content: readFileSync(
-        join(__dirname, 'templates', 'CommonService.tpl'),
-        'utf-8',
       ),
     });
 
@@ -428,34 +418,4 @@ function runtimeEnv() {
       }),
       {},
     );
-}
-
-// 提取图朴引用的js库名称
-function extractJS() {
-  const set = new Set();
-  const filePath = resolve(__dirname, '../ht/storage');
-  try {
-    const files = readdirSync(filePath);
-
-    files.forEach((filename) => {
-      try {
-        if (filename.endsWith('.html')) {
-          const content = readFileSync(join(filePath, filename), 'utf-8');
-          const matches = content.match(/\.\.\/libs\/ht-\w+\.js/g);
-          if (Array.isArray(matches)) {
-            matches.forEach((row) => {
-              set.add(row.match(/ht-\w+\.js/)?.[0]);
-            });
-          }
-        }
-      } catch (err) {
-        console.warn('获取文件图朴html的stats失败');
-      }
-    });
-  } catch (e) {
-    console.warn('没有找到输出文件');
-    return [];
-  }
-  const libs = Array.from(set);
-  return libs.length > 0 ? ['ht.js', ...libs] : [];
 }

@@ -33,7 +33,6 @@ class SecurityService {
     });
   }
 
-  // Get the user who is logged in
   getUser(): Promise<{
     username: string;
     permissions: string;
@@ -62,7 +61,6 @@ class SecurityService {
     });
   }
 
-  // Redirect of the current window to the authorization endpoint.
   signIn() {
     this.mgr.signinRedirect().catch(function (err) {
       console.error(err);
@@ -72,7 +70,6 @@ class SecurityService {
     });
   }
 
-  // Redirect of the current window to the end session endpoint
   signOut() {
     if (this.isLogout) {
       return;

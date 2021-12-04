@@ -2,7 +2,7 @@ import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import { utils } from 'k2-portal';
-import { AppContext } from './sdk';
+import { AppContext } from './ThemeLayout';
 import { portal } from './portal';
 import ThemeLayout from './ThemeLayout';
 

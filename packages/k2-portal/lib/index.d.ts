@@ -1,4 +1,3 @@
-export * from '@@/plugin-portal/CommonService';
 export * from '@@/plugin-portal/portal';
 export * from '@@/plugin-portal/sdk';
 export * from './appConfig';

@@ -17,16 +17,6 @@ function _react() {
   return data;
 }
 
-function _CommonQuery() {
-  const data = require("@@/plugin-portal/CommonQuery");
-
-  _CommonQuery = function _CommonQuery() {
-    return data;
-  };
-
-  return data;
-}
-
 function _sdk() {
   const data = require("@@/plugin-portal/sdk");
 
@@ -36,8 +26,6 @@ function _sdk() {
 
   return data;
 }
-
-var _utils = require("./utils");
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
@@ -85,26 +73,8 @@ function _getAppConfig() {
       return value;
     }
 
-    const promise = (0, _CommonQuery().getInstance)('bcf_ui_config', {
-      param: {
-        key
-      },
-      attributes: 'value'
-    }).then(res => {
-      var _res$data$0$attribute, _res$data;
-
-      const text = (_res$data$0$attribute = (_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data[0].attributes.value) !== null && _res$data$0$attribute !== void 0 ? _res$data$0$attribute : '{}';
-
-      try {
-        const json = eval('(' + text + ')');
-        return json;
-      } catch (_unused) {
-        (0, _utils.warn)(`应用[${key}]配置解析失败`);
-        return {};
-      }
-    });
-    cacheAppConfig.set(key, promise);
-    return yield promise;
+    cacheAppConfig.set(key, Promise.resolve([]));
+    return yield Promise.resolve();
   });
   return _getAppConfig.apply(this, arguments);
 }
