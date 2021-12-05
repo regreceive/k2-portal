@@ -12,6 +12,7 @@
     "test": "__tests__"
   },
   "dependencies": {
+    "diff": "^5.0.0",
     "md5": "^2.3.0",
     "webpack": "^5.40.0"
   },
@@ -29,7 +30,6 @@
     "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
-    "diff": "^5.0.0",
     "umi": "^3.4.25"
   }
 }
