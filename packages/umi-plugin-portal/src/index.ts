@@ -280,23 +280,14 @@ export default async function (api: IApi) {
     const resourceName =
       api.env === 'development' ? 'development' : 'production.min';
 
-    let relative = '';
-    try {
-      const root = path.resolve(
-        dirname(require.resolve('react/package.json')),
-        '../../',
-      );
+    const root = path.resolve(
+      dirname(require.resolve('react/package.json', { paths: [api.cwd] })),
+      '../../',
+    );
 
-      // lerna
-      if (root !== api.cwd) {
-        if (root.includes('k2-portal')) {
-          // 本地link过去的
-          relative = winPath(path.relative(api.cwd, '../../')) + '/';
-        } else {
-          relative = winPath(path.relative(api.cwd, root)) + '/';
-        }
-      }
-    } catch {}
+    const relative = winPath(path.relative(api.cwd, root) + '/');
+
+    api.logger.info(`Copying directory: '${path.resolve(api.cwd, relative)}'`);
 
     const copy = [...(memo.copy || [])];
 

@@ -301,22 +301,13 @@ function _ref() {
       var _api$env3, _api$env4, _api$env5;
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
-      let relative = '';
 
-      try {
-        const root = _path().default.resolve((0, _path().dirname)(require.resolve('react/package.json')), '../../'); // lerna
+      const root = _path().default.resolve((0, _path().dirname)(require.resolve('react/package.json', {
+        paths: [api.cwd]
+      })), '../../');
 
-
-        if (root !== api.cwd) {
-          if (root.includes('k2-portal')) {
-            // 本地link过去的
-            relative = winPath(_path().default.relative(api.cwd, '../../')) + '/';
-          } else {
-            relative = winPath(_path().default.relative(api.cwd, root)) + '/';
-          }
-        }
-      } catch (_unused2) {}
-
+      const relative = winPath(_path().default.relative(api.cwd, root) + '/');
+      api.logger.info(`Copying directory: '${_path().default.resolve(api.cwd, relative)}'`);
       const copy = [...(memo.copy || [])];
 
       if (memo.portal.integration[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
