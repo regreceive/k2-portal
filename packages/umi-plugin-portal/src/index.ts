@@ -272,6 +272,32 @@ export default async function (api: IApi) {
       .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.ts'));
 
     config.optimization.set('runtimeChunk', 'single');
+
+    // 确保打包输出不同的css名称，防止多应用样式冲突
+    if (api.env === 'production') {
+      const hashPrefix = Math.random().toString().slice(-5);
+      config.module
+        .rule('css')
+        .oneOf('css-modules')
+        .use('css-loader')
+        .tap((options) => {
+          return {
+            ...options,
+            modules: { ...options.modules, hashPrefix },
+          };
+        });
+
+      config.module
+        .rule('less')
+        .oneOf('css-modules')
+        .use('css-loader')
+        .tap((options) => {
+          return {
+            ...options,
+            modules: { ...options.modules, hashPrefix },
+          };
+        });
+    }
     return config;
   });
 

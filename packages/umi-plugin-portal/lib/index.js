@@ -293,7 +293,26 @@ function _ref() {
         test: /umi(\.\w+)*\.?js$/
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
-      config.optimization.set('runtimeChunk', 'single');
+      config.optimization.set('runtimeChunk', 'single'); // 确保打包输出不同的css名称，防止多应用样式冲突
+
+      if (api.env === 'production') {
+        const hashPrefix = Math.random().toString().slice(-5);
+        config.module.rule('css').oneOf('css-modules').use('css-loader').tap(options => {
+          return _objectSpread(_objectSpread({}, options), {}, {
+            modules: _objectSpread(_objectSpread({}, options.modules), {}, {
+              hashPrefix
+            })
+          });
+        });
+        config.module.rule('less').oneOf('css-modules').use('css-loader').tap(options => {
+          return _objectSpread(_objectSpread({}, options), {}, {
+            modules: _objectSpread(_objectSpread({}, options.modules), {}, {
+              hashPrefix
+            })
+          });
+        });
+      }
+
       return config;
     }); // 复制资源文件到输出目录
 
