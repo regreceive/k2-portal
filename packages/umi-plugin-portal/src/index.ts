@@ -372,6 +372,11 @@ export default async function (api: IApi) {
     let externals = memo.externals;
 
     if (memo.portal.integration[api?.env ?? 'development']) {
+      const esStyle = /^antd\/es\/[\w\-]+\/style/;
+      const esModule = /^antd\/es\/([\w\-]+)$/;
+      const linkedString = /\-(\w)/;
+      const initials = /^\w/;
+
       externals = [
         {
           ...memo.externals,
@@ -382,19 +387,19 @@ export default async function (api: IApi) {
         },
         function (context: any, request: string, callback: any) {
           // 会有代码或依赖包直接引用antd中es样式，要排除其打包
-          if (/^antd\/es\/[\w\-]+\/style/.test(request)) {
+          if (esStyle.test(request)) {
             return callback(null, 'undefined');
           }
 
           // antd/es/table/hooks/xxx可以打包
           // antd/es/table排除打包
-          const match = /^antd\/es\/([\w\-]+)$/.exec(request);
+          const match = esModule.exec(request);
           if (match) {
             callback(null, [
               'antd',
               match[1]
-                .replace(/\-(\w)/, (_, $1) => $1.toUpperCase())
-                .replace(/^\w/, (letter) => letter.toUpperCase()),
+                .replace(linkedString, (_, $1) => $1.toUpperCase())
+                .replace(initials, (letter) => letter.toUpperCase()),
             ]);
             return;
           }
