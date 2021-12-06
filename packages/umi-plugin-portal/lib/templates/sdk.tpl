@@ -1,10 +1,36 @@
+import { createContext, useContext } from 'react';
 import { request } from 'umi';
+
+type CommonServiceType = {
+  get: (url: string) => Promise<ResponseData>;
+  post: {
+    /**
+     * @param data 发送的消息体
+     */
+    (data: {}): Promise<ResponseData>;
+    /**
+     * @param pathname 相对地址
+     * @param data 发送的消息体
+     */
+    (pathname: string, data: {}): Promise<ResponseData>;
+  };
+};
 
 type ServiceListType = {
   {{#service}}
   {{.}}: CommonServiceType;
   {{/service}}
 };
+
+/** 应用的上下文 */
+export const AppContext = createContext<any>({});
+
+/**
+ * 返回父级应用传入的属性
+ */
+export function useAppProps<T>() {
+  return useContext<T>(AppContext);
+}
 
 class CommonService {
   public host: string;
@@ -89,18 +115,3 @@ interface ResponseData {
     total: number;
   };
 }
-
-type CommonServiceType = {
-  get: (url: string) => Promise<ResponseData>;
-  post: {
-    /**
-     * @param data 发送的消息体
-     */
-    (data: {}): Promise<ResponseData>;
-    /**
-     * @param pathname 相对地址
-     * @param data 发送的消息体
-     */
-    (pathname: string, data: {}): Promise<ResponseData>;
-  };
-};

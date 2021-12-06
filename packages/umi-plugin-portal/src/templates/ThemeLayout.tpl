@@ -1,14 +1,7 @@
 import React from 'react';
-import { useEffect, useRef, useState, createContext, useContext } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
-
-export const AppContext = createContext<any>({});
-/**
- * 返回父级应用传入的属性
- */
-export function useAppProps<T>() {
-  return useContext<T>(AppContext);
-}
+import { AppContext, useAppProps } from './sdk';
 
 const ThemeLayout: React.FC = (props) => {
   const ref = useRef<HTMLDivElement>(null);

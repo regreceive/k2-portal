@@ -3,7 +3,7 @@ import Oidc from 'oidc-client';
 Oidc.Log.logger = console;
 Oidc.Log.level = Oidc.Log.INFO;
 
-class SecurityService {
+export default class SingleSign {
   private mgr: Oidc.UserManager;
   private isLogout = false;
   private sessionId = '';
@@ -80,8 +80,3 @@ class SecurityService {
     this.mgr.signoutRedirect();
   }
 }
-
-export default new SecurityService(
-  window.$$config.sso?.clientUrl,
-  location.origin + location.pathname,
-);

@@ -49,22 +49,38 @@ export default async function (api: IApi) {
         return joi.object({
           /** appKey默认名称，集成到portal里面会替换成正确名称 */
           appKey: joi.string().required(),
-          /** app传参默认值 */
-          appDefaultProps: joi.object(),
-          /** Basic认证插入请求头部，仅限开发 */
-          auth: joi.object({
-            username: joi.string().required(),
-            password: joi.string().required(),
-          }),
-          /** 当前应用是否作为主应用 */
-          mainApp: joi.object({
-            /** 应用目录的绝对路径，比如 /public/apps，不能以反斜杠结尾 */
-            appPath: joi.string().required(),
-          }),
+          appDefaultProps: joi.object().description('作为服务化接受默认的传参'),
+          auth: joi
+            .object({
+              username: joi.string().required(),
+              password: joi.string().required(),
+            })
+            .description('开发环境Basic认证，免登录通过BCF网关'),
+          mainApp: joi
+            .object({
+              appPath: joi
+                .string()
+                .required()
+                .description('应用目录的绝对路径。比如 /web/apps'),
+            })
+            .description('当前应用承担Portal职能'),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
           /** nacos配置地址 */
-          nacos: joi.string(),
+          nacos: joi.object({
+            url: joi
+              .string()
+              .description('线上的nacos地址，如果不输入，会取默认配置'),
+            default: joi
+              .object({
+                ssoAuthorityUrl: joi
+                  .string()
+                  .description('开启sso后的单点登录地址'),
+              })
+              .description(
+                '默认nacos配置，一般用于本地开发，如果配置了url则默认配置被覆盖',
+              ),
+          }),
           /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
           integration: joi.object({
             development: joi.boolean(),
@@ -140,8 +156,8 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
           appKey,
-          nacos,
-          service: JSON.stringify(service, null, 4) || {},
+          nacos: JSON.stringify(nacos, null, 4) || '{}',
+          service: JSON.stringify(service, null, 4) || '{}',
           appPath: mainApp?.appPath?.replace(/\/*$/, '') ?? '',
           integrated: integration[api?.env ?? 'development'],
         },

@@ -2,13 +2,11 @@ import clone from 'lodash/clone';
 import type { History } from 'umi';
 import { history } from 'umi';
 import { utils } from 'k2-portal';
-import sso from './sso';
+import SingleSign from './SingleSign';
 
 type Config = {
-  sso: {
-    clientId: string;
-    clientUrl: string;
-  };
+  /** 开启sso，其登录地址 */
+  ssoAuthorityUrl: string;
   appPath: string;
   namespace: string;
 };
@@ -80,6 +78,8 @@ const getAccessToken = () => {
 let _appIframe: HTMLIFrameElement;
 // portal的完整路径：app/子应用路径.子应用名称/子应用路由
 const portalMather = /^\/app\/([^\/]+)(?:\/(\S*))?/;
+// 登录
+let signMgr;
 
 // 封印，防止不讲究的代码
 export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPortalType, {
@@ -128,7 +128,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   login: {
     get() {
       return () => {
-        sso.signIn()
+        signMgr?.signIn()
       };
     },
   },
@@ -136,7 +136,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
     get() {
       return () => {
         localStorage.removeItem('k2_portal_token');
-        sso.signOut();
+        signMgr?.signOut();
       };
     },
   },
@@ -232,29 +232,29 @@ history.listen((listener) => {
 window.g_portal = portal;
 
 // 登录
-if (
-  process.env.NODE_ENV !== 'development' &&
-  window.$$config.sso &&
-  !getAccessToken()
-) {
-  if (location.search.startsWith('?code=')) {
-    // 登录成功跳转
-    sso.mgr.signinCallback().then((res) => {
-      localStorage.setItem('k2_portal_token', res.access_token);
-      // 去掉 ?code
-      location.replace(location.pathname);
-    }).catch(e => {
-      location.replace(location.pathname);
-    });
-    
-  } else {
-    sso.signIn();
-  }
-}
+if (process.env.NODE_ENV !== 'development') {
+  if (portal.config.ssoAuthorityUrl) {
+    signMgr = new SingleSign(
+      portal.config.ssoAuthorityUrl, 
+      location.origin + location.pathname,
+    );
 
-if (window.$$config.sso) {
-  // 退出跳转
-  if (location.search.startsWith('?state=')) {
-    location.replace(location.pathname);
+    if (location.search.startsWith('?code=')) {
+      // 登录成功跳转
+      sso.mgr.signinCallback().then((res) => {
+        localStorage.setItem('k2_portal_token', res.access_token);
+        // 去掉 ?code=
+        location.replace(location.pathname);
+      }).catch(e => {
+        location.replace(location.pathname);
+      });
+    }
+    if (location.search.startsWith('?state=')) {
+      location.replace(location.pathname);
+    }
+  }
+
+  if (!getAccessToken()) {
+    portal.login();
   }
 }
