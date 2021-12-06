@@ -47,8 +47,12 @@ export default async function (api: IApi) {
       },
       schema(joi) {
         return joi.object({
-          /** appKey默认名称，集成到portal里面会替换成正确名称 */
-          appKey: joi.string().required(),
+          appKey: joi
+            .string()
+            .required()
+            .description(
+              'app的唯一标识，一般用于业务功能，与建模器应用标识保持一致。',
+            ),
           appDefaultProps: joi.object().description('作为服务化接受默认的传参'),
           auth: joi
             .object({
@@ -176,8 +180,11 @@ export default async function (api: IApi) {
     if (mainApp) {
       // 生成单点登录sso.ts
       api.writeTmpFile({
-        path: 'plugin-portal/sso.ts',
-        content: readFileSync(join(__dirname, 'templates', 'sso.tpl'), 'utf-8'),
+        path: 'plugin-portal/SingleSign.ts',
+        content: readFileSync(
+          join(__dirname, 'templates', 'SingleSign.tpl'),
+          'utf-8',
+        ),
       });
     } else {
       // 覆盖umi的history
