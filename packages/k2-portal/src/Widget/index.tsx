@@ -33,9 +33,10 @@ const Widget: FC<Props> = (props) => {
     // 作为主应用，url受控
     if (props.appRoot) {
       const url = portal.config.appPath + portal.currAppUrl;
-      if (url) {
-        return url;
+      if (portal.currAppUrl === '') {
+        return '';
       }
+      return url;
     }
     const targetUrl = (portal.config.appPath + '/' + props.src).replace(
       /\/{2,}/g,
@@ -116,7 +117,7 @@ const Widget: FC<Props> = (props) => {
             );
           }
         }}
-        src={iframeUrl}
+        {...(iframeUrl ? { src: iframeUrl } : {})}
         style={{ display: 'none' }}
       />
       <Spin spinning={loading}>

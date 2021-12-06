@@ -222,8 +222,16 @@ history.listen((listener) => {
     )}/#/${path}`.replace(/\/{2,}/g, '/');
 
     try {
-      _appIframe.contentWindow.location.replace(url);
-    } catch(e) {
+      if (_appIframe.contentWindow.location.origin !== 'null') {
+        _appIframe.contentWindow.location.replace(url);
+      } else {
+        // 空页面，或者请求中
+        const win = _appIframe.contentWindow;
+        win.history.go(-(win.history.length));
+        win.location.href = url;
+      }
+    } catch (e) {
+      utils.warn('主应用跨域');
       _appIframe.src = url;
     }
   }

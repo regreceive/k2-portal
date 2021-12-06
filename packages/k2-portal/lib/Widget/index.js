@@ -29,6 +29,8 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -63,9 +65,11 @@ var Widget = function Widget(props) {
     if (props.appRoot) {
       var url = _.portal.config.appPath + _.portal.currAppUrl;
 
-      if (url) {
-        return url;
+      if (_.portal.currAppUrl === '') {
+        return '';
       }
+
+      return url;
     }
 
     var targetUrl = (_.portal.config.appPath + '/' + props.src).replace(/\/{2,}/g, '/');
@@ -128,7 +132,7 @@ var Widget = function Widget(props) {
   }, /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "style",
     ref: link
-  }), /*#__PURE__*/_react.default.createElement("iframe", {
+  }), /*#__PURE__*/_react.default.createElement("iframe", _extends({
     ref: frame,
     onLoad: function onLoad() {
       try {
@@ -145,12 +149,14 @@ var Widget = function Widget(props) {
 
         (0, _utils.warn)("Widget.src[".concat((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : _frame$current5.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
       }
-    },
-    src: iframeUrl,
+    }
+  }, iframeUrl ? {
+    src: iframeUrl
+  } : {}, {
     style: {
       display: 'none'
     }
-  }), /*#__PURE__*/_react.default.createElement(_antd.Spin, {
+  })), /*#__PURE__*/_react.default.createElement(_antd.Spin, {
     spinning: loading
   }, /*#__PURE__*/_react.default.createElement("div", {
     style: {
