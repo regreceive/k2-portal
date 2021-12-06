@@ -18,7 +18,7 @@ export default {
   },
   copy: [
     {
-      from: 'docs/assets/logo3.png',
+      from: 'docs/assets/logo.png',
       to: 'logo.png',
     },
   ],

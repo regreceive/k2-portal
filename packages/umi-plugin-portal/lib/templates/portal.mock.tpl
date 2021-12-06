@@ -2,11 +2,14 @@ import type { History } from 'umi';
 import clone from 'lodash/clone';
 
 type Config = {
-  sso?: {
-    clientId: string;
-    clientUrl: string;
+  nacos: {
+    /** 开启sso，其登录地址 */
+    ssoAuthorityUrl: string;
+    /** 服务配置 */
+    service: any;
   };
-  namespace: string;
+  /** 应用目录的绝对路径。比如 /web/apps /*
+  appPath: string;
 };
 
 type GlobalPortalType = {

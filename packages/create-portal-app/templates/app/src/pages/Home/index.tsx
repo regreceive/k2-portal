@@ -1,29 +1,31 @@
 import { FC, useCallback, useState } from 'react';
-import { history } from 'umi';
 import { Button, Typography } from 'antd';
-import { Widget } from 'k2-portal';
+import { history } from 'umi';
+import { api } from 'k2-portal';
 import BoxArea from '@/components/BoxArea';
+import queryMenu from './menu.gql';
+
+/**
+ * 建议安装vs-code插件GraphQL获得gql代码高亮
+ * https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql
+ */
 
 const Home: FC = () => {
   const [result, setResult] = useState<any>({});
 
   // 获得菜单
   const handleBtnClick = useCallback(async () => {
-    const res = await getInstance('bcf_front_menu', {
-      param: {
-        start: true,
-      },
-    });
+    const res = await api.graphql.post(queryMenu);
     setResult(res);
   }, []);
 
   return (
     <>
-      <BoxArea title="快速开始">
+      <BoxArea title="快速开始" rightArea={<a href="http://192.168.130.100:8341/">文档</a>}>
         <Typography.Paragraph>
           <pre>
             <div>$ mkdir app &amp;&amp; cd $_</div>
-            <div>$ yarn create portal-app</div>
+            <div>$ npx create-portal-app@latest</div>
           </pre>
         </Typography.Paragraph>
       </BoxArea>
@@ -40,16 +42,11 @@ const Home: FC = () => {
       <BoxArea title="路由跳转">
         <Button
           onClick={() => {
-            history.push('/home/page1');
+            history.push('/home/other-page');
           }}
         >
           /home/page1
         </Button>
-      </BoxArea>
-
-      <BoxArea title="子应用演示">
-        <p>为方便演示，这里嵌套的是应用自身，在真实环境子应用是独立部署的</p>
-        <Widget src={`//${location.host}/#/child`} appProps={{ points: ['id1', 'id2'] }} />
       </BoxArea>
     </>
   );

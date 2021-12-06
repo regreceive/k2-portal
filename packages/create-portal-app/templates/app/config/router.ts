@@ -10,6 +10,10 @@ const routes: IBestAFSRoute[] = [
         component: '@/pages/Home',
         title: 'App Demo',
       },
+      {
+        path: './other-page',
+        component: '@/pages/OtherPage',
+      }
     ],
   }
 ];

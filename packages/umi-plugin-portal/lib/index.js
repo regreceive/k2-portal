@@ -105,9 +105,13 @@ function _ref() {
             username: 'admin',
             password: 'admin'
           },
-          service: {
-            gateway: '//fill_api_here',
-            graphql: '//fill_api_here'
+          nacos: {
+            default: {
+              service: {
+                gateway: '//fill_api_here',
+                graphql: '//fill_api_here'
+              }
+            }
           },
           customToken: ''
         },
@@ -126,20 +130,17 @@ function _ref() {
 
             /** 服务枚举 */
             service: joi.object().pattern(joi.string(), joi.string()),
-
-            /** nacos配置地址 */
             nacos: joi.object({
               url: joi.string().description('线上的nacos地址，如果不输入，会取默认配置'),
               default: joi.object({
-                ssoAuthorityUrl: joi.string().description('开启sso后的单点登录地址')
+                ssoAuthorityUrl: joi.string().description('开启sso后的单点登录地址'),
+                service: joi.object().pattern(joi.string(), joi.string()).description('服务')
               }).description('默认nacos配置，一般用于本地开发，如果配置了url则默认配置被覆盖')
-            }),
-
-            /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
+            }).description('nacos配置'),
             integration: joi.object({
-              development: joi.boolean(),
-              production: joi.boolean()
-            }),
+              development: joi.boolean().description('开发环境结合到一起'),
+              production: joi.boolean().description('生产环境结合到一起')
+            }).description('react/antd等是否与bundle结合到一起'),
             customToken: joi.string()
           });
         },
@@ -171,7 +172,6 @@ function _ref() {
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
             appKey = _ref3.appKey,
-            service = _ref3.service,
             nacos = _ref3.nacos,
             appDefaultProps = _ref3.appDefaultProps,
             auth = _ref3.auth,
@@ -195,8 +195,8 @@ function _ref() {
         path: 'plugin-portal/init.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
           appKey,
-          nacos: JSON.stringify(nacos, null, 4) || '{}',
-          service: JSON.stringify(service, null, 4) || '{}',
+          nacos: JSON.stringify(nacos.default, null, 4) || '{}',
+          nacosUrl: nacos.url,
           appPath: (_mainApp$appPath$repl = mainApp === null || mainApp === void 0 ? void 0 : (_mainApp$appPath = mainApp.appPath) === null || _mainApp$appPath === void 0 ? void 0 : _mainApp$appPath.replace(/\/*$/, '')) !== null && _mainApp$appPath$repl !== void 0 ? _mainApp$appPath$repl : '',
           integrated: integration[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
         })
@@ -249,7 +249,7 @@ function _ref() {
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
           appKey: appKey,
           appDefaultProps: JSON.stringify(appDefaultProps),
-          service: Object.keys(service)
+          service: Object.keys(nacos.default.service)
         })
       }); // 生成runtime
 
@@ -290,7 +290,8 @@ function _ref() {
         test: /umi(\.\w+)*\.?js$/
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
-      config.optimization.set('runtimeChunk', 'single'); // 确保打包输出不同的css名称，防止多应用样式冲突
+      config.optimization.set('runtimeChunk', 'single');
+      config.module.rule('gql').test(/\.(gql|graphql)$/).use('raw-loader').loader(require.resolve('@umijs/deps/compiled/raw-loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);

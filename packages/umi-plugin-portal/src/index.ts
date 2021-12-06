@@ -39,9 +39,13 @@ export default async function (api: IApi) {
           username: 'admin',
           password: 'admin',
         },
-        service: {
-          gateway: '//fill_api_here',
-          graphql: '//fill_api_here',
+        nacos: {
+          default: {
+            service: {
+              gateway: '//fill_api_here',
+              graphql: '//fill_api_here',
+            },
+          },
         },
         customToken: '',
       },
@@ -70,26 +74,32 @@ export default async function (api: IApi) {
             .description('当前应用承担Portal职能'),
           /** 服务枚举 */
           service: joi.object().pattern(joi.string(), joi.string()),
-          /** nacos配置地址 */
-          nacos: joi.object({
-            url: joi
-              .string()
-              .description('线上的nacos地址，如果不输入，会取默认配置'),
-            default: joi
-              .object({
-                ssoAuthorityUrl: joi
-                  .string()
-                  .description('开启sso后的单点登录地址'),
-              })
-              .description(
-                '默认nacos配置，一般用于本地开发，如果配置了url则默认配置被覆盖',
-              ),
-          }),
-          /** 是否集成到portal，因为要编译依赖项，如果切换需要重启 */
-          integration: joi.object({
-            development: joi.boolean(),
-            production: joi.boolean(),
-          }),
+          nacos: joi
+            .object({
+              url: joi
+                .string()
+                .description('线上的nacos地址，如果不输入，会取默认配置'),
+              default: joi
+                .object({
+                  ssoAuthorityUrl: joi
+                    .string()
+                    .description('开启sso后的单点登录地址'),
+                  service: joi
+                    .object()
+                    .pattern(joi.string(), joi.string())
+                    .description('服务'),
+                })
+                .description(
+                  '默认nacos配置，一般用于本地开发，如果配置了url则默认配置被覆盖',
+                ),
+            })
+            .description('nacos配置'),
+          integration: joi
+            .object({
+              development: joi.boolean().description('开发环境结合到一起'),
+              production: joi.boolean().description('生产环境结合到一起'),
+            })
+            .description('react/antd等是否与bundle结合到一起'),
           customToken: joi.string(),
         });
       },
@@ -126,7 +136,6 @@ export default async function (api: IApi) {
 
     const {
       appKey,
-      service,
       nacos,
       appDefaultProps,
       auth,
@@ -160,8 +169,8 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
           appKey,
-          nacos: JSON.stringify(nacos, null, 4) || '{}',
-          service: JSON.stringify(service, null, 4) || '{}',
+          nacos: JSON.stringify(nacos.default, null, 4) || '{}',
+          nacosUrl: nacos.url,
           appPath: mainApp?.appPath?.replace(/\/*$/, '') ?? '',
           integrated: integration[api?.env ?? 'development'],
         },
@@ -248,7 +257,7 @@ export default async function (api: IApi) {
         {
           appKey: appKey,
           appDefaultProps: JSON.stringify(appDefaultProps),
-          service: Object.keys(service),
+          service: Object.keys(nacos.default.service),
         },
       ),
     });
@@ -295,6 +304,12 @@ export default async function (api: IApi) {
       .add(path.resolve(api.paths.absTmpPath!, 'plugin-portal/init.ts'));
 
     config.optimization.set('runtimeChunk', 'single');
+
+    config.module
+      .rule('gql')
+      .test(/\.(gql|graphql)$/)
+      .use('raw-loader')
+      .loader(require.resolve('@umijs/deps/compiled/raw-loader'));
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {

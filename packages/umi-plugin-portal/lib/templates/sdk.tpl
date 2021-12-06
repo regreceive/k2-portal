@@ -32,24 +32,34 @@ export function useAppProps<T>() {
   return useContext<T>(AppContext);
 }
 
+const spaceMatcher = /(?<=#graphql\n)\s+/;
+function prettyGql(gql: string) {
+  const result = spaceMatcher.exec(gql);
+  if (result) {
+    return gql.replaceAll(' '.repeat(result[0].length), '');
+  }
+  return gql;
+}
+
 class CommonService {
   public host: string;
+  public key: string;
 
-  constructor(host: string) {
+  constructor(host: string, key: string) {
     this.host = host;
+    if (key === 'graphql') {
+      this.post = (gql: string) => {
+        const query = prettyGql(gql);
+        return CommonService.prototype.post.call(this, { query });
+      };
+    }
   }
 
   get(url: string) {
     return request<ResponseData>(this.host + url);
   }
 
-  del = (url: string) => {
-    return request<ResponseData>(this.host + url, {
-      method: 'DELETE',
-    });
-  };
-
-  post = (url: string, data: any) => {
+  post(url: string, data: any) {
     // for graphql
     if (typeof url === 'string') {
       return request<ResponseData>(this.host + url, {
@@ -59,34 +69,22 @@ class CommonService {
     }
     return request<ResponseData>(this.host, {
       method: 'POST',
-      url,
+      data: url,
     });
-  };
-
-  put = (url: string, data: any) => {
-    return request<ResponseData>(this.host + url, {
-      method: 'PUT',
-      data,
-    });
-  };
+  }
 }
 
-export const api: ServiceListType = Object.entries<string>(window.$$config.service)
-  .reduce((prev, [key, value]) => {
-    return {...prev, [key]: new CommonService(value)};
-  }, {});
+export const api: ServiceListType = Object.entries<string>(
+  window.$$config.nacos.service,
+).reduce((prev, [key, value]) => {
+  return { ...prev, [key]: new CommonService(value, key) };
+}, {});
 
 export const appKey = '{{{ appKey }}}';
 
 interface ResponseData {
   code?: number;
-  data?: {
-    rows: any[];
-    schema: {
-      name: string;
-      data_type: string;
-    }[];
-  };
+  data?: any;
   results?: {
     series?: {
       tags: { node_id: string; [key: string]: string };

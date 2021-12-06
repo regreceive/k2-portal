@@ -1,6 +1,7 @@
 declare module '*.css';
 declare module '*.less';
 declare module '*.png';
+declare module '*.gql';
 declare module '*.svg' {
   export function ReactComponent(
     props: React.SVGProps<SVGSVGElement>,
@@ -18,10 +19,8 @@ interface Window {
   ReactDOM: any;
   moment: any;
   $$config: {
-    service: { [key: string]: string };
     [key: string]: any;
   };
   env: { [key: string]: any };
   g_portal: any;
-  URL: typeof URL;
 }

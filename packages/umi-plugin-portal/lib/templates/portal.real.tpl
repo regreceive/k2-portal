@@ -5,10 +5,14 @@ import { utils } from 'k2-portal';
 import SingleSign from './SingleSign';
 
 type Config = {
-  /** 开启sso，其登录地址 */
-  ssoAuthorityUrl: string;
+  nacos: {
+    /** 开启sso，其登录地址 */
+    ssoAuthorityUrl: string;
+    /** 服务配置 */
+    service: any;
+  };
+  /** 应用目录的绝对路径。比如 /web/apps /*
   appPath: string;
-  namespace: string;
 };
 
 type GlobalPortalType = {
@@ -222,14 +226,7 @@ history.listen((listener) => {
     )}/#/${path}`.replace(/\/{2,}/g, '/');
 
     try {
-      if (_appIframe.contentWindow.location.origin !== 'null') {
-        _appIframe.contentWindow.location.replace(url);
-      } else {
-        // 空页面，或者请求中
-        const win = _appIframe.contentWindow;
-        win.history.go(-(win.history.length));
-        win.location.href = url;
-      }
+      _appIframe.contentWindow.location.replace(url);
     } catch (e) {
       utils.warn('主应用跨域');
       _appIframe.src = url;

@@ -1,7 +1,6 @@
 // 初始默认的service，如果请求nacos，会被覆盖
 window.$$config = {
   nacos: {{{ nacos }}},
-  service: {{{ service }}},
   appPath: '{{{ appPath }}}',
   alone: false,
 };
@@ -39,7 +38,8 @@ window.publicPath = location.pathname;
 
   /** 加载nacos配置，如果加载失败，则启用自身env的配置 */
   function getRuntimeConfig() {
-    if ($$config.nacos?.url) {
+    const nacosUrl = '{{{ nacosUrl }}}';
+    if (nacosUrl) {
       log('请求nacos配置...');
 
       const fail = () => {
@@ -51,7 +51,7 @@ window.publicPath = location.pathname;
         controller.abort();
       }, 2000);
 
-      return fetch($$config.nacos?.url, { signal: controller.signal })
+      return fetch(nacosUrl, { signal: controller.signal })
         .then((response) => {
           if (response.status === 200) {
             return response.text();
@@ -63,7 +63,7 @@ window.publicPath = location.pathname;
           if (!json) {
             throw Error;
           }
-          window.$$config = {...window.$$config, ...json};
+          window.$$config.nacos = {...window.$$config.nacos, ...json};
         })
         .catch(() => {
           fail();
