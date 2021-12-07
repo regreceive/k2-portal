@@ -306,10 +306,12 @@ export default async function (api: IApi) {
     config.optimization.set('runtimeChunk', 'single');
 
     config.module
-      .rule('gql')
+      .rule('graphql')
       .test(/\.(gql|graphql)$/)
-      .use('raw-loader')
-      .loader(require.resolve('@umijs/deps/compiled/raw-loader'));
+      .exclude.add(/node_modules/)
+      .end()
+      .use('graphql-loader')
+      .loader(require.resolve('graphql-tag/loader'));
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {

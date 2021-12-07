@@ -42,7 +42,7 @@ const Home: FC = () => {
       <BoxArea title="路由跳转">
         <Button
           onClick={() => {
-            history.push('/home/other-page');
+            history.push('/other-page');
           }}
         >
           /home/page1

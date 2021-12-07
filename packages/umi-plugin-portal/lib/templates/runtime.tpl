@@ -2,6 +2,8 @@ import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import { utils } from 'k2-portal';
+import { ApolloClient, ApolloProvider, InMemoryCache, HttpLink, from } from '@apollo/client';
+import { onError } from '@apollo/client/link/error';
 import { AppContext } from './sdk';
 import { portal } from './portal';
 import ThemeLayout from './ThemeLayout';
@@ -31,22 +33,40 @@ export function render(renderNow: Function) {
   }
 }
 
+const errorLink = onError((error) => {
+  console.log(error);
+});
+
+const requestLink = new HttpLink({
+  uri: portal.config.nacos.service.graphql,
+  headers: {
+    Authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
+  },
+});
+
+const client = new ApolloClient({
+  link: from([errorLink, requestLink]),
+  cache: new InMemoryCache(),
+});
+
 export function rootContainer(container) {
   // 不管是独立应用还是子应用，都要使用antd中文包
   return (
     <AppContext.Provider value={appProps}>
-      <ConfigProvider
-        componentSize="middle"
-        locale={zhCN}
-        getPopupContainer={() => {
-          if (utils.isInPortal) {
-            return window.parent.document.querySelector('#{{{ appKey }}}');
-          }
-          return document.body;
-        }}
-      >
-        <ThemeLayout>{container}</ThemeLayout>
-      </ConfigProvider>
+      <ApolloProvider client={client}>
+        <ConfigProvider
+          componentSize="middle"
+          locale={zhCN}
+          getPopupContainer={() => {
+            if (utils.isInPortal) {
+              return window.parent.document.querySelector('#{{{ appKey }}}');
+            }
+            return document.body;
+          }}
+        >
+          <ThemeLayout>{container}</ThemeLayout>
+        </ConfigProvider>
+      </ApolloProvider>
     </AppContext.Provider>
   );
 }
@@ -99,9 +119,7 @@ export const request = {
       const headers = {
         ...options.headers,
         // k2assets接口需要添加权限字段
-        Authorization: utils.isInPortal
-          ? portal.accessToken
-          : '{{{ customToken }}}' || '{{{ basic }}}',
+        Authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
       };
       return {
         url,

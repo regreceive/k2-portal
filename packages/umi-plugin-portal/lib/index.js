@@ -291,7 +291,7 @@ function _ref() {
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
-      config.module.rule('gql').test(/\.(gql|graphql)$/).use('raw-loader').loader(require.resolve('@umijs/deps/compiled/raw-loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
+      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-loader').loader(require.resolve('graphql-tag/loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);

@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { request } from 'umi';
+export { useQuery, useMutation, useLazyQuery } from '@apollo/client';
 
 type CommonServiceType = {
   get: (url: string) => Promise<ResponseData>;
