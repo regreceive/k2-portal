@@ -70,17 +70,19 @@ module.exports = function (source) {
 
   // @ts-ignore
   this.cacheable();
-  const doc = (0, _client().gql)`${source}`;
+  const doc = (0, _client().gql)`
+    ${source}
+  `;
   let headerCode = `
     var doc = ${JSON.stringify(doc)};
     doc.loc.source = ${JSON.stringify((_doc$loc = doc.loc) === null || _doc$loc === void 0 ? void 0 : _doc$loc.source)};
   `;
-  let outputCode = ""; // Allow multiple query/mutation definitions in a file. This parses out dependencies
+  let outputCode = ''; // Allow multiple query/mutation definitions in a file. This parses out dependencies
   // at compile time, and then uses those at load time to create minimal query documents
   // We cannot do the latter at compile time due to how the #import code works.
 
   let operationCount = doc.definitions.reduce(function (accum, op) {
-    if (op.kind === "OperationDefinition" || op.kind === "FragmentDefinition") {
+    if (op.kind === 'OperationDefinition' || op.kind === 'FragmentDefinition') {
       return accum + 1;
     }
 
@@ -202,10 +204,10 @@ module.exports = function (source) {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         const op = _step.value;
 
-        if (op.kind === "OperationDefinition" || op.kind === "FragmentDefinition") {
+        if (op.kind === 'OperationDefinition' || op.kind === 'FragmentDefinition') {
           if (!op.name) {
             if (operationCount > 1) {
-              throw new Error("Query/mutation names are required for a document with multiple definitions");
+              throw new Error('Query/mutation names are required for a document with multiple definitions');
             } else {
               continue;
             }
@@ -213,10 +215,10 @@ module.exports = function (source) {
 
           const opName = op.name.value;
           outputCode += `
+        var ${opName}Doc = oneQuery(doc, "${opName}");
+
         module.exports["${opName}"] = {
-          gql: function() {
-            return oneQuery(doc, "${opName}");
-          },
+          gql: ${opName}Doc,
           send: function(variables) {
             return api.graphql.post({
               query: print(oneQuery(doc, "${opName}")),

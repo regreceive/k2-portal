@@ -186,10 +186,10 @@ module.exports = function (source: string) {
 
         const opName = op.name.value;
         outputCode += `
+        var ${opName}Doc = oneQuery(doc, "${opName}");
+
         module.exports["${opName}"] = {
-          gql: function() {
-            return oneQuery(doc, "${opName}");
-          },
+          gql: ${opName}Doc,
           send: function(variables) {
             return api.graphql.post({
               query: print(oneQuery(doc, "${opName}")),
