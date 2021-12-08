@@ -33,15 +33,6 @@ export function useAppProps<T>() {
   return useContext<T>(AppContext);
 }
 
-const spaceMatcher = /(?<=#graphql\n)\s+/;
-function prettyGql(gql: string) {
-  const result = spaceMatcher.exec(gql);
-  if (result) {
-    return gql.replaceAll(' '.repeat(result[0].length), '');
-  }
-  return gql;
-}
-
 class CommonService {
   public host: string;
   public key: string;
@@ -50,8 +41,7 @@ class CommonService {
     this.host = host;
     if (key === 'graphql') {
       this.post = (gql: string) => {
-        const query = prettyGql(gql);
-        return CommonService.prototype.post.call(this, { query });
+        return CommonService.prototype.post.call(this, gql);
       };
     }
   }

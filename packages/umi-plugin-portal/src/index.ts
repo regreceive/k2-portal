@@ -310,8 +310,11 @@ export default async function (api: IApi) {
       .test(/\.(gql|graphql)$/)
       .exclude.add(/node_modules/)
       .end()
-      .use('graphql-loader')
-      .loader(require.resolve('graphql-tag/loader'));
+      .use('graphql-modules')
+      .loader(require.resolve('./graphql-loader'));
+    // .end()
+    // .use('graphql-loader')
+    // .loader(require.resolve('graphql-tag/loader'));
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
