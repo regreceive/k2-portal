@@ -6,7 +6,6 @@ import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 // @ts-ignore
 import { portal } from '../';
 import { warn } from '../utils';
-import './style.css';
 
 type Props = {
   /** 应用地址，一定要同域 */
@@ -84,12 +83,16 @@ const Widget: FC<Props> = (props) => {
         'link[href$=".css"]',
       )?.href;
     if (url) {
-      const ele = link.current?.ownerDocument.createElement('link');
+      const ele =
+        link.current?.querySelector(`link`) ||
+        link.current?.ownerDocument.createElement('link');
       if (ele) {
         ele.href = url;
         ele.type = 'text/css';
         ele.rel = 'stylesheet';
-        link.current?.appendChild(ele);
+        if (!ele.parentNode) {
+          link.current?.appendChild(ele);
+        }
       }
     }
   }, []);
@@ -97,7 +100,7 @@ const Widget: FC<Props> = (props) => {
   return (
     <div
       data-name="widget"
-      style={{ height: '100%', ...props.style }}
+      style={{ ...props.style }}
       className={classNames('k2-umi-widget', props.className)}
     >
       <div data-name="style" ref={link} />

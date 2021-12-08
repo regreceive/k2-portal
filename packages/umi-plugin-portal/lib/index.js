@@ -188,7 +188,7 @@ function _ref() {
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.less',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.less'), 'utf-8')
+        content: api.env === 'development' || mainApp ? (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.less'), 'utf-8') : ''
       }); // 生成init.js
 
       api.writeTmpFile({

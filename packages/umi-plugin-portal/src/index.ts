@@ -156,10 +156,10 @@ export default async function (api: IApi) {
     // 生成portal.less
     api.writeTmpFile({
       path: 'plugin-portal/portal.less',
-      content: readFileSync(
-        join(__dirname, 'templates', 'portal.less'),
-        'utf-8',
-      ),
+      content:
+        api.env === 'development' || mainApp
+          ? readFileSync(join(__dirname, 'templates', 'portal.less'), 'utf-8')
+          : '',
     });
 
     // 生成init.js

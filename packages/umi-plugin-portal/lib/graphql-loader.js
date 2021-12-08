@@ -221,7 +221,7 @@ module.exports = function (source) {
           gql: ${opName}Doc,
           send: function(variables) {
             return api.graphql.post({
-              query: print(oneQuery(doc, "${opName}")),
+              query: print(${opName}Doc),
               variables: JSON.stringify(variables),
               operationName: "${opName}"
             });

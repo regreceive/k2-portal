@@ -53,7 +53,7 @@ export default () => {
 1. 避免调用者没有传入相关参数导致程序错误
 2. 便于调试，作为服务化应用只需要模拟一个真实环境传入的参数即可
 
-找到`config/portal.ts`，新增 appDefaultProps 字段，在里面设置入参的默认值
+找到`config/portal.ts`，新增 appDefaultProps 字段，设置入参的默认值
 
 ```ts
 import { IConfigFromPlugins } from '@@/core/pluginConfig';
@@ -113,8 +113,12 @@ export const darkTheme = {
 ```ts
 // portal.ts
 const portal: IConfigFromPlugins['portal'] = {
-  service: {
-    repo: '/repo/repos/xxx',
+  nacos: {
+    default: {
+      service: {
+        repo: '/repo/repos/xxx',
+      },
+    },
   },
 };
 ```
@@ -135,3 +139,58 @@ api.repo.get('/columns').then((res) => {
 <Alert type="warning">为方便管理需要统一从 nacos 取服务配置，怎么做？</Alert>
 
 ✨ 答：在 nacos 添加相同的服务接口名称和地址，应用会优先选择 nacos 的配置。
+
+## 支持建模器 3.0
+
+框架支持建模器 3.0，在构建阶段对 graphql 文件（.gql、.graphql）进行解析包装，使 graphql 能够直接变成服务。
+
+service.gql，query 名称不可省略。
+
+```graphql
+# 请求菜单
+query menu {
+  bcf_front_menu {
+    title
+    app_key
+  }
+}
+
+#请求应用
+query apps {
+  bcf_front_apps {
+    key
+    name
+  }
+}
+```
+
+函数发送模式，graphql 被自动装配请求函数，需要配置 nacos 的 service.graphql
+
+```tsx
+import { useEffect, useState } from 'react';
+import query from 'service.gql';
+
+export default () => {
+  const [result, setResult] = useState();
+  useEffect(() => {
+    query.menu.send().then((res) => {
+      setResult(res.data);
+    });
+  }, []);
+
+  return <div>菜单信息：{JSON.stringify(result, null, 2)}</div>;
+};
+```
+
+也可以使用`@apollo/client`的 hooks 模式，满足不同场景。k2-portal 做了部分引用，具体命令详见[阿波罗官网](https://www.apollographql.com/docs/react/data/queries)
+
+```tsx
+import { useQuery } from 'k2-portal';
+import query from 'service.gql';
+
+export default () => {
+  const { data, loading } = useQuery(query.apps.gql);
+
+  return <div>应用信息：{JSON.stringify(data, null, 2)}</div>;
+};
+```

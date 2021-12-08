@@ -21,8 +21,6 @@ var _ = require("../");
 
 var _utils = require("../utils");
 
-require("./style.css");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
@@ -109,25 +107,26 @@ var Widget = function Widget(props) {
     var url = (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentDocument) === null || _frame$current3$conte === void 0 ? void 0 : (_frame$current3$conte2 = _frame$current3$conte.querySelector('link[href$=".css"]')) === null || _frame$current3$conte2 === void 0 ? void 0 : _frame$current3$conte2.href;
 
     if (url) {
-      var _link$current;
+      var _link$current, _link$current2;
 
-      var ele = (_link$current = link.current) === null || _link$current === void 0 ? void 0 : _link$current.ownerDocument.createElement('link');
+      var ele = ((_link$current = link.current) === null || _link$current === void 0 ? void 0 : _link$current.querySelector("link")) || ((_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.ownerDocument.createElement('link'));
 
       if (ele) {
-        var _link$current2;
-
         ele.href = url;
         ele.type = 'text/css';
         ele.rel = 'stylesheet';
-        (_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.appendChild(ele);
+
+        if (!ele.parentNode) {
+          var _link$current3;
+
+          (_link$current3 = link.current) === null || _link$current3 === void 0 ? void 0 : _link$current3.appendChild(ele);
+        }
       }
     }
   }, []);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
-    style: _objectSpread({
-      height: '100%'
-    }, props.style),
+    style: _objectSpread({}, props.style),
     className: (0, _classnames.default)('k2-umi-widget', props.className)
   }, /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "style",

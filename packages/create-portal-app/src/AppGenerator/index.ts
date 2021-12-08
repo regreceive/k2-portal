@@ -14,6 +14,9 @@ export default class AppGenerator extends Generator {
       target: this.cwd,
     });
 
-    console.log('\n子应用模板创建完成，版本：@%s', chalk.cyan(version));
+    console.log(
+      '\nThe boom💣has been planted. version：@%s',
+      chalk.cyan(version),
+    );
   }
 }
