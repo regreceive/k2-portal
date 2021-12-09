@@ -78,18 +78,15 @@ window.publicPath = location.pathname;
   window.antd = parent.antd;
   window.moment = parent.moment;
 
+  const allowAccessParentProp = ['HTMLCanvasElement', 'document', 'innerWidth', 'innerHeight', 'scrollX','scrollY','pageYOffset'];
   const proxyWindow = new Proxy({}, {
     get(target, key) {
       // 针对paper.js: self.window
       if (key === 'window') {
         return proxyWindow;
       }
-      if (key === 'HTMLCanvasElement') {
-        return parent.window.HTMLCanvasElement;
-      }
-      // 防止有的代码会以window.document来访问document
-      if (key === 'document') {
-        return window.parent.document;
+      if (allowAccessParentProp.includes(key)) {
+        return parent[key];
       }
       const prop = Reflect.get(window, key);
       if (typeof prop === 'function' && !prop['prototype']) {

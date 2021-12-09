@@ -112,7 +112,10 @@ const Widget: FC<Props> = (props) => {
             if (frame.current?.contentWindow?.location.host !== '') {
               setLoading(false);
               moveCSS();
-              renderApp();
+              // spin更新不及时，会导致容器还处在未渲染状态
+              setTimeout(() => {
+                renderApp();
+              }, 1);
             }
           } catch (e) {
             warn(

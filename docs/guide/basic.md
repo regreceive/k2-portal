@@ -144,9 +144,9 @@ api.repo.get('/columns').then((res) => {
 
 框架支持建模器 3.0，在构建阶段对 graphql 文件（.gql、.graphql）进行解析包装，使 graphql 能够直接变成服务。
 
-service.gql，query 名称不可省略。
-
 ```graphql
+# service.gql
+
 # 请求菜单
 query menu {
   bcf_front_menu {
@@ -164,11 +164,11 @@ query apps {
 }
 ```
 
-函数发送模式，graphql 被自动装配请求函数，需要配置 nacos 的 service.graphql
+Promise 模式，graphql 被自动装配请求函数，需要配置 nacos 的 service.graphql
 
-```tsx
+```ts
 import { useEffect, useState } from 'react';
-import query from 'service.gql';
+import query from './service.gql';
 
 export default () => {
   const [result, setResult] = useState();
@@ -184,9 +184,9 @@ export default () => {
 
 也可以使用`@apollo/client`的 hooks 模式，满足不同场景。k2-portal 做了部分引用，具体命令详见[阿波罗官网](https://www.apollographql.com/docs/react/data/queries)
 
-```tsx
+```ts
 import { useQuery } from 'k2-portal';
-import query from 'service.gql';
+import query from './service.gql';
 
 export default () => {
   const { data, loading } = useQuery(query.apps.gql);

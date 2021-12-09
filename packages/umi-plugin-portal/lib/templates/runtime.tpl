@@ -28,7 +28,7 @@ export function modifyClientRenderOpts(memo: any) {
 
 export function render(renderNow: Function) {
   appRender = renderNow;
-  if (!utils.isInPortal) {
+  if (!utils.isInWidget) {
     renderNow();
   }
 }

@@ -14,6 +14,8 @@ export function pickProps<P>(component: React.FC<P>) {
 // @ts-ignore
 export const isInPortal = parent !== window && !!parent?.g_portal;
 
+export const isInWidget = parent !== window;
+
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params

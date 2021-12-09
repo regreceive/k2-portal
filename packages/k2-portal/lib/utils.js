@@ -10,7 +10,7 @@ exports.warn = warn;
 exports.formatDateTime = formatDateTime;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.isInPortal = void 0;
+exports.isInWidget = exports.isInPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -79,6 +79,8 @@ function pickProps(component) {
 
 
 const isInPortal = parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
+exports.isInPortal = isInPortal;
+const isInWidget = parent !== window;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
@@ -86,7 +88,7 @@ const isInPortal = parent !== window && !!((_parent = parent) === null || _paren
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
 
-exports.isInPortal = isInPortal;
+exports.isInWidget = isInWidget;
 
 function mergeTimeSeries(...params) {
   const map = new Map();

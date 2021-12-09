@@ -5,6 +5,7 @@ export declare function pickProps<P>(component: React.FC<P>): React.FC<P>;
  * @returns
  */
 export declare const isInPortal: boolean;
+export declare const isInWidget: boolean;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params

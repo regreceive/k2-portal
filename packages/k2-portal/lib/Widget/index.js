@@ -140,8 +140,11 @@ var Widget = function Widget(props) {
         // about: blank也会触发onload，这里判断一下
         if (((_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentWindow) === null || _frame$current4$conte === void 0 ? void 0 : _frame$current4$conte.location.host) !== '') {
           setLoading(false);
-          moveCSS();
-          renderApp();
+          moveCSS(); // spin更新不及时，会导致容器还处在未渲染状态
+
+          setTimeout(function () {
+            renderApp();
+          }, 1);
         }
       } catch (e) {
         var _frame$current5;
