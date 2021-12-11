@@ -9,132 +9,42 @@ nav:
 
 # API
 
-应用开发相关的 api，组件引入均来自`k2-portal`
+`k2-portal`提供了一些框架组件，帮助开发者维持应用间的联系和数据请求。
 
-## 通用接口服务
+```js
+import { api, Widget, utils, portal } from 'k2-portal';
+```
 
-### api
+## api
 
-api 移植自老应用模板，写法以及请求参数与旧版本基本一致。
+api 是前端服务，它将 service 配置自动包装为服务，服务类型目前默认支持的有：
 
-不同之处：
+- graphql 建模器 3.0
+- gateway BCF 服务接口
 
-1. 发请求后不需要`.end()`来结尾。
-2. 不支持旧版本自研的链式调用，比如`.reqFs` `.file`等晦涩难懂的语法。
+开发创建启用服务方式
 
-服务类型目前默认支持的有
-
-- dataService 建模器
-- gateway 项目接口
-- influxdb 时序数据查询
-- repo 时序数据服务
-
-本地启用服务方式
-
-1. 在`config/portal.ts`配置`service`，输入所需服务的地址。
-2. 如果希望使用线上项目 nacos 的配置，则无需第一步，直接配置`nacos`的地址即可。
-3. 本地开发环境访问线上接口会遇到跨域问题，请到`config/proxy.ts`中做进一步代理配置。
+1. 在`config/portal.ts`配置`nacos.default.service`，输入服务名称和服务地址。
+2. 到`config/proxy.ts`中做进一步代理配置。
 
 示例：
 
 ```ts
 import { api } from 'k2-portal';
 
-// 增
-api.dataService.post('/xxx', payload);
-// 删
-api.dataService.delete(`/xxx?entity_ids=${id}`);
-// 改
-api.dataService.put(`/xxx`, { entities: payload });
-// 查
+// get
+api.gateway.post('/xxx', payload);
+// post
 api.dataService.get('/xxx').then((res) => {
-  const data = res.data || [];
+  return res.data || [];
 });
 ```
 
-### getInstance
-
-建模器单实体查询，封装`dataService.get`，区别在于请求参数实现了对象化
-
-```ts
-getInstance('entity', {
-  entity_ids: 1,
-  attributes: 'column1|column2',
-});
-// xxx/entities?entity_ids=1,2&attributes=column1|column2
-
-// 列条件封装
-getInstance('entity', {
-  param: {
-    name: [1, 2],
-  },
-});
-// xxx/entities?name=1 or name=2
-
-getInstance('entity', {
-  param: {
-    name: ['$and', 1, 2],
-  },
-});
-// xxx/entities?name=1 and name=2
-
-getInstance('entity', {
-  param: {
-    name: ['$range', 1, 2],
-  },
-});
-// xxx/entities?name>=1 and name<=2
-
-getInstance('entity', {
-  param: {
-    name: ['$like', 'key'],
-  },
-});
-// xxx/entities?name like '%key%'
-```
-
-返回数据类型
-
-```ts
-type ResponseInstance = {
-  attributes: any;
-  entity_id: number;
-};
-```
-
-## utils
-
-工具函数
-
-### utils.isInPortal
-
-判断当前应用是否在 Portal 中。有些情况，要考虑独立应用和被集成 Portal 场景，如果开发 k2portal 功能，使用会比较频繁。
-
-## 其它
-
-### appKey
+## appKey
 
 运行时获取，返回应用的 appKey，此设置在 `config/portal.ts` 中定义。
 
-### openApp<Badge>portal</Badge>
-
-跨应用跳转，操作 Portal 跳转路由到指定应用
-
-| 属性      | 说明                  | 类型      | 默认值  |
-| --------- | --------------------- | --------- | ------- |
-| appKey    | 应用 key              | `string`  | `null`  |
-| path      | 应用内部路由          | `string`  | `null`  |
-| isReplace | 路由是否 replace 模式 | `boolean` | `false` |
-
-示例：
-
-```ts
-import { openApp } from 'k2-portal';
-
-openApp({ appKey: 'case', path: `/home/${record.id}` });
-```
-
-### getAppConfig
+## getAppConfig
 
 获得应用配置，与`useAppConfig`作用相同，区别是此方法为函数。
 
@@ -146,7 +56,7 @@ getAppConfig<{ a: 1 }>('case').then((config) => {
 });
 ```
 
-### ButtonPermissionCheck
+## ButtonPermissionCheck
 
 按钮级权限组件，如果当前权限不允许操作，则会使 forbiddenFieldProps 的设置应用到子组件内部。
 
@@ -171,9 +81,7 @@ export default () => {
 };
 ```
 
-## hooks
-
-### useAppProps
+## useAppProps
 
 作为服务化应用，获得当前应用的传参，也可以接收`appDefaultProps`默认传参，用于特定调试场景。
 
@@ -196,7 +104,7 @@ export default () => {
 };
 ```
 
-### useAppConfig
+## useAppConfig
 
 如果当前应用在建模器有设置，则可以获得应用设置
 
@@ -216,7 +124,7 @@ export default () => {
 };
 ```
 
-### useConfigColumns
+## useConfigColumns
 
 获得表格定制列。在 useAppConfig 的基础上进一步封装。
 
@@ -239,7 +147,7 @@ export default () => {
 };
 ```
 
-### useButtonPermissionCheck
+## useButtonPermissionCheck
 
 按钮级别的权限控制，设置`config/portal.ts`的`buttonPermissionCheck`会做全局开关控制。如果开启`nacos`，开关会被线上的设置覆盖。
 
@@ -254,7 +162,7 @@ export default () => {
 };
 ```
 
-### useChart
+## useChart
 
 图表相关。功能和场景较多，建议直接看源码，或看已开发应用作为参考。
 
@@ -278,3 +186,86 @@ export default () => {
   return <div style={{ height: '100%' }} ref={ref} />;
 };
 ```
+
+## utils
+
+工具函数
+
+### utils.isInPortal
+
+判断当前应用是否在 Portal 中。有些情况，要考虑独立应用和被集成 Portal 场景，如果开发 k2portal 功能，使用会比较频繁。
+
+## portal
+
+- 类型 `object`
+
+portal 全局 api。
+
+### version
+
+- 类型 `string`
+
+当前 Portal 版本号。
+
+### accessToken
+
+- 类型 `string`
+
+登录后的 token。
+
+### currAppKey
+
+- 类型 `string`
+
+当前主应用名称。
+
+```
+/web/portal/app/myapp/#/list
+返回 'myapp'
+```
+
+### currAppPath
+
+- 类型 `string`
+
+当前主应用自身路由的 pathname。
+
+```
+/web/portal/app/myapp/#/list?page=1
+返回 '/list?page=1'
+```
+
+### currAppUrl
+
+- 类型 `string`
+
+当前应用的路径，包含应用自身的路由信息。
+
+```
+/web/portal/app/myapp/#/list?page=1
+返回 '/myapp/#/list?page=1'
+```
+
+### config
+
+- 类型 `object`
+
+主要是 nacos 配置，也有一些 portal 内部配置
+
+### login
+
+- 类型 `() => void`
+
+用户登录，portal 跳转到登录页面。
+
+### logout
+
+- 类型 `() => void`
+
+用户退出。
+
+### openApp
+
+- 类型 `(appKey: string, path?: string, replace?: boolean) => void`
+
+控制 portal 切换主应用。

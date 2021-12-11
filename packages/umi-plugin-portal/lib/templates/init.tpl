@@ -1,7 +1,6 @@
 // 初始默认的service，如果请求nacos，会被覆盖
 window.$$config = {
   nacos: {{{ nacos }}},
-  appPath: '{{{ appPath }}}',
   alone: false,
 };
 
@@ -78,7 +77,17 @@ window.publicPath = location.pathname;
   window.antd = parent.antd;
   window.moment = parent.moment;
 
-  const allowAccessParentProp = ['HTMLCanvasElement', 'document', 'innerWidth', 'innerHeight', 'scrollX','scrollY','pageYOffset'];
+  const allowAccessParentProp = [
+    'HTMLCanvasElement',
+    'document',
+    'innerWidth',
+    'innerHeight',
+    'scrollX',
+    'scrollY',
+    'pageXOffset',
+    'pageYOffset',
+  ];
+  
   const proxyWindow = new Proxy({}, {
     get(target, key) {
       // 针对paper.js: self.window
@@ -102,7 +111,7 @@ window.publicPath = location.pathname;
   });
 
   window.addEventListener('bundleReady', function (event) {
-    if ({{{ integrated }}}) {
+    if (!{{{ bundleCommon }}}) {
       if (!window.React) {
         // 动态加载全局资源，此时作为独立应用或者Portal
         addLink('antd.css');
@@ -135,8 +144,10 @@ window.publicPath = location.pathname;
       }
     } else {
       // js module
-      window.$$config.alone = true;
-      event.detail.run(window, document, window);
+      getRuntimeConfig().then(() => {
+        window.$$config.alone = true;
+        event.detail.run(window, document, window);
+      });
     }
   });
 })();

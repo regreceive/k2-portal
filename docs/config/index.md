@@ -9,24 +9,94 @@ nav:
 
 # 配置项
 
-umi 提供了众多配置，本文不展示，直达[官方配置](https://umijs.org/zh-CN/config)。portal 配置示例：
+umi 提供了很多[官方配置](https://umijs.org/zh-CN/config)，使用`create-portal-app`创建项目时已经精选了 umi 几个实用配置。此外`k2-portal`还提供了一些微前端配置项：
 
 ```ts
 // config/portal.ts
 const portal: IConfigFromPlugins['portal'] = {
-  appKey: 'temp',
-  service: {
-    gateway: '/bcf/api',
-    dataService: '/data-service/modeler/api/v2',
-  },
+  appKey: 'app-name',
+  role: 'portal',
+  nacos: {},
+  // more ...
 };
 ```
 
-以下展示 k2-portal 自定义的配置
+## nacos
 
-## 编译时配置
+- 类型：`{}`
 
-编译时配置，只在编译修改生效，运行时不能再动态修改。配置文件位置：`config/portal.ts`
+获得 nacos 线上、或本地开发环境配置。如果应用部署上线，被其他应用集成，则会读取父应用的 nacos 配置
+
+示例：
+
+```js
+{
+  nacos: {
+    url: '/nacos/v1/cs/configs?dataId=dfem.front.portal&group=default',
+    default: {
+      appRootPathName: '/web/apps',
+      service: {
+        graphql: '/graphql',
+        gateway: '/bcf/api',
+      }
+      ssoAuthorityUrl: 'https://xxx.xxx/xxxx',
+      customLoginApp: 'login',
+    },
+  },
+}
+```
+
+### url
+
+nacos 线上地址。开发环境读取线上 nacos 配置，覆盖本地默认配置。不设置 url 则不会覆盖。
+
+### default.appRootPathName
+
+- 类型: `string`
+- 默认值：`/web/apps`
+
+应用相对于 web 服务地址所在的路径。这是一个核心配置，如果配置错误，会导致父应用集成子应用失败。
+
+比如`案例中心`应用存放在`/home/k2data/bcf/web/apps/case`，可访问地址`http://xxx.com/web/apps/case/`，配置如下：
+
+```js
+{
+  appRootPathName: '/web/apps';
+}
+```
+
+### default.service
+
+- 类型：`Object`
+- 默认值：`{ gateway: '', graphql: '' }`
+
+服务接口前端封装。可以预设若干服务接口，自动生成运行时代码，供开发者在请求接口时候调用。
+
+<Alert type="info">在应用范围请按需配置，如果配置了 nacos，相同的接口服务名称会被 nacos 返回的接口服务覆盖。</Alert>
+
+示例：
+
+```js
+  service: {
+    gateway: '/bcf/api',
+  }
+
+// 数据请求时接口服务调用
+import { api } from 'k2-portal';
+const res = await api.gateway.get('/xxx-service/getXXX?id=1');
+```
+
+### default.ssoAuthorityUrl
+
+单点登录。如果应用类型是`portal`，配置单点登录地址打包部署后，项目应用访问产品服务时，接受单点登录授权。 <Alert type="info">为了有好的开发体验，开发环境下，不会受此项控制。</Alert>
+
+### default.customLoginApp
+
+自定义登录应用。如果项目需要登录界面以及授权逻辑定制化，就可以做一个登录应用，部署后配置此应用目录名称。
+
+<Alert type="info">如果单点登录和自定义登录同时存在，框架默认选择单点登录。</Alert>
+
+## 运行配置
 
 ### appKey
 
@@ -59,12 +129,27 @@ const portal: IConfigFromPlugins['portal'] = {
   }
 ```
 
-### auth<Badge>develop</Badge>
+### role
+
+- 类型：`portal | app`
+- 默认值：`app`
+
+当前应用类型，可以选择 portal 或者 app。创建应用模板命令，传递参数与此配置作用一致：
+
+```shell
+# portal
+npx create-portal-app --portal
+
+# app
+npx create-portal-app
+```
+
+### devAuth<Badge>开发环境</Badge>
 
 - 类型：`Object`
 - 默认值：`{ username: 'admin', password: 'admin' }`
 
-开发环境 Basic 认证。开发环境下，接口请求会走认证网关，此设置会避免返回 401。
+开发环境 Basic 认证。开发环境下，接口请求会走认证网关，有此设置后不需要登录操作，避免返回 401 状态。
 
 <Alert type="info">仅对开发环境有效，此设置不会被打包。</Alert>
 
@@ -77,102 +162,29 @@ const portal: IConfigFromPlugins['portal'] = {
   }
 ```
 
-### service
-
-- 类型：`Object`
-- 默认值：`{ dataService: '', datalabModeler: '', gateway: '', influxdb: '', repo: '' }`
-
-通用接口服务封装。可以预设若干服务接口，会自动生成运行时代码，供开发者在请求接口时候调用。
-
-<Alert type="info">在应用范围请按需配置，如果配置了 nacos，相同的接口服务名称会被 nacos 返回的接口服务覆盖。</Alert>
-
-示例：
-
-```ts
-  service: {
-    dataService: '/data-service/modeler/api/v2',
-  }
-
-// 数据请求时接口服务调用
-import { api } from 'k2-portal';
-const res = await api.dataService.post(
-  '/data/namespaces/{namespaces}/entity_types/dfem_case/data/object',
-  payload,
-);
-```
-
-### nacos<Badge>develop</Badge>
+### customToken<Badge>开发环境</Badge>
 
 - 类型：`string`
 - 默认值：`null`
 
-运行时 nacos 的配置地址。此选项是为了配合开发环境的需求，比如在应用里要读取一些 nacos 的配置，而此时应用并没有被 Portal 集成，因此读取不到 Portal 的 nacos。
-
-<Alert type="info">应用部署上线后，应用内的 nacos 网络请求会自动取消，读取到的配置均来自 Portal。</Alert>
-
-<Alert type="info">应用部署上线后，如果作为独立应用访问，仍然会访问 nacos 设置。</Alert>
+开发环境中，与`devAuth`Basic 自动认证方式不同，`customToken`可直接设置 http 消息头`Authorization`，此时`devAuth`的设置将会被覆盖。
 
 示例：
 
 ```js
-{
-  nacos: '/nacos/v1/cs/configs?dataId=dfem.front.portal&group=default',
-}
+customToken: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTRiZWQtYTkyNi01N2MxM2UxZGMxNjQiLCJ0eXAiOiJKV1QifQ.eyJh.....';
 ```
 
-### buttonPermissionCheck
-
-- 类型：`boolean`
-- 默认值：`false`
-
-数据操作权限总开关。如果为`true`，在应用当中会对按钮、输入框等控件采取按钮级别的权限控制。如果开启`nacos`，会被线上设置覆盖。
-
-<Alert type="info">此开关需要与`<ButtonPermissionCheck />`这类组件配合使用</Alert>
-
-### integration
+### bundleCommon
 
 - 类型：`{ development: boolean; production: boolean }`
-- 默认值：`{ development: true, production: true }`
+- 默认值：`{ development: false, production: false }`
 
-应用被集成配置。k2-portal 的应用可以在开发环境独立运行，也具备打包部署后独立运行（不需要 Portal 集成）的能力。
+作为微前端框架，默认在开发环境和生产环境，antd、moment、react、react-dom 等公共库被 webpack 排除在外，不进行打包，统一加载父应用公共库，节省资源加载开销也可以缩短编译时间。如果只是想实现一个单应用场景，并且希望以上公共库和项目打包为一个文件，请设置为`true`。
 
-默认在开发环境和生产环境都是被集成状态，开发环境设置成集成状态是因为能加快编译速度，这算是个意外收获。
+## 其他配置
 
-### bearer<Badge>develop</Badge>
-
-- 类型：`string`
-- 默认值：`null`
-
-开发环境为了方便权限获取，采用 Basic 自动认证方式。某些特殊场景下，可以将线上的 bearer 直接复制到开发环境中，此时`auth`的设置将会被覆盖。
-
-示例：
-
-```js
-bearer: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTRiZWQtYTkyNi01N2MxM2UxZGMxNjQiLCJ0eXAiOiJKV1QifQ.eyJh.....';
-```
-
-### mainApp
-
-- 类型：`Object`
-- 默认值：undefined
-
-一旦设置此项，当前应用就转变为`Portal`。一般用于本地开发调试`Entry`，否则调用应用内的`openApp`不起作用。
-
-| 属性 | 说明 | 类型 | 默认值 |
-| --- | --- | --- | --- |
-| appPath | web 服务中应用的绝对路径。比如当前应用`myapp`在 `/web/apps/myapp`位置上，则应该设置`/web/apps` | `string` | `''` |
-
-示例：
-
-```js
-  mainApp: {
-    appPath: '/public/apps',
-  }
-```
-
-## 运行时配置
-
-运行时配置请到`src/app.ts`或`src/app.tsx`去声明，如果不存在这个文件请手动创建，系统会自动识别。
+`src/app.ts`或`src/app.tsx`文件中，存在一些约定式配置，主要用于运行时应用行为的动态调整。
 
 ### lightTheme
 

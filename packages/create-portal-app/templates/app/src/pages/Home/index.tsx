@@ -2,7 +2,6 @@ import { FC, useCallback, useState } from 'react';
 import { Button, Typography } from 'antd';
 import { history } from 'umi';
 import BoxArea from '@/components/BoxArea';
-import queryMenu from './menu.gql';
 
 /**
  * 建议安装vs-code插件GraphQL获得gql代码高亮

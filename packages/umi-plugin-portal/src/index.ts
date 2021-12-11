@@ -31,23 +31,25 @@ export default async function (api: IApi) {
     config: {
       default: {
         appDefaultProps: {},
-        integration: {
-          development: true,
-          production: true,
+        bundleCommon: {
+          development: false,
+          production: false,
         },
-        auth: {
+        devAuth: {
           username: 'admin',
           password: 'admin',
         },
+        role: 'app',
+        customToken: '',
         nacos: {
           default: {
+            appRootPathName: '/web/apps',
             service: {
               gateway: '//fill_api_here',
               graphql: '//fill_api_here',
             },
           },
         },
-        customToken: '',
       },
       schema(joi) {
         return joi.object({
@@ -57,50 +59,57 @@ export default async function (api: IApi) {
             .description(
               'app的唯一标识，一般用于业务功能，与建模器应用标识保持一致。',
             ),
-          appDefaultProps: joi.object().description('作为服务化接受默认的传参'),
-          auth: joi
+          appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
+          devAuth: joi
             .object({
               username: joi.string().required(),
               password: joi.string().required(),
             })
-            .description('开发环境Basic认证，免登录通过BCF网关'),
-          mainApp: joi
+            .description(
+              '开发环境Basic认证，请求产品接口可以免登录通过BCF网关',
+            ),
+          role: joi
+            .string()
+            .pattern(/app|portal/, 'app|portal')
+            .description('当前应用类型，是portal还是app'),
+          bundleCommon: joi
             .object({
-              appPath: joi
-                .string()
-                .required()
-                .description('应用目录的绝对路径。比如 /web/apps'),
+              development: joi.boolean().description('开发环境打包到一起'),
+              production: joi.boolean().description('生产环境打包到一起'),
             })
-            .description('当前应用承担Portal职能'),
-          /** 服务枚举 */
-          service: joi.object().pattern(joi.string(), joi.string()),
+            .description('是否将react/antd等一起打包，默认被externals'),
+          customToken: joi.string(),
           nacos: joi
             .object({
               url: joi
                 .string()
-                .description('线上的nacos地址，如果不输入，会取默认配置'),
+                .description('线上的nacos地址，如果不输入，会取default配置'),
               default: joi
                 .object({
                   ssoAuthorityUrl: joi
                     .string()
                     .description('开启sso后的单点登录地址'),
+                  customLoginApp: joi
+                    .string()
+                    .description(
+                      '自定义登录应用key，如果与ssoAuthorityUrl同时开启，框架优先采纳单点登录的配置',
+                    ),
+                  appRootPathName: joi
+                    .string()
+                    .required()
+                    .description(
+                      "app根目录相对于web服务所在的路径，默认'/web/apps'",
+                    ),
                   service: joi
                     .object()
                     .pattern(joi.string(), joi.string())
                     .description('服务'),
                 })
                 .description(
-                  '默认nacos配置，一般用于本地开发，如果配置了url则默认配置被覆盖',
+                  '默认nacos配置，可用于本地开发，如果配置了url则默认配置被覆盖',
                 ),
             })
             .description('nacos配置'),
-          integration: joi
-            .object({
-              development: joi.boolean().description('开发环境结合到一起'),
-              production: joi.boolean().description('生产环境结合到一起'),
-            })
-            .description('react/antd等是否与bundle结合到一起'),
-          customToken: joi.string(),
         });
       },
       onChange: api.ConfigChangeType.regenerateTmpFiles,
@@ -138,17 +147,17 @@ export default async function (api: IApi) {
       appKey,
       nacos,
       appDefaultProps,
-      auth,
+      devAuth,
       customToken,
-      mainApp,
-      integration,
+      role,
+      bundleCommon,
     } = api.config?.portal ?? {};
 
     let base64 = '';
     if (api.env !== 'production') {
       base64 =
         'Basic ' +
-        Buffer.from(`${auth.username}:${md5(auth.password)}`).toString(
+        Buffer.from(`${devAuth.username}:${md5(devAuth.password)}`).toString(
           'base64',
         );
     }
@@ -157,7 +166,7 @@ export default async function (api: IApi) {
     api.writeTmpFile({
       path: 'plugin-portal/portal.less',
       content:
-        api.env === 'development' || mainApp
+        api.env === 'development' || role === 'portal'
           ? readFileSync(join(__dirname, 'templates', 'portal.less'), 'utf-8')
           : '',
     });
@@ -171,8 +180,7 @@ export default async function (api: IApi) {
           appKey,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          appPath: mainApp?.appPath?.replace(/\/*$/, '') ?? '',
-          integrated: integration[api?.env ?? 'development'],
+          bundleCommon: bundleCommon[api?.env ?? 'development'],
         },
       ),
     });
@@ -186,7 +194,7 @@ export default async function (api: IApi) {
       ),
     });
 
-    if (mainApp) {
+    if (role === 'portal') {
       // 生成单点登录sso.ts
       api.writeTmpFile({
         path: 'plugin-portal/SingleSign.ts',
@@ -238,7 +246,7 @@ export default async function (api: IApi) {
           join(
             __dirname,
             'templates',
-            `portal.${mainApp ? 'real' : 'mock'}.tpl`,
+            `portal.${role === 'portal' ? 'real' : 'mock'}.tpl`,
           ),
           'utf-8',
         ),
@@ -280,7 +288,7 @@ export default async function (api: IApi) {
   // 阻止antd被优化加载，否则antd无法被externals
   api.modifyBabelPresetOpts((opts) => {
     let importList = opts.import || [];
-    if (api.config.portal.integration[api?.env ?? 'development']) {
+    if (!api.config.portal.bundleCommon[api?.env ?? 'development']) {
       importList =
         opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
     }
@@ -360,7 +368,7 @@ export default async function (api: IApi) {
 
     const copy = [...(memo.copy || [])];
 
-    if (memo.portal.integration[api?.env ?? 'development']) {
+    if (!memo.portal.bundleCommon[api?.env ?? 'development']) {
       copy.push(
         ...[
           {
@@ -404,17 +412,13 @@ export default async function (api: IApi) {
             from: `${relative}node_modules/antd/dist/antd.min.css.map`,
             to: 'alone/antd.min.css.map',
           },
-          // {
-          //   from: `${relative}node_modules/react-router-config/cjs/react-router-config.js.map`,
-          //   to: 'react-router-config.js.map',
-          // },
         );
       }
     }
 
     let externals = memo.externals;
 
-    if (memo.portal.integration[api?.env ?? 'development']) {
+    if (!memo.portal.bundleCommon[api?.env ?? 'development']) {
       const esStyle = /^antd\/es\/[\w\-]+\/style/;
       const esModule = /^antd\/es\/([\w\-]+)$/;
       const linkedString = /\-(\w)/;
@@ -462,9 +466,9 @@ export default async function (api: IApi) {
       history: { type: 'hash' },
       chunks: ['runtime', 'init', 'umi'],
       externals: externals,
-      antd: memo.portal.integration[api?.env ?? 'development']
-        ? false
-        : memo.antd,
+      antd: memo.portal.bundleCommon[api?.env ?? 'development']
+        ? memo.antd
+        : false,
       copy: api.env === 'test' ? memo.copy : copy,
       headScripts,
       define: { ...memo.define, ...runtimeEnv() },

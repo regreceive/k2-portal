@@ -10,9 +10,9 @@ type Config = {
     ssoAuthorityUrl: string;
     /** 服务配置 */
     service: any;
+    /** 应用目录的绝对路径。比如 /web/apps /*
+    appRootPathName: string;
   };
-  /** 应用目录的绝对路径。比如 /web/apps /*
-  appPath: string;
 };
 
 type GlobalPortalType = {
@@ -43,7 +43,7 @@ type GlobalPortalType = {
    */
   setAppIframe: (iframe: HTMLIFrameElement) => void;
   /**
-   * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“.”替代“/”
+   * 返回当前应用的目录，这个目录是相对于nacos.appRootPathName，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
    */
   currAppKey: string;
@@ -94,7 +94,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
     get() {
       return (appHistory: History, pathname: string) => {
         const appKey = pathname // out: /apps/widget/line/
-          .replace(portal.config.appPath, '') // out: /widget/line/
+          .replace(portal.config.nacos.appRootPathName, '') // out: /widget/line/
           .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
           .replaceAll('/', '\.') // out: widget.line.
           .replace(/\.$/, ''); // out: widget.line
@@ -211,7 +211,6 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
 });
 
 // 主应用路由
-const appMatcher = new RegExp('(?<=' + portal.config.appPath + '/).*');
 history.listen((listener) => {
   if (!_appIframe) {
     utils.warn('请为当前portal或entry设置一个属性是appRoot的Widget');
@@ -220,7 +219,7 @@ history.listen((listener) => {
   const result = portalMather.exec(listener.pathname);
   if (result) {
     const [_, appKey, path = '/'] = result;
-    const url = `${portal.config.appPath}/${appKey.replaceAll(
+    const url = `${portal.config.nacos.appRootPathName}/${appKey.replaceAll(
       '.',
       '/',
     )}/#/${path}`.replace(/\/{2,}/g, '/');

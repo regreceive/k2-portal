@@ -61,7 +61,7 @@ var Widget = function Widget(props) {
   var iframeUrl = (0, _react.useMemo)(function () {
     // 作为主应用，url受控
     if (props.appRoot) {
-      var url = _.portal.config.appPath + _.portal.currAppUrl;
+      var url = _.portal.config.nacos.appRootPathName + _.portal.currAppUrl;
 
       if (_.portal.currAppUrl === '') {
         return '';
@@ -70,7 +70,7 @@ var Widget = function Widget(props) {
       return url;
     }
 
-    var targetUrl = (_.portal.config.appPath + '/' + props.src).replace(/\/{2,}/g, '/');
+    var targetUrl = (_.portal.config.nacos.appRootPathName + '/' + props.src).replace(/\/{2,}/g, '/');
 
     if (props.src === '' || props.src.includes('#') || props.src.endsWith('/')) {
       return targetUrl;

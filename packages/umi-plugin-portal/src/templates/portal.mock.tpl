@@ -7,9 +7,10 @@ type Config = {
     ssoAuthorityUrl: string;
     /** 服务配置 */
     service: any;
+    /** 应用目录的绝对路径。比如 /web/apps /*
+    appRootPathName: string;
   };
-  /** 应用目录的绝对路径。比如 /web/apps /*
-  appPath: string;
+
 };
 
 type GlobalPortalType = {
@@ -40,7 +41,7 @@ type GlobalPortalType = {
    */
   setAppIframe: (iframe: HTMLIFrameElement) => void;
   /**
-   * 返回当前应用的目录，这个目录是相对于config.appPath，如果目录含有多级，则用“.”替代“/”
+   * 返回当前应用的目录，这个目录是相对于nacos.appRootPathName，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
    */
   currAppKey: string;

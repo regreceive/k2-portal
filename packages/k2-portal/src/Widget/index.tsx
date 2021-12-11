@@ -31,16 +31,17 @@ const Widget: FC<Props> = (props) => {
   const iframeUrl = useMemo(() => {
     // 作为主应用，url受控
     if (props.appRoot) {
-      const url = portal.config.appPath + portal.currAppUrl;
+      const url = portal.config.nacos.appRootPathName + portal.currAppUrl;
       if (portal.currAppUrl === '') {
         return '';
       }
       return url;
     }
-    const targetUrl = (portal.config.appPath + '/' + props.src).replace(
-      /\/{2,}/g,
-      '/',
-    );
+    const targetUrl = (
+      portal.config.nacos.appRootPathName +
+      '/' +
+      props.src
+    ).replace(/\/{2,}/g, '/');
 
     if (
       props.src === '' ||
