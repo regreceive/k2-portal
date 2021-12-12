@@ -7,9 +7,7 @@ nav:
   order: 2
 ---
 
-# 配置项
-
-umi 提供了很多[官方配置](https://umijs.org/zh-CN/config)，使用`create-portal-app`创建项目时已经精选了 umi 几个实用配置。此外`k2-portal`还提供了一些微前端配置项：
+使用`create-portal-app`创建项目时精选了一些 umi [官方配置](https://umijs.org/zh-CN/config)。此外，`k2-portal`定制了微前端配置项，可在`config/portal.ts`编辑：
 
 ```ts
 // config/portal.ts
@@ -23,7 +21,7 @@ const portal: IConfigFromPlugins['portal'] = {
 
 ## nacos
 
-- 类型：`{}`
+- 类型：`Object`
 
 获得 nacos 线上、或本地开发环境配置。如果应用部署上线，被其他应用集成，则会读取父应用的 nacos 配置
 
@@ -96,7 +94,7 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 
 <Alert type="info">如果单点登录和自定义登录同时存在，框架默认选择单点登录。</Alert>
 
-## 运行配置
+## 启动配置
 
 ### appKey
 
@@ -182,7 +180,7 @@ customToken: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTR
 
 作为微前端框架，默认在开发环境和生产环境，antd、moment、react、react-dom 等公共库被 webpack 排除在外，不进行打包，统一加载父应用公共库，节省资源加载开销也可以缩短编译时间。如果只是想实现一个单应用场景，并且希望以上公共库和项目打包为一个文件，请设置为`true`。
 
-## 其他配置
+## 运行配置
 
 `src/app.ts`或`src/app.tsx`文件中，存在一些约定式配置，主要用于运行时应用行为的动态调整。
 

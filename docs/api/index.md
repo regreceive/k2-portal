@@ -1,13 +1,11 @@
 ---
-title: API
+title: 方法
 order: 1
 toc: menu
 nav:
-  title: API
+  title: 方法
   order: 3
 ---
-
-# API
 
 `k2-portal`提供了一些框架组件，帮助开发者维持应用间的联系和数据请求。
 
