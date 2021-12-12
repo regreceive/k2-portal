@@ -126,7 +126,7 @@ function _ref() {
               username: joi.string().required(),
               password: joi.string().required()
             }).description('开发环境Basic认证，请求产品接口可以免登录通过BCF网关'),
-            role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用承担的职责，是portal还是app'),
+            role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
             bundleCommon: joi.object({
               development: joi.boolean().description('开发环境打包到一起'),
               production: joi.boolean().description('生产环境打包到一起')
@@ -137,8 +137,8 @@ function _ref() {
               default: joi.object({
                 ssoAuthorityUrl: joi.string().description('开启sso后的单点登录地址'),
                 customLoginApp: joi.string().description('自定义登录应用key，如果与ssoAuthorityUrl同时开启，框架优先采纳单点登录的配置'),
-                appRootPathName: joi.string().required().description("app根目录相对于web服务所在的路径，默认'/web/apps'"),
-                service: joi.object().pattern(joi.string(), joi.string()).description('服务')
+                appRootPathName: joi.string().description("app根目录相对于web服务所在的路径，默认'/web/apps'"),
+                service: joi.object().description('服务')
               }).description('默认nacos配置，可用于本地开发，如果配置了url则默认配置被覆盖')
             }).description('nacos配置')
           });
@@ -375,7 +375,10 @@ function _ref() {
           'react-dom': 'ReactDOM',
           moment: 'moment',
           antd: 'antd'
-        }), function (context, request, callback) {
+        }), function ({
+          context,
+          request
+        }, callback) {
           // 会有代码或依赖包直接引用antd中es样式，要排除其打包
           if (esStyle.test(request)) {
             return callback(null, 'undefined');

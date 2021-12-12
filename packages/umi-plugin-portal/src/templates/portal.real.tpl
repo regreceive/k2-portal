@@ -10,7 +10,7 @@ type Config = {
     ssoAuthorityUrl: string;
     /** 服务配置 */
     service: any;
-    /** 应用目录的绝对路径。比如 /web/apps /*
+    /** 应用目录的绝对路径。比如 /web/apps */
     appRootPathName: string;
   };
 };

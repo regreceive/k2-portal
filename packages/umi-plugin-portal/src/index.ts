@@ -96,14 +96,10 @@ export default async function (api: IApi) {
                     ),
                   appRootPathName: joi
                     .string()
-                    .required()
                     .description(
                       "app根目录相对于web服务所在的路径，默认'/web/apps'",
                     ),
-                  service: joi
-                    .object()
-                    .pattern(joi.string(), joi.string())
-                    .description('服务'),
+                  service: joi.object().description('服务'),
                 })
                 .description(
                   '默认nacos配置，可用于本地开发，如果配置了url则默认配置被覆盖',
@@ -432,7 +428,7 @@ export default async function (api: IApi) {
           moment: 'moment',
           antd: 'antd',
         },
-        function (context: any, request: string, callback: any) {
+        function ({ context, request }: any, callback: any) {
           // 会有代码或依赖包直接引用antd中es样式，要排除其打包
           if (esStyle.test(request)) {
             return callback(null, 'undefined');

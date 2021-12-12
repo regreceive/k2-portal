@@ -8,12 +8,14 @@ export function pickProps<P>(component: React.FC<P>) {
 }
 
 /**
- * 当前应用是否集成在portal中运行
- * @returns
+ * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 // @ts-ignore
 export const isInPortal = parent !== window && !!parent?.g_portal;
 
+/**
+ * 判断当前应用是否被其他应用引用。
+ */
 export const isInWidget = parent !== window;
 
 /**

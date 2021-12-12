@@ -72,13 +72,16 @@ function pickProps(component) {
   return component;
 }
 /**
- * 当前应用是否集成在portal中运行
- * @returns
+ * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 // @ts-ignore
 
 
 const isInPortal = parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
+/**
+ * 判断当前应用是否被其他应用引用。
+ */
+
 exports.isInPortal = isInPortal;
 const isInWidget = parent !== window;
 /**

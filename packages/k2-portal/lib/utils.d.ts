@@ -1,10 +1,12 @@
 import React from 'react';
 export declare function pickProps<P>(component: React.FC<P>): React.FC<P>;
 /**
- * 当前应用是否集成在portal中运行
- * @returns
+ * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 export declare const isInPortal: boolean;
+/**
+ * 判断当前应用是否被其他应用引用。
+ */
 export declare const isInWidget: boolean;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位

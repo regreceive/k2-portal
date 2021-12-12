@@ -191,9 +191,17 @@ export default () => {
 
 工具函数
 
-### utils.isInPortal
+### isInWidget
 
-判断当前应用是否在 Portal 中。有些情况，要考虑独立应用和被集成 Portal 场景，如果开发 k2portal 功能，使用会比较频繁。
+- 类型 `boolean`
+
+判断当前应用是否被其他应用引用。
+
+### isInPortal
+
+- 类型 `boolean`
+
+判断当前应用是否被其他应用引用，并且顶层应用是`Portal`。
 
 ## portal
 
