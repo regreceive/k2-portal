@@ -168,12 +168,12 @@ Promise 模式，graphql 被自动装配请求函数，需要配置 nacos 的 se
 
 ```ts
 import { useEffect, useState } from 'react';
-import query from './service.gql';
+import service from './service.gql';
 
 export default () => {
   const [result, setResult] = useState();
   useEffect(() => {
-    query.menu.send().then((res) => {
+    service.menu.send().then((res) => {
       setResult(res.data);
     });
   }, []);
@@ -186,10 +186,10 @@ export default () => {
 
 ```ts
 import { useQuery } from 'k2-portal';
-import query from './service.gql';
+import service from './service.gql';
 
 export default () => {
-  const { data, loading } = useQuery(query.apps.gql);
+  const { data, loading } = useQuery(service.apps.gql);
 
   return <div>应用信息：{JSON.stringify(data, null, 2)}</div>;
 };

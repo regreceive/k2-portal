@@ -3,14 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.formatDateTime = formatDateTime;
-exports.isInWidget = exports.isInPortal = void 0;
-exports.log = log;
-exports.mergeTimeSeries = mergeTimeSeries;
 exports.pickProps = pickProps;
+exports.mergeTimeSeries = mergeTimeSeries;
+exports.log = log;
+exports.warn = warn;
+exports.formatDateTime = formatDateTime;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.warn = warn;
+exports.isInWidget = exports.isInPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));

@@ -222,7 +222,7 @@ module.exports = function (source) {
           send: function(variables) {
             return api.graphql.post({
               query: print(${opName}Doc),
-              variables: JSON.stringify(variables),
+              variables: variables,
               operationName: "${opName}"
             });
           }
