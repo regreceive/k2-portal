@@ -133,21 +133,13 @@ export const request = {
 };
 
 export const lightTheme = {
-  '--portal-boxArea-bgColor': '#ffffff',
   '--portal-scrollbar-fore': 'rgb(190, 190, 190)',
   '--portal-scrollbar-back': 'rgba(219, 219, 219, .5)',
-  '--portal-scroll-fore': '#ffffff',
-  '--portal-scroll-fore-0': 'rgba(255, 255, 255, 0)',
-  '--portal-scroll-inverse': 'rgba(0, 0, 0, 0)',
-  '--portal-scroll-inverse-2': 'rgba(0, 0, 0, 0.2)',
+  '--portal-boxArea-bgColor': '#ffffff',
 };
 
 export const darkTheme = {
-  '--portal-boxArea-bgColor': '#000000',
   '--portal-scrollbar-fore': 'rgb(150, 150, 150)',
   '--portal-scrollbar-back': 'rgba(219, 219, 219, .3)',
-  '--portal-scroll-fore': '#000000',
-  '--portal-scroll-fore-0': 'rgba(0, 0, 0, 0)',
-  '--portal-scroll-inverse': 'rgba(255, 255, 255, 0.2)',
-  '--portal-scroll-inverse-2': 'rgba(255, 255, 255, 0.5)',
+  '--portal-boxArea-bgColor': '#000000',
 };
