@@ -83,7 +83,7 @@ let _appIframe: HTMLIFrameElement;
 // portal的完整路径：app/子应用路径.子应用名称/子应用路由
 const portalMather = /^\/app\/([^\/]+)(?:\/(\S*))?/;
 // 登录
-let signMgr;
+let signMgr: SingleSign;
 
 // 封印，防止不讲究的代码
 export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPortalType, {
@@ -237,15 +237,17 @@ window.g_portal = portal;
 
 // 登录
 if (process.env.NODE_ENV !== 'development') {
-  if (portal.config.ssoAuthorityUrl) {
+  let tokenPromise:Promise<any>;
+  if (portal.config.nacos.ssoAuthorityUrl) {
     signMgr = new SingleSign(
-      portal.config.ssoAuthorityUrl, 
+      portal.config.nacos.ssoAuthorityUrl, 
       location.origin + location.pathname,
     );
 
+
     if (location.search.startsWith('?code=')) {
       // 登录成功跳转
-      sso.mgr.signinCallback().then((res) => {
+      tokenPromise = signMgr.mgr.signinCallback().then((res) => {
         localStorage.setItem('k2_portal_token', res.access_token);
         // 去掉 ?code=
         location.replace(location.pathname);
@@ -258,7 +260,7 @@ if (process.env.NODE_ENV !== 'development') {
     }
   }
 
-  if (!getAccessToken()) {
+  if (!tokenPromise &&!getAccessToken()) {
     portal.login();
   }
 }

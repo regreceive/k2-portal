@@ -70,7 +70,7 @@ nacos 线上地址。开发环境读取线上 nacos 配置，覆盖本地默认�
 
 服务接口前端封装。可以预设若干服务接口，自动生成运行时代码，供开发者在请求接口时候调用。
 
-<Alert type="info">在应用范围请按需配置，如果配置了 nacos，相同的接口服务名称会被 nacos 返回的接口服务覆盖。</Alert>
+<Alert type="info">如果配置启用了 nacos.url，本地相同的服务名称会被 nacos 返回的接口服务覆盖。</Alert>
 
 示例：
 
@@ -116,7 +116,7 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 - 类型：`Object`
 - 默认值：`{}`
 
-服务化应用的默认入参。基于服务化的思想，应用可以被其它应用调用，但是不可能在开发环境里重现真实场景，所以提供默认入参供调试，同时也是为了避免入参为空的情况下导入应用出错。
+服务化应用的默认入参。基于服务化的思想，应用可以被其它应用调用，在开发环境重现应用嵌套的场景也许会变得比较麻烦。所以提供默认入参供调试，同时也避免入参为空的情况下导入应用出错。
 
 示例：
 
@@ -132,7 +132,7 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 - 类型：`portal | app`
 - 默认值：`app`
 
-当前应用类型，可以选择 portal 或者 app。创建应用模板命令，传递参数与此配置作用一致：
+当前应用类型，可以选择 portal 或者 app。下面的命令，其传参的实质就是改变了 role：
 
 ```shell
 # portal
@@ -154,10 +154,10 @@ npx create-portal-app
 示例：
 
 ```js
-  auth: {
-    username: 'test',
-    password: 'test',
-  }
+auth: {
+  username: 'test',
+  password: 'test',
+}
 ```
 
 ### customToken<Badge>开发环境</Badge>
@@ -178,7 +178,9 @@ customToken: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTR
 - 类型：`{ development: boolean; production: boolean }`
 - 默认值：`{ development: false, production: false }`
 
-作为微前端框架，默认在开发环境和生产环境，antd、moment、react、react-dom 等公共库被 webpack 排除在外，不进行打包，统一加载父应用公共库，节省资源加载开销也可以缩短编译时间。如果只是想实现一个单应用场景，并且希望以上公共库和项目打包为一个文件，请设置为`true`。
+作为微前端框架，默认在开发环境和生产环境，antd、moment、react、react-dom 等公共库被 webpack 排除在外，不进行打包，统一加载父应用公共库，节省资源开销也可以缩短编译时间。
+
+如果只是想实现一个单应用场景，并且希望以上公共库和项目打包为一个文件，请设置为`true`。
 
 ## 运行配置
 

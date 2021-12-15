@@ -15,7 +15,7 @@ export default class AppGenerator extends Generator {
     });
 
     console.log(
-      '\nThe boom💣has been planted. version：@%s',
+      '\nThe boom💣has been planted. version: @%s',
       chalk.cyan(version),
     );
   }

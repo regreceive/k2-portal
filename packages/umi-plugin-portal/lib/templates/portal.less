@@ -78,10 +78,16 @@ body {
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
+    background: var(--portal-scrollbar-back);
   }
 
   ::-webkit-scrollbar-corner {
     display: none;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--portal-scrollbar-back);
+    border-radius: 5px;
   }
   
   ::-webkit-scrollbar-thumb {

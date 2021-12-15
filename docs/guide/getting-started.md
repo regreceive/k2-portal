@@ -15,11 +15,11 @@ $ mkdir myapp && cd myapp
 通过应用生成器创建项目:
 
 ```shell
-# 如果要创建应用
-npx create-portal-app@latest
+# 创建应用
+npx create-portal-app@2.x
 
-# 如果要创建Portal
-npx create-portal-app@latest --portal
+# 创建Portal
+npx create-portal-app@2.x --portal
 ```
 
 ## 安装依赖

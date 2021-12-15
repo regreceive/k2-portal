@@ -4,7 +4,7 @@ Oidc.Log.logger = console;
 Oidc.Log.level = Oidc.Log.INFO;
 
 export default class SingleSign {
-  private mgr: Oidc.UserManager;
+  public mgr: Oidc.UserManager;
   private isLogout = false;
   private sessionId = '';
 
