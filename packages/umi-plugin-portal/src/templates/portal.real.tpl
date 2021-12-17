@@ -2,6 +2,7 @@ import clone from 'lodash/clone';
 import type { History } from 'umi';
 import { history } from 'umi';
 import { utils } from 'k2-portal';
+import qs from 'query-string';
 import SingleSign from './SingleSign';
 
 type Config = {
@@ -103,8 +104,13 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
           push: (arg: any) => {
             if (portal.currAppKey === appKey) {
               // 确保只有当前主应用的history受控
-              const path =
-                typeof arg === 'object' ? arg.pathname + arg.search : arg;
+              let path = '';
+              if ( typeof arg === 'object' ) {
+                const search = arg.query ? '?' + qs.stringify(arg.query) : '';
+                path = arg.pathname + search;
+              } else {
+                path = arg.pathname;
+              }
               portal.openApp(appKey, path);
             } else {
               appHistory.replace(arg);
