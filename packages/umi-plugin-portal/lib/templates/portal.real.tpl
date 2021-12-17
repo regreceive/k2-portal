@@ -99,32 +99,26 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
           .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
           .replaceAll('/', '\.') // out: widget.line.
           .replace(/\.$/, ''); // out: widget.line
+
+        const fn = (arg: any) => {
+          if (portal.currAppKey === appKey) {
+            // 确保只有当前主应用的history受控
+            let path = '';
+            if ( typeof arg === 'object' ) {
+              const search = arg.query ? '?' + qs.stringify(arg.query) : '';
+              path = arg.pathname + search;
+            } else {
+              path = arg;
+            }
+            portal.openApp(appKey, path);
+          } else {
+            appHistory.replace(arg);
+          }
+        };
           
         return Object.assign(appHistory, {
-          push: (arg: any) => {
-            if (portal.currAppKey === appKey) {
-              // 确保只有当前主应用的history受控
-              let path = '';
-              if ( typeof arg === 'object' ) {
-                const search = arg.query ? '?' + qs.stringify(arg.query) : '';
-                path = arg.pathname + search;
-              } else {
-                path = arg.pathname;
-              }
-              portal.openApp(appKey, path);
-            } else {
-              appHistory.replace(arg);
-            }
-          },
-          replace: (arg: any) => {
-            if (portal.currAppKey === appKey) {
-              const path =
-                typeof arg === 'object' ? arg.pathname + arg.search : arg;
-              portal.openApp(appKey, path, true);
-            } else {
-              appHistory.replace(arg);
-            }
-          },
+          push: fn,
+          replace: fn,
         });
       };
     },
