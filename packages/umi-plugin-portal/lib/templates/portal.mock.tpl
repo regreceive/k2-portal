@@ -31,15 +31,26 @@ type GlobalPortalType = {
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
    * @param path 应用自己的路由
-   * @param replace 是否替换路由，默认push路由
-   */ 
-  openApp: (appKey: string, path?: string, replace?: boolean) => void;
+   * @param opts 
+   * *路由选项*
+   * - replace 是否替换路由，默认push路由
+   * - layout 布局名称，entry根据名称切换布局，默认"app"
+   */
+  openApp: (
+    appKey: string,
+    path?: string,
+    opts?: { replace?: boolean; layout?: string },
+  ) => void;
   /**
    * @private 设置主应用iframe，设置以后iframe会被portal的openApp和history.listen控制。
    * 仅限portal内部组件使用，比如<Widget appRoot />
    * @param iframe iframe元素
    */
   setAppIframe: (iframe: HTMLIFrameElement) => void;
+  /**
+   * 返回entry的布局名称，entry可通过此项调整自身的布局设置，默认名称app
+   */
+  currLayout: string;
   /**
    * 返回当前应用的目录，这个目录是相对于nacos.appRootPathName，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'

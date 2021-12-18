@@ -34,15 +34,26 @@ type GlobalPortalType = {
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
    * @param path 应用自己的路由
-   * @param replace 是否替换路由，默认push路由
-   */ 
-  openApp: (appKey: string, path?: string, replace?: boolean) => void;
+   * @param opts 
+   * *路由选项*
+   * - replace 是否替换路由，默认push路由
+   * - layout 布局名称，entry根据名称切换布局，默认"app"
+   */
+  openApp: (
+    appKey: string,
+    path?: string,
+    opts?: { replace?: boolean; layout?: string },
+  ) => void;
   /**
    * @private 设置主应用iframe，设置以后iframe会被portal的openApp和history.listen控制。
    * 仅限portal内部组件使用，比如<Widget appRoot />
    * @param iframe iframe元素
    */
   setAppIframe: (iframe: HTMLIFrameElement) => void;
+  /**
+   * 返回entry的布局名称，entry可通过此项调整自身的布局设置，默认名称app
+   */
+  currLayout: string;
   /**
    * 返回当前应用的目录，这个目录是相对于nacos.appRootPathName，如果目录含有多级，则用“.”替代“/”
    * @example /web/portal/app/myapp/#/list => 'myapp'
@@ -82,7 +93,7 @@ const getAccessToken = () => {
 
 let _appIframe: HTMLIFrameElement;
 // portal的完整路径：app/子应用路径.子应用名称/子应用路由
-const portalMather = /^\/app\/([^\/]+)(?:\/(\S*))?/;
+const portalMather = /^\/([\w\d\-]+)\/([^\/]+)(?:\/(\S*))?/;
 // 登录
 let signMgr: SingleSign;
 
@@ -96,11 +107,11 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
       return (appHistory: History, pathname: string) => {
         const appKey = pathname // out: /apps/widget/line/
           .replace(portal.config.nacos.appRootPathName, '') // out: /widget/line/
-          .replace(/^\//, '') // 去掉第一个反斜杠 out: widget/line/
+          .replace(/^\/+/, '') // out: widget/line/
           .replaceAll('/', '\.') // out: widget.line.
-          .replace(/\.$/, ''); // out: widget.line
+          .replace(/\.+$/, ''); // out: widget.line
 
-        const fn = (arg: any) => {
+        const fn = (arg: any, replace = false) => {
           if (portal.currAppKey === appKey) {
             // 确保只有当前主应用的history受控
             let path = '';
@@ -110,15 +121,15 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
             } else {
               path = arg;
             }
-            portal.openApp(appKey, path);
+            portal.openApp(appKey, path, { replace });
           } else {
             appHistory.replace(arg);
           }
         };
           
         return Object.assign(appHistory, {
-          push: fn,
-          replace: fn,
+          push: (arg: any) => fn(arg),
+          replace: (arg: any) => fn(arg, true),
         });
       };
     },
@@ -146,18 +157,13 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   openApp: {
     get() {
-      /**
-        * 应用间跳转
-        * @param appKey 应用路径，如果存在多级目录，用“.”连接
-        * @param path 应用自己的路由
-        * @param replace 是否跳转
-        */
-      return (appKey: string, path: string = '', replace = false) => {
-        const url = ('/app/' + appKey + '/' + path).replace(/\/{2,}/g, '/');
+      return (appKey: string, path: string = '', opts = {}) => {
+        const layout = opts.layout || portal.currLayout;
+        const url = (`/${layout}/${appKey}/${path}`).replace(/\/{2,}/g, '/');
         if (history.location.pathname === url) {
           return;
         }
-        if (replace) {
+        if (opts.replace) {
           history.replace(url);
         } else {
           history.push(url);
@@ -172,11 +178,21 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
       };
     },
   },
+  currLayout: {
+    get() {
+      const result = portalMather.exec(history.location.pathname);
+      if (result) {
+        const [_, layout] = result;
+        return layout;
+      }
+      return 'app';
+    }
+  },
   currAppKey: {
     get() {
       const result = portalMather.exec(history.location.pathname);
       if (result) {
-        const [_, appKey] = result;
+        const [_, _1, appKey] = result;
         return appKey;
       }
       return '';
@@ -186,7 +202,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
     get() {
       const result = portalMather.exec(history.location.pathname);
       if (result) {
-        const [_1, _2, route] = result;
+        const [_1, _2, _3, route] = result;
         return route;
       }
       return '';
@@ -196,7 +212,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
     get() {
       const result = portalMather.exec(history.location.pathname);
       if (result) {
-        const [_, appKey, path = '/'] = result;
+        const [_1, _2, appKey, path = '/'] = result;
         const url = location.href;
         if (url) {
           return `/${appKey.replaceAll('.', '/')}/#${path}`.replace(
@@ -218,7 +234,7 @@ history.listen((listener) => {
   }
   const result = portalMather.exec(listener.pathname);
   if (result) {
-    const [_, appKey, path = '/'] = result;
+    const [_1, _2, appKey, path = '/'] = result;
     const url = `${portal.config.nacos.appRootPathName}/${appKey.replaceAll(
       '.',
       '/',
