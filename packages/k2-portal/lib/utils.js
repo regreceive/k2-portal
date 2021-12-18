@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.doc = void 0;
 exports.formatDateTime = formatDateTime;
 exports.isInWidget = exports.isInPortal = void 0;
 exports.log = log;
@@ -85,13 +86,19 @@ const isInPortal = parent !== window && !!((_parent = parent) === null || _paren
 exports.isInPortal = isInPortal;
 const isInWidget = parent !== window;
 /**
+ * 取得应用自身的document
+ */
+
+exports.isInWidget = isInWidget;
+const doc = window.self.document;
+/**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
  * @example mergeTimeSeries(ts1, ts2)
  * @return [[timestamp, v1, v2], [timestamp, v1, v2]]
  */
 
-exports.isInWidget = isInWidget;
+exports.doc = doc;
 
 function mergeTimeSeries(...params) {
   const map = new Map();

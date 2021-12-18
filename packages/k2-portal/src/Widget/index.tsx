@@ -74,7 +74,18 @@ const Widget: FC<Props> = (props) => {
 
   useEffect(() => {
     if (props.appRoot) {
-      portal.setAppIframe(frame.current);
+      portal.setRootAppChangeUrl((url: string) => {
+        try {
+          const location = frame.current!.contentWindow!.location;
+          if (!url.startsWith(location.pathname)) {
+            setLoading(true);
+          }
+          location.replace(url);
+        } catch (e) {
+          warn('主应用跨域');
+          frame.current!.src = url;
+        }
+      });
     }
   }, [props.appRoot]);
 

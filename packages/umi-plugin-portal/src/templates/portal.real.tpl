@@ -91,7 +91,7 @@ const getAccessToken = () => {
   return localStorage.getItem('k2_portal_token');
 };
 
-let _appIframe: HTMLIFrameElement;
+let _rootAppChangeUrl: (url: string) => void;
 // portal的完整路径：app/子应用路径.子应用名称/子应用路由
 const portalMather = /^\/([\w\d\-]+)\/([^\/]+)(?:\/(\S*))?/;
 // 登录
@@ -171,10 +171,10 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
       };
     },
   },
-  setAppIframe: {
+  setRootAppChangeUrl: {
     get() {
-      return (iframe: HTMLIFrameElement) => {
-        _appIframe = iframe;
+      return (fn: (url: string) => void) => {
+        _rootAppChangeUrl = fn;
       };
     },
   },
@@ -228,7 +228,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
 
 // 主应用路由
 history.listen((listener) => {
-  if (!_appIframe) {
+  if (!_rootAppChangeUrl) {
     utils.warn('请为当前portal或entry设置一个属性是appRoot的Widget');
     return;
   }
@@ -240,12 +240,7 @@ history.listen((listener) => {
       '/',
     )}/#/${path}`.replace(/\/{2,}/g, '/');
 
-    try {
-      _appIframe.contentWindow.location.replace(url);
-    } catch (e) {
-      utils.warn('主应用跨域');
-      _appIframe.src = url;
-    }
+    _rootAppChangeUrl(url);
   }
 });
 

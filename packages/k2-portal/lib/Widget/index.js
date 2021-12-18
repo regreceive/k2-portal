@@ -98,7 +98,20 @@ var Widget = function Widget(props) {
   }, [props.appProps]);
   (0, _react.useEffect)(function () {
     if (props.appRoot) {
-      _.portal.setAppIframe(frame.current);
+      _.portal.setRootAppChangeUrl(function (url) {
+        try {
+          var location = frame.current.contentWindow.location;
+
+          if (!url.startsWith(location.pathname)) {
+            setLoading(true);
+          }
+
+          location.replace(url);
+        } catch (e) {
+          (0, _utils.warn)('主应用跨域');
+          frame.current.src = url;
+        }
+      });
     }
   }, [props.appRoot]);
   var moveCSS = (0, _react.useCallback)(function () {
