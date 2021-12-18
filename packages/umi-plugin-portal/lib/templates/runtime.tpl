@@ -19,6 +19,12 @@ window.renderChildApp =  (element: HTMLDivElement, props: any) => {
   appRender();
 };
 
+window.addEventListener('unload', () => {
+  if (rootElement) {
+    ReactDOM.unmountComponentAtNode(rootElement);
+  }
+});
+
 export function modifyClientRenderOpts(memo: any) {
   return {
     ...memo,
