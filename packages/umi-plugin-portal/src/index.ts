@@ -260,7 +260,6 @@ export default async function (api: IApi) {
         readFileSync(join(__dirname, 'templates', 'sdk.tpl'), 'utf-8'),
         {
           appKey: appKey,
-          appDefaultProps: JSON.stringify(appDefaultProps),
           service: Object.keys(nacos.default.service),
         },
       ),
