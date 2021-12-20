@@ -428,6 +428,10 @@ export default async function (api: IApi) {
           antd: 'antd',
         },
         function ({ context, request }: any, callback: any) {
+          // 自定义主题入口，允许编译
+          if (context.endsWith('/src/antd-theme')) {
+            return callback();
+          }
           // 会有代码或依赖包直接引用antd中es样式，要排除其打包
           if (esStyle.test(request)) {
             return callback(null, 'undefined');
