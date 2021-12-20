@@ -45,11 +45,11 @@ type GlobalPortalType = {
     opts?: { replace?: boolean; layout?: string },
   ) => void;
   /**
-   * @private 设置主应用iframe，设置以后iframe会被portal的openApp和history.listen控制。
+   * @private 处理主应用被portal修改url时的逻辑。
    * 仅限portal内部组件使用，比如<Widget appRoot />
-   * @param iframe iframe元素
+   * @param fn 处理函数
    */
-  setAppIframe: (iframe: HTMLIFrameElement) => void;
+  setRootAppChangeUrl: (fn: (url: string) => void) => void;
   /**
    * 返回entry的布局名称，entry可通过此项调整自身的布局设置，默认名称app
    */
@@ -249,7 +249,6 @@ window.g_portal = portal;
 
 // 登录
 (function () {
-  debugger;
   if (process.env.NODE_ENV !== 'production' || getAccessToken()) {
     return;
   }
