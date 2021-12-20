@@ -219,6 +219,12 @@ portal 全局 api。
 
 登录后的 token。
 
+### currLayout
+
+- 类型 `string`
+
+返回 entry 的布局名称，entry 可通过此项调整自身的布局设置，默认名称 app。
+
 ### currAppKey
 
 - 类型 `string`
@@ -272,6 +278,19 @@ portal 全局 api。
 
 ### openApp
 
-- 类型 `(appKey: string, path?: string, replace?: boolean) => void`
+- 类型 `(appKey: string, path?: string, opts: object) => void`
 
 控制 portal 切换主应用。
+
+| 属性   | 说明            | 类型     | 默认值 |
+| ------ | --------------- | -------- | ------ |
+| appKey | 应用 key        | `string` | `null` |
+| path   | 应用的 url      | `string` | `/`    |
+| opts   | 选项，详见 opts | `object` | `{}`   |
+
+**opts**
+
+| 属性    | 说明                | 类型      | 默认值 |
+| ------- | ------------------- | --------- | ------ |
+| replace | 路由 replace 方式   | `boolean` | `null` |
+| layout  | 通知 entry 切换布局 | `string`  | `app`  |

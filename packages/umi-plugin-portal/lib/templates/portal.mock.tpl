@@ -92,6 +92,7 @@ const mockPortal: GlobalPortalType =  {
   logout: () => {},
   openApp: (appKey: string, path: string = '/', replace?: boolean) => {},
   setRootAppChangeUrl: (fn: (url: string) => void) => {},
+  currLayout: '',
   currAppKey: '',
   currAppPath: '',
   currAppUrl: '',
