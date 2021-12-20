@@ -88,7 +88,7 @@ function freezeDeep<T>(obj: any): T {
 
 // 用户token
 const getAccessToken = () => {
-  return localStorage.getItem('k2_portal_token');
+  return localStorage.getItem('k2_portal_token') || '';
 };
 
 let _rootAppChangeUrl: (url: string) => void;
@@ -123,11 +123,12 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
             }
             portal.openApp(appKey, path, { replace });
           } else {
-            appHistory.replace(arg);
+            appHistory._replace(arg);
           }
         };
           
         return Object.assign(appHistory, {
+          _replace: appHistory.replace,
           push: (arg: any) => fn(arg),
           replace: (arg: any) => fn(arg, true),
         });
@@ -210,7 +211,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   currAppUrl: {
     get() {
-      const result = portalMather.exec(history.location.pathname);
+      const result = portalMather.exec(history.location.pathname + history.location.search);
       if (result) {
         const [_1, _2, appKey, path = '/'] = result;
         const url = location.href;
@@ -232,13 +233,13 @@ history.listen((listener) => {
     utils.warn('请为当前portal或entry设置一个属性是appRoot的Widget');
     return;
   }
-  const result = portalMather.exec(listener.pathname);
+  const result = portalMather.exec(listener.pathname + listener.search);
   if (result) {
-    const [_1, _2, appKey, path = '/'] = result;
+    const [_1, _2, appKey, path = ''] = result;
     const url = `${portal.config.nacos.appRootPathName}/${appKey.replaceAll(
       '.',
       '/',
-    )}/#/${path}`.replace(/\/{2,}/g, '/');
+    )}/#${path}`.replace(/\/{2,}/g, '/');
 
     _rootAppChangeUrl(url);
   }
@@ -247,31 +248,30 @@ history.listen((listener) => {
 window.g_portal = portal;
 
 // 登录
-if (process.env.NODE_ENV !== 'development') {
-  let tokenPromise:Promise<any>;
+(function () {
+  debugger;
+  if (process.env.NODE_ENV !== 'production' || getAccessToken()) {
+    return;
+  }
   if (portal.config.nacos.ssoAuthorityUrl) {
     signMgr = new SingleSign(
       portal.config.nacos.ssoAuthorityUrl, 
       location.origin + location.pathname,
     );
 
-
     if (location.search.startsWith('?code=')) {
-      // 登录成功跳转
-      tokenPromise = signMgr.mgr.signinCallback().then((res) => {
+      // 登录成功跳转，再去获取token
+      signMgr.mgr.signinCallback().then((res) => {
         localStorage.setItem('k2_portal_token', res.access_token);
         // 去掉 ?code=
         location.replace(location.pathname);
-      }).catch(e => {
-        location.replace(location.pathname);
       });
+      return;
     }
     if (location.search.startsWith('?state=')) {
       location.replace(location.pathname);
     }
-  }
-
-  if (!tokenPromise &&!getAccessToken()) {
+    
     portal.login();
   }
-}
+})();

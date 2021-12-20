@@ -14,7 +14,7 @@ let appProps = {{{ appDefaultProps }}};
 
 //@ts-ignore
 window.renderChildApp =  (element: HTMLDivElement, props: any) => {
-  appProps = {...appProps, ...props, asWidget: true,};
+  appProps = {...appProps, ...props};
   rootElement = element;
   appRender();
 };
