@@ -113,77 +113,68 @@ window.publicPath = location.pathname;
   const antdThemes = {{{ antdThemes }}};
 
   window.addEventListener('bundleReady', function (event) {
-    if (!{{{ bundleCommon }}}) {
-      if (!window.React) {
-        // 动态加载全局资源，此时作为独立应用或者Portal
-        if (antdThemes.length > 0) {
-          if (process.env.NODE_ENV === 'production') {
-            const cssMatcer = /theme\-[\w\d\-]+\.css/;
-            fetch('./asset-manifest.json')
-              .then((res) => res.json)
-              .then((json) => {
-                const themes = Object.keys(json).reduce((prev, curr) => {
-                  if (cssMatcer.test(curr)) {
-                    return [...prev, { name: curr, chunk: json[curr] }];
-                  }
-                  return prev;
-                }, []);
-
-                window.$$config.antdThemes = themes;
-                const defaultTheme = themes.find(
-                  (item) => item.key === 'theme-default',
-                )?.chunk;
-                if (defaultTheme) {
-                  addLink(defaultTheme, '');
+    if (!window.React) {
+      // 动态加载全局资源，此时作为独立应用或者Portal
+      if (antdThemes.length > 0) {
+        if (process.env.NODE_ENV === 'production') {
+          const cssMatcer = /theme\-[\w\d\-]+\.css/;
+          fetch('./asset-manifest.json')
+            .then((res) => res.json())
+            .then((json) => {
+              const themes = Object.keys(json).reduce((prev, curr) => {
+                if (cssMatcer.test(curr)) {
+                  return [...prev, { name: curr.split('.')[0], chunk: json[curr] }];
                 }
-              });
-          } else {
-            window.$$config.antdThemes = antdThemes.map((key) => ({
-              name: key,
-              chunk: key + '.css',
-            }));
-            window.$$config.antdThemes
-            if (antdThemes.indexOf('default')) {
-              addLink('theme-default.css', '');
-            }
-          }
-        } else {
-          addLink('antd.css');
-        }
+                return prev;
+              }, []);
 
-        addScript('react.js').then(() => {
-          Promise.all([
-            addScript('react-dom.js'),
-            addScript('moment.js').then(() => {
-              addScript('zh-cn.js');
-            }),
-            addScript('antd.js'),
-            getRuntimeConfig(),
-          ]).then(() => {
-            // 独立运行
-            window.$$config.alone = true;
-            event.detail.run(window, document, window);
-          });
-        });
-      } else {
-        // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
-        const doc = window.parent.document;
-        if (!doc.querySelector('#{{{ appKey }}}')) {
-          const antPopContainer = doc.createElement('div');
-          antPopContainer.id = '{{{ appKey }}}';
-          doc.body.appendChild(antPopContainer);
-          window.addEventListener('unload', () => {
-            doc.body.removeChild(antPopContainer);
-          });
+              window.$$config.antdThemes = themes;
+              const defaultTheme = themes.find(
+                (item) => item.name === 'theme-default',
+              )?.chunk;
+              if (defaultTheme) {
+                addLink(defaultTheme, '');
+              }
+            });
+        } else {
+          window.$$config.antdThemes = antdThemes.map((key) => ({
+            name: key,
+            chunk: key + '.css',
+          }));
+          if (antdThemes.indexOf('default')) {
+            addLink('theme-default.css', '');
+          }
         }
-        event.detail.run(proxyWindow, window.parent.document, proxyWindow);
+      } else {
+        addLink('antd.css');
       }
-    } else {
-      // js module
-      getRuntimeConfig().then(() => {
-        window.$$config.alone = true;
-        event.detail.run(window, document, window);
+
+      addScript('react.js').then(() => {
+        Promise.all([
+          addScript('react-dom.js'),
+          addScript('moment.js').then(() => {
+            addScript('zh-cn.js');
+          }),
+          addScript('antd.js'),
+          getRuntimeConfig(),
+        ]).then(() => {
+          // 独立运行
+          window.$$config.alone = true;
+          event.detail.run(window, document, window);
+        });
       });
+    } else {
+      // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
+      const doc = window.parent.document;
+      if (!doc.querySelector('#{{{ appKey }}}')) {
+        const antPopContainer = doc.createElement('div');
+        antPopContainer.id = '{{{ appKey }}}';
+        doc.body.appendChild(antPopContainer);
+        window.addEventListener('unload', () => {
+          doc.body.removeChild(antPopContainer);
+        });
+      }
+      event.detail.run(proxyWindow, window.parent.document, proxyWindow);
     }
   });
 })();
