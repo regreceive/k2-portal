@@ -27,11 +27,11 @@ window.publicPath = location.pathname;
     });
   }
 
-  function addLink(src) {
+  function addLink(src, dir = 'alone/') {
     const link = document.createElement('link');
     link.setAttribute('type', 'text/css');
     link.setAttribute('rel', 'stylesheet');
-    link.setAttribute('href', 'alone/' + src);
+    link.setAttribute('href', dir + src);
     document.head.appendChild(link);
   }
 
@@ -110,11 +110,47 @@ window.publicPath = location.pathname;
     }
   });
 
+  const antdThemes = {{{ antdThemes }}};
+
   window.addEventListener('bundleReady', function (event) {
     if (!{{{ bundleCommon }}}) {
       if (!window.React) {
         // 动态加载全局资源，此时作为独立应用或者Portal
-        addLink('antd.css');
+        if (antdThemes.length > 0) {
+          if (process.env.NODE_ENV === 'production') {
+            const cssMatcer = /theme\-[\w\d\-]+\.css/;
+            fetch('./asset-manifest.json')
+              .then((res) => res.json)
+              .then((json) => {
+                const themes = Object.keys(json).reduce((prev, curr) => {
+                  if (cssMatcer.test(curr)) {
+                    return [...prev, { name: curr, chunk: json[curr] }];
+                  }
+                  return prev;
+                }, []);
+
+                window.$$config.antdThemes = themes;
+                const defaultTheme = themes.find(
+                  (item) => item.key === 'theme-default',
+                )?.chunk;
+                if (defaultTheme) {
+                  addLink(defaultTheme, '');
+                }
+              });
+          } else {
+            window.$$config.antdThemes = antdThemes.map((key) => ({
+              name: key,
+              chunk: key + '.css',
+            }));
+            window.$$config.antdThemes
+            if (antdThemes.indexOf('default')) {
+              addLink('theme-default.css', '');
+            }
+          }
+        } else {
+          addLink('antd.css');
+        }
+
         addScript('react.js').then(() => {
           Promise.all([
             addScript('react-dom.js'),

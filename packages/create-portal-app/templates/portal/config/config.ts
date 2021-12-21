@@ -18,6 +18,5 @@ export default defineConfig({
   webpack5: {},
   dynamicImportSyntax: {},
   ignoreMomentLocale: true,
-  manifest: {},
   proxy: proxy[(process.env.REACT_APP_ENV as 'dev') || 'dev'],
 });

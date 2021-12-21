@@ -73,20 +73,43 @@ export default portal;
 
 除了以上自定义的入参之外，系统会默认传入一些入参，可以协助在应用中适配不同的运行场景：
 
-| 属性     | 说明                   | 类型              | 默认值  |
-| -------- | ---------------------- | ----------------- | ------- |
-| theme    | 主题                   | `light` \| `dark` | `light` |
-| asWidget | 是否作为服务化应用启动 | `boolean`         | `null`  |
+| 属性  | 说明 | 类型              | 默认值  |
+| ----- | ---- | ----------------- | ------- |
+| theme | 主题 | `light` \| `dark` | `light` |
 
-## 应用动态主题
+## antd 自定义主题
 
-如果应用被集成入`Portal`，会接收来自 `Portal` 风格切换的参数。应用中的`antd`组件会自动切换风格，与`Portal`保持统一。
+`Portal`处理 antd 主题自定义。`k2-portal`约定在`src/antd-theme/`下定义的 less 文件为 antd 主题，可定义多个主题，页面初始加载时默认使用`default.less`定义的主题。
 
-但应用会有一些自定义的样式，比如定义了一个`div`的背景为白色，在白色主题下看着没有问题，如果换成暗黑风格会显得突兀，所以需要手动适配主题的切换。
+```less
+// src/antd-theme/default.less
+@import '~antd/es/style/themes/default';
 
-在`src/app.tsx`或`src/app.ts`下，暴露出两个对象，它们是由`k2portal`预制的：
+@body-background: red;
+@primary-color: red;
+...
+```
+
+<Alert type="error">自定义主题统一在`Portal`应用上设置，如果在非`Portal`应用上设置，会浪费编译时间，没有任何作用，请留意。</Alert>
+
+<Alert type="warning">在定义主题时，必须加载 antd 自身的主题文件，即准备覆盖的主题文件，否则自定义主题不生效。可供选择覆盖的 antd 主题文件官方提供了三个：</Alert>
+
+```less
+@import '~antd/es/style/themes/default';
+@import '~antd/es/style/themes/dark';
+@import '~antd/es/style/themes/compact';
+```
+
+## 子应用自定义主题
+
+应用被集成入`Portal`，接收来自 `Portal` 的风格切换。应用中的 antd 组件会自动切换主题，与`Portal`保持统一。
+
+但应用内部非 antd 样式有时也需要随 antd 主题切换。比如定义了一个`div`的背景为白色，在亮色主题下看着没有问题，如果换成暗色主题就会显得突兀。
+
+`k2-portal`约定在`src/app.tsx`或`src/app.ts`下，暴露出两个对象：
 
 ```ts
+// src/app.ts
 export const lightTheme = {
   '--myApp-bgColor': '#fff',
 };
@@ -96,7 +119,7 @@ export const darkTheme = {
 };
 ```
 
-在需要引用这个 css 变量的位置，做如下修改，这样就可以跟随`Portal`换肤：
+在需要引用这个 css 变量的位置，做如下修改，这样就可以跟随`Portal`切换主题：
 
 ```less
 .box {

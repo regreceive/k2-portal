@@ -45,6 +45,16 @@ function _md() {
   return data;
 }
 
+function _os() {
+  const data = require("os");
+
+  _os = function _os() {
+    return data;
+  };
+
+  return data;
+}
+
 function _path() {
   const data = _interopRequireWildcard(require("path"));
 
@@ -126,12 +136,12 @@ function _ref() {
               username: joi.string().required(),
               password: joi.string().required()
             }).description('开发环境Basic认证，请求产品接口可以免登录通过BCF网关'),
+            customToken: joi.string().description('自定义token，将覆盖http头部的Authorization，优先级高于devAuth。'),
             role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
             bundleCommon: joi.object({
               development: joi.boolean().description('开发环境打包到一起'),
               production: joi.boolean().description('生产环境打包到一起')
             }).description('是否将react/antd等一起打包，默认被externals'),
-            customToken: joi.string(),
             nacos: joi.object({
               url: joi.string().description('线上的nacos地址，如果不输入，会取default配置'),
               default: joi.object({
@@ -156,7 +166,9 @@ function _ref() {
         source: './plugin-portal/portal.less'
       }];
     });
-    let prevConfig = {};
+    let prevConfig = {}; // antd 主题自定义样式
+
+    let antdThemes = [];
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
       var _api$config$portal, _api$config, _api$env;
 
@@ -188,7 +200,18 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/portal.less',
         content: api.env === 'development' || role === 'portal' ? (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'portal.less'), 'utf-8') : ''
-      }); // 生成init.js
+      }); // 生成antd自定义主题.less
+
+      if (antdThemes.length > 0) {
+        const assets = (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'antd.less'), 'utf-8');
+        antdThemes.forEach(theme => {
+          api.writeTmpFile({
+            path: `plugin-portal/${theme}.less`,
+            content: [`@import '~@/antd-theme/${theme}.less';`, assets].join(_os().EOL)
+          });
+        });
+      } // 生成init.js
+
 
       api.writeTmpFile({
         path: 'plugin-portal/init.ts',
@@ -196,7 +219,8 @@ function _ref() {
           appKey,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          bundleCommon: bundleCommon[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development']
+          bundleCommon: bundleCommon[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development'],
+          antdThemes: JSON.stringify(antdThemes)
         })
       }); // 生成ThemeLayout.tsx
 
@@ -282,16 +306,16 @@ function _ref() {
     }); // webpack额外配置
 
     api.chainWebpack(config => {
-      // 阻止bundle载入后立即启动。具体控制在init.js中
+      antdThemes.forEach(themeName => {
+        config.entry('theme-' + themeName).add(_path().default.resolve(api.paths.absTmpPath, `plugin-portal/${themeName}.less`));
+      }); // 阻止bundle载入后立即启动。具体控制在init.js中
+
       config.plugin('WaitRunWebpackPlugin').use(_WaitRunPlugin.default, [{
         test: /umi(\.\w+)*\.?js$/
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
-      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // .end()
-      // .use('graphql-loader')
-      // .loader(require.resolve('graphql-tag/loader'));
-      // 确保打包输出不同的css名称，防止多应用样式冲突
+      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);
@@ -316,6 +340,16 @@ function _ref() {
 
     api.modifyConfig(memo => {
       var _api$env3, _api$env4, _api$env5;
+
+      try {
+        const themeName = /[\w\d\-]+(?=\.less$)/;
+        antdThemes = (0, _fs().readdirSync)(_path().default.resolve(api.paths.absSrcPath, 'antd-theme')).map(filename => {
+          var _result$;
+
+          const result = themeName.exec(filename);
+          return (_result$ = result === null || result === void 0 ? void 0 : result[0]) !== null && _result$ !== void 0 ? _result$ : '';
+        }).filter(filename => filename);
+      } catch (_unused2) {}
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
 
@@ -343,10 +377,14 @@ function _ref() {
         }, {
           from: `${relative}node_modules/antd/dist/antd.min.js`,
           to: 'alone/antd.js'
-        }, {
-          from: `${relative}node_modules/antd/dist/antd.min.css`,
-          to: 'alone/antd.css'
         }]);
+
+        if (antdThemes.length === 0) {
+          copy.push({
+            from: `${relative}node_modules/antd/dist/antd.min.css`,
+            to: 'alone/antd.css'
+          });
+        }
 
         if (api.env === 'development') {
           copy.push({
@@ -355,10 +393,14 @@ function _ref() {
           }, {
             from: `${relative}node_modules/moment/min/moment.min.js.map`,
             to: 'alone/moment.min.js.map'
-          }, {
-            from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-            to: 'alone/antd.min.css.map'
           });
+
+          if (antdThemes.length === 0) {
+            copy.push({
+              from: `${relative}node_modules/antd/dist/antd.min.css.map`,
+              to: 'alone/antd.min.css.map'
+            });
+          }
         }
       }
 
@@ -394,10 +436,8 @@ function _ref() {
 
           callback();
         }];
-      } // 引用init.js
+      }
 
-
-      const headScripts = [...(memo.headScripts || [])];
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,
         publicPath: './',
@@ -409,7 +449,7 @@ function _ref() {
         externals: externals,
         antd: memo.portal.bundleCommon[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? memo.antd : false,
         copy: api.env === 'test' ? memo.copy : copy,
-        headScripts,
+        manifest: {},
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
       });
     });

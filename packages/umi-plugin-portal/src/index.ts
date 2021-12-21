@@ -2,9 +2,10 @@
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
 import { diffJson } from 'diff';
-import { readFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 // @ts-ignore
 import md5 from 'md5';
+import { EOL } from 'os';
 import path, { dirname, join } from 'path';
 import WaitRunWebpackPlugin from './WaitRunPlugin';
 
@@ -68,6 +69,11 @@ export default async function (api: IApi) {
             .description(
               '开发环境Basic认证，请求产品接口可以免登录通过BCF网关',
             ),
+          customToken: joi
+            .string()
+            .description(
+              '自定义token，将覆盖http头部的Authorization，优先级高于devAuth。',
+            ),
           role: joi
             .string()
             .pattern(/app|portal/, 'app|portal')
@@ -78,7 +84,6 @@ export default async function (api: IApi) {
               production: joi.boolean().description('生产环境打包到一起'),
             })
             .description('是否将react/antd等一起打包，默认被externals'),
-          customToken: joi.string(),
           nacos: joi
             .object({
               url: joi
@@ -129,6 +134,9 @@ export default async function (api: IApi) {
   });
 
   let prevConfig = {};
+  // antd 主题自定义样式
+  let antdThemes: string[] = [];
+
   api.onGenerateFiles(async () => {
     const configChanged = diffJson(prevConfig, api.config.portal).some(
       (row) => row.added || row.removed,
@@ -167,6 +175,20 @@ export default async function (api: IApi) {
           : '',
     });
 
+    // 生成antd自定义主题.less
+    if (antdThemes.length > 0) {
+      const assets = readFileSync(
+        join(__dirname, 'templates', 'antd.less'),
+        'utf-8',
+      );
+      antdThemes.forEach((theme) => {
+        api.writeTmpFile({
+          path: `plugin-portal/${theme}.less`,
+          content: [`@import '~@/antd-theme/${theme}.less';`, assets].join(EOL),
+        });
+      });
+    }
+
     // 生成init.js
     api.writeTmpFile({
       path: 'plugin-portal/init.ts',
@@ -177,6 +199,7 @@ export default async function (api: IApi) {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           bundleCommon: bundleCommon[api?.env ?? 'development'],
+          antdThemes: JSON.stringify(antdThemes),
         },
       ),
     });
@@ -297,6 +320,17 @@ export default async function (api: IApi) {
 
   // webpack额外配置
   api.chainWebpack((config) => {
+    antdThemes.forEach((themeName) => {
+      config
+        .entry('theme-' + themeName)
+        .add(
+          path.resolve(
+            api.paths.absTmpPath!,
+            `plugin-portal/${themeName}.less`,
+          ),
+        );
+    });
+
     // 阻止bundle载入后立即启动。具体控制在init.js中
     config
       .plugin('WaitRunWebpackPlugin')
@@ -315,9 +349,6 @@ export default async function (api: IApi) {
       .end()
       .use('graphql-modules')
       .loader(require.resolve('./graphql-loader'));
-    // .end()
-    // .use('graphql-loader')
-    // .loader(require.resolve('graphql-tag/loader'));
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
@@ -349,6 +380,18 @@ export default async function (api: IApi) {
 
   // 复制资源文件到输出目录
   api.modifyConfig((memo) => {
+    try {
+      const themeName = /[\w\d\-]+(?=\.less$)/;
+      antdThemes = readdirSync(
+        path.resolve(api.paths.absSrcPath!, 'antd-theme'),
+      )
+        .map((filename) => {
+          const result = themeName.exec(filename);
+          return result?.[0] ?? '';
+        })
+        .filter((filename) => filename);
+    } catch {}
+
     const resourceName =
       api.env === 'development' ? 'development' : 'production.min';
 
@@ -386,12 +429,15 @@ export default async function (api: IApi) {
             from: `${relative}node_modules/antd/dist/antd.min.js`,
             to: 'alone/antd.js',
           },
-          {
-            from: `${relative}node_modules/antd/dist/antd.min.css`,
-            to: 'alone/antd.css',
-          },
         ],
       );
+
+      if (antdThemes.length === 0) {
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd.min.css`,
+          to: 'alone/antd.css',
+        });
+      }
 
       if (api.env === 'development') {
         copy.push(
@@ -403,11 +449,14 @@ export default async function (api: IApi) {
             from: `${relative}node_modules/moment/min/moment.min.js.map`,
             to: 'alone/moment.min.js.map',
           },
-          {
+        );
+
+        if (antdThemes.length === 0) {
+          copy.push({
             from: `${relative}node_modules/antd/dist/antd.min.css.map`,
             to: 'alone/antd.min.css.map',
-          },
-        );
+          });
+        }
       }
     }
 
@@ -428,10 +477,6 @@ export default async function (api: IApi) {
           antd: 'antd',
         },
         function ({ context, request }: any, callback: any) {
-          // 自定义主题入口，允许编译
-          if (context.endsWith('/src/antd-theme')) {
-            return callback();
-          }
           // 会有代码或依赖包直接引用antd中es样式，要排除其打包
           if (esStyle.test(request)) {
             return callback(null, 'undefined');
@@ -454,9 +499,6 @@ export default async function (api: IApi) {
       ];
     }
 
-    // 引用init.js
-    const headScripts = [...(memo.headScripts || [])];
-
     return {
       ...memo,
       runtimePublicPath: true,
@@ -469,7 +511,7 @@ export default async function (api: IApi) {
         ? memo.antd
         : false,
       copy: api.env === 'test' ? memo.copy : copy,
-      headScripts,
+      manifest: {},
       define: { ...memo.define, ...runtimeEnv() },
     };
   });
