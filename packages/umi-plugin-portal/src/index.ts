@@ -32,10 +32,6 @@ export default async function (api: IApi) {
     config: {
       default: {
         appDefaultProps: {},
-        bundleCommon: {
-          development: false,
-          production: false,
-        },
         devAuth: {
           username: 'admin',
           password: 'admin',
@@ -78,12 +74,6 @@ export default async function (api: IApi) {
             .string()
             .pattern(/app|portal/, 'app|portal')
             .description('当前应用类型，是portal还是app'),
-          bundleCommon: joi
-            .object({
-              development: joi.boolean().description('开发环境打包到一起'),
-              production: joi.boolean().description('生产环境打包到一起'),
-            })
-            .description('是否将react/antd等一起打包，默认被externals'),
           nacos: joi
             .object({
               url: joi
@@ -147,15 +137,8 @@ export default async function (api: IApi) {
     prevConfig = api.config.portal;
     api.logger.info('gen portal files...');
 
-    const {
-      appKey,
-      nacos,
-      appDefaultProps,
-      devAuth,
-      customToken,
-      role,
-      bundleCommon,
-    } = api.config?.portal ?? {};
+    const { appKey, nacos, appDefaultProps, devAuth, customToken, role } =
+      api.config?.portal ?? {};
 
     let base64 = '';
     if (api.env !== 'production') {
@@ -198,7 +181,6 @@ export default async function (api: IApi) {
           appKey,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          bundleCommon: bundleCommon[api?.env ?? 'development'],
           antdThemes: JSON.stringify(antdThemes),
         },
       ),
@@ -305,11 +287,8 @@ export default async function (api: IApi) {
 
   // 阻止antd被优化加载，否则antd无法被externals
   api.modifyBabelPresetOpts((opts) => {
-    let importList = opts.import || [];
-    if (!api.config.portal.bundleCommon[api?.env ?? 'development']) {
-      importList =
-        opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
-    }
+    const importList =
+      opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
     importList.push({ libraryName: 'lodash', libraryDirectory: '' });
 
     return {
@@ -406,98 +385,92 @@ export default async function (api: IApi) {
 
     const copy = [...(memo.copy || [])];
 
-    if (!memo.portal.bundleCommon[api?.env ?? 'development']) {
+    copy.push(
+      ...[
+        {
+          from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
+          to: 'alone/react.js',
+        },
+        {
+          from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+          to: 'alone/react-dom.js',
+        },
+        {
+          from: `${relative}node_modules/moment/min/moment.min.js`,
+          to: 'alone/moment.js',
+        },
+        {
+          from: `${relative}node_modules/moment/locale/zh-cn.js`,
+          to: 'alone/zh-cn.js',
+        },
+        {
+          from: `${relative}node_modules/antd/dist/antd.min.js`,
+          to: 'alone/antd.js',
+        },
+      ],
+    );
+
+    if (antdThemes.length === 0) {
+      copy.push({
+        from: `${relative}node_modules/antd/dist/antd.min.css`,
+        to: 'alone/antd.css',
+      });
+    }
+
+    if (api.env === 'development') {
       copy.push(
-        ...[
-          {
-            from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
-            to: 'alone/react.js',
-          },
-          {
-            from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
-            to: 'alone/react-dom.js',
-          },
-          {
-            from: `${relative}node_modules/moment/min/moment.min.js`,
-            to: 'alone/moment.js',
-          },
-          {
-            from: `${relative}node_modules/moment/locale/zh-cn.js`,
-            to: 'alone/zh-cn.js',
-          },
-          {
-            from: `${relative}node_modules/antd/dist/antd.min.js`,
-            to: 'alone/antd.js',
-          },
-        ],
+        {
+          from: `${relative}node_modules/antd/dist/antd.min.js.map`,
+          to: 'alone/antd.min.js.map',
+        },
+        {
+          from: `${relative}node_modules/moment/min/moment.min.js.map`,
+          to: 'alone/moment.min.js.map',
+        },
       );
 
       if (antdThemes.length === 0) {
         copy.push({
-          from: `${relative}node_modules/antd/dist/antd.min.css`,
-          to: 'alone/antd.css',
+          from: `${relative}node_modules/antd/dist/antd.min.css.map`,
+          to: 'alone/antd.min.css.map',
         });
       }
+    }
 
-      if (api.env === 'development') {
-        copy.push(
-          {
-            from: `${relative}node_modules/antd/dist/antd.min.js.map`,
-            to: 'alone/antd.min.js.map',
-          },
-          {
-            from: `${relative}node_modules/moment/min/moment.min.js.map`,
-            to: 'alone/moment.min.js.map',
-          },
-        );
+    const esStyle = /^antd\/es\/[\w\-]+\/style/;
+    const esModule = /^antd\/es\/([\w\-]+)$/;
+    const linkedString = /\-(\w)/;
+    const initials = /^\w/;
 
-        if (antdThemes.length === 0) {
-          copy.push({
-            from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-            to: 'alone/antd.min.css.map',
-          });
+    const externals = [
+      {
+        ...memo.externals,
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        moment: 'moment',
+        antd: 'antd',
+      },
+      function ({ context, request }: any, callback: any) {
+        // 会有代码或依赖包直接引用antd中es样式，要排除其打包
+        if (esStyle.test(request)) {
+          return callback(null, 'undefined');
         }
-      }
-    }
 
-    let externals = memo.externals;
-
-    if (!memo.portal.bundleCommon[api?.env ?? 'development']) {
-      const esStyle = /^antd\/es\/[\w\-]+\/style/;
-      const esModule = /^antd\/es\/([\w\-]+)$/;
-      const linkedString = /\-(\w)/;
-      const initials = /^\w/;
-
-      externals = [
-        {
-          ...memo.externals,
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          moment: 'moment',
-          antd: 'antd',
-        },
-        function ({ context, request }: any, callback: any) {
-          // 会有代码或依赖包直接引用antd中es样式，要排除其打包
-          if (esStyle.test(request)) {
-            return callback(null, 'undefined');
-          }
-
-          // antd/es/table/hooks/xxx可以打包
-          // antd/es/table排除打包
-          const match = esModule.exec(request);
-          if (match) {
-            callback(null, [
-              'antd',
-              match[1]
-                .replace(linkedString, (_, $1) => $1.toUpperCase())
-                .replace(initials, (letter) => letter.toUpperCase()),
-            ]);
-            return;
-          }
-          callback();
-        },
-      ];
-    }
+        // antd/es/table/hooks/xxx可以打包
+        // antd/es/table排除打包
+        const match = esModule.exec(request);
+        if (match) {
+          callback(null, [
+            'antd',
+            match[1]
+              .replace(linkedString, (_, $1) => $1.toUpperCase())
+              .replace(initials, (letter) => letter.toUpperCase()),
+          ]);
+          return;
+        }
+        callback();
+      },
+    ];
 
     return {
       ...memo,
@@ -507,9 +480,7 @@ export default async function (api: IApi) {
       history: { type: 'hash' },
       chunks: ['runtime', 'init', 'umi'],
       externals: externals,
-      antd: memo.portal.bundleCommon[api?.env ?? 'development']
-        ? memo.antd
-        : false,
+      antd: false,
       copy: api.env === 'test' ? memo.copy : copy,
       manifest: {},
       define: { ...memo.define, ...runtimeEnv() },

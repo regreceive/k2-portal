@@ -173,15 +173,6 @@ auth: {
 customToken: 'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6InB1YmxpYzpmNzdkNzlhNy0wMjRjLTRiZWQtYTkyNi01N2MxM2UxZGMxNjQiLCJ0eXAiOiJKV1QifQ.eyJh.....';
 ```
 
-### bundleCommon
-
-- 类型：`{ development: boolean; production: boolean }`
-- 默认值：`{ development: false, production: false }`
-
-作为微前端框架，默认在开发环境和生产环境，antd、moment、react、react-dom 等公共库被 webpack 排除在外，不进行打包，统一加载父应用公共库，节省资源开销也可以缩短编译时间。
-
-如果只是想实现一个单应用场景，并且希望以上公共库和项目打包为一个文件，请设置为`true`。
-
 ## 运行配置
 
 `src/app.ts`或`src/app.tsx`文件中，存在一些约定式配置，主要用于运行时应用行为的动态调整。
