@@ -178,7 +178,7 @@ export const lightTheme = {
 };
 
 export const darkTheme = {
-  '--portal-scrollbar-fore': 'rgb(150, 150, 150)',
-  '--portal-scrollbar-back': 'rgba(219, 219, 219, .3)',
+  '--portal-scrollbar-fore': 'rgb(90, 90, 90)',
+  '--portal-scrollbar-back': 'rgba(90, 90, 90, .3)',
   '--portal-boxArea-bgColor': '#000000',
 };

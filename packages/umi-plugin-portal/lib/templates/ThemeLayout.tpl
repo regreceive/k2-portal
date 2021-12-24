@@ -1,6 +1,7 @@
 import React from 'react';
 import { useEffect, useRef, useContext } from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
+import { utils } from 'k2-portal';
 import { AppContext } from './sdk';
 
 const ThemeLayout: React.FC = (props) => {
@@ -20,6 +21,9 @@ const ThemeLayout: React.FC = (props) => {
 
     const style = ref.current!.style;
     Object.entries<string>(appTheme).map(([key, value]) => {
+      if (key.startsWith('--portal') && utils.isInWidget) {
+        return;
+      }
       style.setProperty(key, value);
     });
   }, [appProps.theme]);

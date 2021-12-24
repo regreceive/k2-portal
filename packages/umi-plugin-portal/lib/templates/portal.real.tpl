@@ -139,6 +139,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         );
         if (link && theme) {
           link.href = theme.chunk;
+          localStorage.setItem('k2_portal_theme', theme.name);
           portal._emit({ theme }, { tag: 'portal', persist: true });
         }
       };

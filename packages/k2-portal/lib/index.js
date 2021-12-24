@@ -59,20 +59,6 @@ Object.keys(_appConfig).forEach(function (key) {
   });
 });
 
-var _ButtonPermissionCheck = require("./ButtonPermissionCheck");
-
-Object.keys(_ButtonPermissionCheck).forEach(function (key) {
-  if (key === "default" || key === "__esModule") return;
-  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
-  if (key in exports && exports[key] === _ButtonPermissionCheck[key]) return;
-  Object.defineProperty(exports, key, {
-    enumerable: true,
-    get: function get() {
-      return _ButtonPermissionCheck[key];
-    }
-  });
-});
-
 var _broadcast = require("./broadcast");
 
 Object.keys(_broadcast).forEach(function (key) {
@@ -83,6 +69,20 @@ Object.keys(_broadcast).forEach(function (key) {
     enumerable: true,
     get: function get() {
       return _broadcast[key];
+    }
+  });
+});
+
+var _ButtonPermissionCheck = require("./ButtonPermissionCheck");
+
+Object.keys(_ButtonPermissionCheck).forEach(function (key) {
+  if (key === "default" || key === "__esModule") return;
+  if (Object.prototype.hasOwnProperty.call(_exportNames, key)) return;
+  if (key in exports && exports[key] === _ButtonPermissionCheck[key]) return;
+  Object.defineProperty(exports, key, {
+    enumerable: true,
+    get: function get() {
+      return _ButtonPermissionCheck[key];
     }
   });
 });
