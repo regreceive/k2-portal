@@ -21,5 +21,6 @@ export default {
       from: 'docs/assets/logo3.png',
       to: 'logo.png',
     },
+    'docs/assets/favicon.ico',
   ],
 };

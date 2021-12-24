@@ -1,6 +1,10 @@
 import React from 'react';
 export declare function pickProps<P>(component: React.FC<P>): React.FC<P>;
 /**
+ * 当前应用是否是portal
+ */
+export declare const isPortal: any;
+/**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 export declare const isInPortal: boolean;

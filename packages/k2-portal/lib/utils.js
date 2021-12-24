@@ -10,7 +10,7 @@ exports.warn = warn;
 exports.formatDateTime = formatDateTime;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.doc = exports.isInWidget = exports.isInPortal = void 0;
+exports.doc = exports.isInWidget = exports.isInPortal = exports.isPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -72,11 +72,18 @@ function pickProps(component) {
   return component;
 }
 /**
- * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
+ * 当前应用是否是portal
  */
 // @ts-ignore
 
 
+const isPortal = parent === window && window.g_portal;
+/**
+ * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
+ */
+// @ts-ignore
+
+exports.isPortal = isPortal;
 const isInPortal = parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
 /**
  * 判断当前应用是否被其他应用引用。

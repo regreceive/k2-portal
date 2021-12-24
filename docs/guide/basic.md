@@ -79,7 +79,7 @@ export default portal;
 
 ## antd 自定义主题
 
-`Portal`处理 antd 主题自定义。`k2-portal`约定在`src/antd-theme/`下定义的 less 文件为 antd 主题，可定义多个主题，页面初始加载时默认使用`default.less`定义的主题。
+`k2-portal`约定在`src/antd-theme/`下定义的 less 文件为 antd 主题，可定义多个主题，页面初始加载时默认使用`default.less`定义的主题。
 
 ```less
 // src/antd-theme/default.less

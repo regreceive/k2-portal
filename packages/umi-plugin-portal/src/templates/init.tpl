@@ -32,7 +32,7 @@ window.publicPath = location.pathname;
     link.setAttribute('type', 'text/css');
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', dir + src);
-    document.head.appendChild(link);
+    document.head.prepend(link);
   }
 
   /** 加载nacos配置，如果加载失败，则启用自身env的配置 */
@@ -116,36 +116,65 @@ window.publicPath = location.pathname;
     if (!window.React) {
       // 动态加载全局资源，此时作为独立应用或者Portal
       if (antdThemes.length > 0) {
+        const storedTheme = window.localStorage.getItem('k2_portal_theme');
+
         if (process.env.NODE_ENV === 'production') {
-          const cssMatcer = /theme\-[\w\d\-]+\.css/;
+          const cssMatcer = /^theme\-[\w\d]+(?:\-(?:light|dark))?\.css$/;
           fetch('./asset-manifest.json')
             .then((res) => res.json())
             .then((json) => {
               const themes = Object.keys(json).reduce((prev, curr) => {
                 if (cssMatcer.test(curr)) {
-                  return [...prev, { name: curr.split('.')[0], chunk: json[curr] }];
+                  const name = curr.split('.')[0].split('-').slice(1)
+                  return [
+                    ...prev,
+                    {
+                      name,
+                      chunk: json[curr],
+                      style: name.split('-')?.[1] ?? 'light',
+                    },
+                  ];
                 }
                 return prev;
               }, []);
 
               window.$$config.antdThemes = themes;
-              const defaultTheme = themes.find(
-                (item) => item.name === 'theme-default',
-              )?.chunk;
-              if (defaultTheme) {
-                addLink(defaultTheme, '');
+              const theme = storedTheme ?
+                themes.find((item) => item.name === storedTheme) :
+                themes.find((item) => item.name.startsWith('default'));
+              
+              if (theme) {
+                theme.defaultSelected = true;
+                addLink(theme.chunk, '');
               }
             });
         } else {
-          window.$$config.antdThemes = antdThemes.map((key) => ({
-            name: key,
-            chunk: key + '.css',
-          }));
-          if (antdThemes.indexOf('default')) {
-            addLink('theme-default.css', '');
+          // 开发环境无法提供asset-manifest.json
+          const cssMatcer = /^[\w\d]+(?:\-(?:light|dark))?$/;
+          const themes = antdThemes.reduce((prev, curr) => {
+            if (cssMatcer.test(curr)) {
+              return [
+                ...prev,
+                {
+                  name: curr,
+                  chunk: `theme-${curr}.css`,
+                  style: curr.split('-')?.[1] ?? 'light',
+                },
+              ];
+            }
+            return prev;
+          }, []);
+          window.$$config.antdThemes = themes;
+          const theme = storedTheme ?
+            themes.find((item) => item.name === storedTheme) :
+            themes.find((item) => item.name.startsWith('default'));
+          if (theme) {
+            theme.defaultSelected = true;
+            addLink(theme.chunk, '');
           }
-        }
+        }        
       } else {
+        window.$$config.antdThemes = [];
         addLink('antd.css');
       }
 

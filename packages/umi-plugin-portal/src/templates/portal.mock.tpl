@@ -96,6 +96,10 @@ const mockPortal: GlobalPortalType =  {
   currAppKey: '',
   currAppPath: '',
   currAppUrl: '',
+  setTheme: () => {},
+  _registerMessageSubscriber: () => {},
+  _unregisterMessageSubscriber: () => {},
+  _emit: () => {},
 }
 
 export const portal = parent.g_portal as GlobalPortalType || mockPortal;

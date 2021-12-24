@@ -3,6 +3,8 @@ import type { History } from 'umi';
 import { history } from 'umi';
 import { utils } from 'k2-portal';
 import qs from 'query-string';
+// @ts-ignore
+import sha1 from 'hash.js/lib/hash/sha/1';
 import SingleSign from './SingleSign';
 
 type Config = {
@@ -14,6 +16,11 @@ type Config = {
     /** 应用目录的绝对路径。比如 /web/apps */
     appRootPathName: string;
   };
+  /** 自定义主题 */
+  antdThemes: {
+    name: string;
+    chunk: string;
+  }[];
 };
 
 type GlobalPortalType = {
@@ -26,6 +33,12 @@ type GlobalPortalType = {
   accessToken: string;
   /** nacos配置，也有一些portal内部配置 */
   config: Config;
+  /** 
+   * 设置主题
+   * @param theme antd自定义主题名称
+   * @param style 亮色还是暗色，用于应用自定样式跟随
+   */
+  setTheme: (theme: string, style?: 'light' | 'dark') => void;
   /** 登录 */
   login: () => void;
   /** 登出 */
@@ -50,6 +63,16 @@ type GlobalPortalType = {
    * @param fn 处理函数
    */
   setRootAppChangeUrl: (fn: (url: string) => void) => void;
+  /**
+   * @private app注册消息订阅
+   * @param fn 消息处理回调
+   */
+  _registerMessageSubscriber: (fn: (data: any) => void) => string;
+  /**
+   * @private app注销消息订阅
+   * @param id app在注册时获得的唯一id
+   */
+  _unregisterMessageSubscriber: (id: string) => void;
   /**
    * 返回entry的布局名称，entry可通过此项调整自身的布局设置，默认名称app
    */
@@ -97,10 +120,65 @@ const portalMather = /^\/([\w\d\-]+)\/([^\/]+)(?:\/(\S*))?/;
 // 登录
 let signMgr: SingleSign;
 
+const appHandlers = new Map();
+let cacheMessage = {};
+
 // 封印，防止不讲究的代码
 export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPortalType, {
   version: {
     value: '{{{ version }}}',
+  },
+  setTheme: {
+    get() {
+      return (themeName: string) => {
+        const link = document.head.querySelector<HTMLLinkElement>(
+          'link[href*="theme-"]',
+        );
+        const theme = portal.config.antdThemes.find(
+          (item) => item.name === themeName,
+        );
+        if (link && theme) {
+          link.href = theme.chunk;
+          portal._emit({ theme }, { tag: 'portal', persist: true });
+        }
+      };
+    },
+  },
+  _registerMessageSubscriber: {
+    get() {
+      return (appHandler: () => void) => {
+        const id = sha1().update(Math.random().toString()).digest('hex');
+        appHandlers.set(id, appHandler);
+        setTimeout(() => {
+          Object.entries(cacheMessage).forEach(([tag, data]) => {
+            appHandler(data, tag);
+          });
+        });
+        return id;
+      }
+    }
+  },
+  _unregisterMessageSubscriber: {
+    get() {
+      return (id: string) => {
+        appHandlers.delete(id);
+      }
+    }
+  },
+  _emit: {
+    get() {
+      return (data: any, { blockList = [], tag, persist = false }) => {
+        if ( persist ) {
+          cacheMessage[tag] = { ...data };
+        }
+        appHandlers.forEach((app, id) => {
+          if (blockList.indexOf(id) > -1) {
+            return;
+          }
+          app(data, tag);
+        });
+      };
+    },
   },
   handleHistory: {
     get() {
@@ -274,3 +352,8 @@ window.g_portal = portal;
     portal.login();
   }
 })();
+
+const theme = portal.config.antdThemes.find((theme) => theme.defaultSelected);
+if (theme) {
+  portal._emit({ theme }, { tag: 'portal', persist: true });
+}

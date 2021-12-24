@@ -38,6 +38,7 @@ export default async function (api: IApi) {
         },
         role: 'app',
         customToken: '',
+        interestMessage: ['portal'],
         nacos: {
           default: {
             appRootPathName: '/web/apps',
@@ -64,6 +65,12 @@ export default async function (api: IApi) {
             })
             .description(
               '开发环境Basic认证，请求产品接口可以免登录通过BCF网关',
+            ),
+          interestMessage: joi
+            .array()
+            .items(joi.string())
+            .description(
+              '定义应用间感兴趣消息的标签，其它标签的消息会被过滤掉',
             ),
           customToken: joi
             .string()
@@ -137,8 +144,15 @@ export default async function (api: IApi) {
     prevConfig = api.config.portal;
     api.logger.info('gen portal files...');
 
-    const { appKey, nacos, appDefaultProps, devAuth, customToken, role } =
-      api.config?.portal ?? {};
+    const {
+      appKey,
+      nacos,
+      appDefaultProps,
+      devAuth,
+      customToken,
+      role,
+      interestMessage,
+    } = api.config?.portal ?? {};
 
     let base64 = '';
     if (api.env !== 'production') {
@@ -280,6 +294,7 @@ export default async function (api: IApi) {
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
+          interestMessage: JSON.stringify(interestMessage),
         },
       ),
     });

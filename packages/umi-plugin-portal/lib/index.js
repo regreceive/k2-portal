@@ -107,16 +107,13 @@ function _ref() {
       config: {
         default: {
           appDefaultProps: {},
-          bundleCommon: {
-            development: false,
-            production: false
-          },
           devAuth: {
             username: 'admin',
             password: 'admin'
           },
           role: 'app',
           customToken: '',
+          interestMessage: ['portal'],
           nacos: {
             default: {
               appRootPathName: '/web/apps',
@@ -136,12 +133,9 @@ function _ref() {
               username: joi.string().required(),
               password: joi.string().required()
             }).description('开发环境Basic认证，请求产品接口可以免登录通过BCF网关'),
+            interestMessage: joi.array().items(joi.string()).description('定义应用间感兴趣消息的标签，其它标签的消息会被过滤掉'),
             customToken: joi.string().description('自定义token，将覆盖http头部的Authorization，优先级高于devAuth。'),
             role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
-            bundleCommon: joi.object({
-              development: joi.boolean().description('开发环境打包到一起'),
-              production: joi.boolean().description('生产环境打包到一起')
-            }).description('是否将react/antd等一起打包，默认被externals'),
             nacos: joi.object({
               url: joi.string().description('线上的nacos地址，如果不输入，会取default配置'),
               default: joi.object({
@@ -170,7 +164,7 @@ function _ref() {
 
     let antdThemes = [];
     api.onGenerateFiles( /*#__PURE__*/_asyncToGenerator(function* () {
-      var _api$config$portal, _api$config, _api$env;
+      var _api$config$portal, _api$config;
 
       const configChanged = (0, _diff().diffJson)(prevConfig, api.config.portal).some(row => row.added || row.removed);
 
@@ -188,7 +182,7 @@ function _ref() {
             devAuth = _ref3.devAuth,
             customToken = _ref3.customToken,
             role = _ref3.role,
-            bundleCommon = _ref3.bundleCommon;
+            interestMessage = _ref3.interestMessage;
 
       let base64 = '';
 
@@ -219,7 +213,6 @@ function _ref() {
           appKey,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          bundleCommon: bundleCommon[(_api$env = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env !== void 0 ? _api$env : 'development'],
           antdThemes: JSON.stringify(antdThemes)
         })
       }); // 生成ThemeLayout.tsx
@@ -280,22 +273,16 @@ function _ref() {
           appKey,
           customToken,
           basic: base64,
-          appDefaultProps: JSON.stringify(appDefaultProps)
+          appDefaultProps: JSON.stringify(appDefaultProps),
+          interestMessage: JSON.stringify(interestMessage)
         })
       });
     })); // 阻止antd被优化加载，否则antd无法被externals
 
     api.modifyBabelPresetOpts(opts => {
-      var _api$env2;
+      var _opts$import$filter, _opts$import;
 
-      let importList = opts.import || [];
-
-      if (!api.config.portal.bundleCommon[(_api$env2 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env2 !== void 0 ? _api$env2 : 'development']) {
-        var _opts$import$filter, _opts$import;
-
-        importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
-      }
-
+      const importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
       importList.push({
         libraryName: 'lodash',
         libraryDirectory: ''
@@ -339,8 +326,6 @@ function _ref() {
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
-      var _api$env3, _api$env4, _api$env5;
-
       try {
         const themeName = /[\w\d\-]+(?=\.less$)/;
         antdThemes = (0, _fs().readdirSync)(_path().default.resolve(api.paths.absSrcPath, 'antd-theme')).map(filename => {
@@ -360,84 +345,76 @@ function _ref() {
       const relative = winPath(_path().default.relative(api.cwd, root) + '/');
       api.logger.info(`Copying directory: '${_path().default.resolve(api.cwd, relative)}'`);
       const copy = [...(memo.copy || [])];
+      copy.push(...[{
+        from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
+        to: 'alone/react.js'
+      }, {
+        from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
+        to: 'alone/react-dom.js'
+      }, {
+        from: `${relative}node_modules/moment/min/moment.min.js`,
+        to: 'alone/moment.js'
+      }, {
+        from: `${relative}node_modules/moment/locale/zh-cn.js`,
+        to: 'alone/zh-cn.js'
+      }, {
+        from: `${relative}node_modules/antd/dist/antd.min.js`,
+        to: 'alone/antd.js'
+      }]);
 
-      if (!memo.portal.bundleCommon[(_api$env3 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env3 !== void 0 ? _api$env3 : 'development']) {
-        copy.push(...[{
-          from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
-          to: 'alone/react.js'
+      if (antdThemes.length === 0) {
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd.min.css`,
+          to: 'alone/antd.css'
+        });
+      }
+
+      if (api.env === 'development') {
+        copy.push({
+          from: `${relative}node_modules/antd/dist/antd.min.js.map`,
+          to: 'alone/antd.min.js.map'
         }, {
-          from: `${relative}node_modules/react-dom/umd/react-dom.${resourceName}.js`,
-          to: 'alone/react-dom.js'
-        }, {
-          from: `${relative}node_modules/moment/min/moment.min.js`,
-          to: 'alone/moment.js'
-        }, {
-          from: `${relative}node_modules/moment/locale/zh-cn.js`,
-          to: 'alone/zh-cn.js'
-        }, {
-          from: `${relative}node_modules/antd/dist/antd.min.js`,
-          to: 'alone/antd.js'
-        }]);
+          from: `${relative}node_modules/moment/min/moment.min.js.map`,
+          to: 'alone/moment.min.js.map'
+        });
 
         if (antdThemes.length === 0) {
           copy.push({
-            from: `${relative}node_modules/antd/dist/antd.min.css`,
-            to: 'alone/antd.css'
+            from: `${relative}node_modules/antd/dist/antd.min.css.map`,
+            to: 'alone/antd.min.css.map'
           });
-        }
-
-        if (api.env === 'development') {
-          copy.push({
-            from: `${relative}node_modules/antd/dist/antd.min.js.map`,
-            to: 'alone/antd.min.js.map'
-          }, {
-            from: `${relative}node_modules/moment/min/moment.min.js.map`,
-            to: 'alone/moment.min.js.map'
-          });
-
-          if (antdThemes.length === 0) {
-            copy.push({
-              from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-              to: 'alone/antd.min.css.map'
-            });
-          }
         }
       }
 
-      let externals = memo.externals;
-
-      if (!memo.portal.bundleCommon[(_api$env4 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env4 !== void 0 ? _api$env4 : 'development']) {
-        const esStyle = /^antd\/es\/[\w\-]+\/style/;
-        const esModule = /^antd\/es\/([\w\-]+)$/;
-        const linkedString = /\-(\w)/;
-        const initials = /^\w/;
-        externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-          moment: 'moment',
-          antd: 'antd'
-        }), function ({
-          context,
-          request
-        }, callback) {
-          // 会有代码或依赖包直接引用antd中es样式，要排除其打包
-          if (esStyle.test(request)) {
-            return callback(null, 'undefined');
-          } // antd/es/table/hooks/xxx可以打包
-          // antd/es/table排除打包
+      const esStyle = /^antd\/es\/[\w\-]+\/style/;
+      const esModule = /^antd\/es\/([\w\-]+)$/;
+      const linkedString = /\-(\w)/;
+      const initials = /^\w/;
+      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        moment: 'moment',
+        antd: 'antd'
+      }), function ({
+        context,
+        request
+      }, callback) {
+        // 会有代码或依赖包直接引用antd中es样式，要排除其打包
+        if (esStyle.test(request)) {
+          return callback(null, 'undefined');
+        } // antd/es/table/hooks/xxx可以打包
+        // antd/es/table排除打包
 
 
-          const match = esModule.exec(request);
+        const match = esModule.exec(request);
 
-          if (match) {
-            callback(null, ['antd', match[1].replace(linkedString, (_, $1) => $1.toUpperCase()).replace(initials, letter => letter.toUpperCase())]);
-            return;
-          }
+        if (match) {
+          callback(null, ['antd', match[1].replace(linkedString, (_, $1) => $1.toUpperCase()).replace(initials, letter => letter.toUpperCase())]);
+          return;
+        }
 
-          callback();
-        }];
-      }
-
+        callback();
+      }];
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,
         publicPath: './',
@@ -447,7 +424,7 @@ function _ref() {
         },
         chunks: ['runtime', 'init', 'umi'],
         externals: externals,
-        antd: memo.portal.bundleCommon[(_api$env5 = api === null || api === void 0 ? void 0 : api.env) !== null && _api$env5 !== void 0 ? _api$env5 : 'development'] ? memo.antd : false,
+        antd: false,
         copy: api.env === 'test' ? memo.copy : copy,
         manifest: {},
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
