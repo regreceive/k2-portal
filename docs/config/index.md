@@ -111,6 +111,22 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 }
 ```
 
+### interestedMessage
+
+- 类型：`string[]`
+- 默认值： `['portal.theme']`
+
+订阅感兴趣的消息字段名称。由于人为原因，可能会产生应用间的垃圾消息，该选项当作白名单可过滤掉无用消息。
+
+### declaredMessage
+
+应用广播全局消息字段名称。应用如果广播全局消息，需要先在此处设置广播数据的字段名称，否则调用广播方法会出错。
+
+作为全局字段，为了避免重名，最好设置命名空间，以“."分割。如`portal.theme`是 portal 发送的主题消息。
+
+- 类型：`string[]`
+- 默认值： `[]`
+
 ### appDefaultProps
 
 - 类型：`Object`

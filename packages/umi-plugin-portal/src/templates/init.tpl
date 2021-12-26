@@ -84,7 +84,7 @@ window.publicPath = location.pathname;
           .then((json) => {
             const themes = Object.keys(json).reduce((prev, curr) => {
               if (cssMatcer.test(curr)) {
-                const name = curr.split('.')[0].split('-').slice(1)[0];
+                const name = curr.split('.')[0].replace('theme-', '');
                 return [
                   ...prev,
                   {
@@ -98,10 +98,13 @@ window.publicPath = location.pathname;
             }, []);
 
             window.$$config.antdThemes = themes;
-            const theme = storedTheme
-              ? themes.find((item) => item.name === storedTheme)
-              : themes.find((item) => item.name.startsWith('default'));
-
+            let theme: any;
+            if (storedTheme) {
+              theme = themes.find((item) => item.name === storedTheme);
+            }
+            if (!theme) {
+              theme = themes.find((item) => item.name.startsWith('default'));
+            }
             if (theme) {
               theme.defaultSelected = true;
               addLink(theme.chunk, '');
@@ -124,9 +127,13 @@ window.publicPath = location.pathname;
           return prev;
         }, []);
         window.$$config.antdThemes = themes;
-        const theme = storedTheme
-          ? themes.find((item) => item.name === storedTheme)
-          : themes.find((item) => item.name.startsWith('default'));
+        let theme: any;
+        if (storedTheme) {
+          theme = themes.find((item) => item.name === storedTheme);
+        }
+        if (!theme) {
+          theme = themes.find((item) => item.name.startsWith('default'));
+        }
         if (theme) {
           theme.defaultSelected = true;
           addLink(theme.chunk, '');

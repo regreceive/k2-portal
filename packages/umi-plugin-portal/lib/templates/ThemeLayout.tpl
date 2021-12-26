@@ -1,19 +1,19 @@
 import React from 'react';
-import { useEffect, useRef, useContext } from 'react';
+import { useEffect, useRef } from 'react';
 import { plugin, ApplyPluginsType } from 'umi';
 import { utils } from 'k2-portal';
-import { AppContext } from './sdk';
+import { useMessage } from './sdk';
 
 const ThemeLayout: React.FC = (props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const appProps = useContext(AppContext);
+  const appProps = useMessage();
 
   useEffect(() => {
-    if (!appProps.theme) {
+    if (!appProps['portal.theme']) {
       return;
     }
     const appTheme = plugin.applyPlugins({
-      key: appProps.theme.style + 'Theme',
+      key: appProps['portal.theme'].style + 'Theme',
       type: ApplyPluginsType.modify,
       initialValue: {},
       async: false,
@@ -26,7 +26,7 @@ const ThemeLayout: React.FC = (props) => {
       }
       style.setProperty(key, value);
     });
-  }, [appProps.theme]);
+  }, [appProps['portal.theme']]);
 
   return (
     <div className="k2-umi-root" ref={ref}>

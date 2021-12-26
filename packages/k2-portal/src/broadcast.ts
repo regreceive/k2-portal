@@ -1,19 +1,25 @@
 // @ts-ignore
 import { portal } from '@@/plugin-portal/portal';
+import isPlainObject from 'lodash/isPlainObject';
+
+type Options = {
+  /** 是否缓存到portal中，新接入应用第一时间接收到消息 */
+  persist: boolean;
+};
 
 /**
  * 向所有应用发送数据
  * @param data 数据
- * @param tag 数据的标题，如果不是其它应用感兴趣的，会被过滤掉
+ * @param opts 参数
  */
-export function broadcast(data: Record<string, any>, tag: string) {
-  if (!tag) {
-    throw 'tag cannot be empty';
+export function broadcast(data: Record<string, any>, opts: Options) {
+  if (!isPlainObject(data)) {
+    throw 'data must be pattern of key/value';
   }
 
-  portal._broadcast(data, {
+  portal._emit(data, {
     // @ts-ignore
     blockList: [window.$$config.id],
-    tag,
+    ...opts,
   });
 }

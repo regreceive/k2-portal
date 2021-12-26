@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import { request } from 'umi';
 export { useQuery, useMutation, useLazyQuery } from '@apollo/client';
 
@@ -31,6 +31,19 @@ export const AppContext = createContext<any>({});
  */
 export function useAppProps<T>() {
   return useContext<T>(AppContext);
+}
+
+/**
+ * 返回应用订阅的全局消息
+ */
+const interest = {{{ interestedMessage }}};
+export function useMessage() {
+  const props = useContext(AppContext);
+  return useMemo(() => {
+    return interest.reduce((prev, curr) => {
+      return props[curr] ? { ...prev, [curr]: props[curr] } : prev;
+    }, {} as Partial<Record<{{{ interestedMessageType }}},any>>);
+  }, [props]);
 }
 
 class CommonService {

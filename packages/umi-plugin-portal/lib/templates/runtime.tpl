@@ -1,8 +1,8 @@
+import ReactDOM from 'react-dom';
 import { notification, ConfigProvider } from 'antd';
 import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import isEqual from 'lodash/isEqual';
-import isPlainObject from 'lodash/isPlainObject';
 import { utils } from 'k2-portal';
 import { ApolloClient, ApolloProvider, InMemoryCache, HttpLink, from } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
@@ -27,29 +27,28 @@ window.addEventListener('unload', () => {
   }
 });
 
-const interest = new Set({{{ interestMessage }}});
-
+const interest = new Set({{{ interestedMessage }}});
 if (utils.isInPortal || utils.isPortal) {
   window.$$config.id = portal._registerMessageSubscriber(
-    (props: any, tag: string) => {
-      if (interest.has(tag) && isPlainObject(props)) {
-        const digest = Object.keys(props).some(
-          (key) => !isEqual(appProps[key], props[key]),
-        );
-        if (digest) {
-          if (utils.isInWidget) {
-            if (rootElement) {
-              renderChildApp(rootElement, props);
-            } else {
-              // 父层还没来得及调用renderChildApp
-              appProps = { ...appProps, ...props };
-            }
-          } else {
-            // entry和portal合体
-            appProps = { ...appProps, ...props };
-            appRender();
-          }
+    (data: any, tag: string) => {
+      if (!interest.has(tag)) {
+        return;
+      }
+      const digest = !isEqual(appProps[tag], data);
+      if (!digest) {
+        return;
+      }
+      if (utils.isInWidget) {
+        if (rootElement) {
+          renderChildApp(rootElement, {[tag]: data});
+        } else {
+          // 父层还没来得及调用renderChildApp
+          appProps = { ...appProps, [tag]: data };
         }
+      } else {
+        // entry和portal合体
+        appProps = { ...appProps, [tag]: data };
+        appRender();
       }
     },
   );

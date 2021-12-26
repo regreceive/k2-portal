@@ -42,48 +42,37 @@ api.dataService.get('/xxx').then((res) => {
 
 运行时获取，返回应用的 appKey，此设置在 `config/portal.ts` 中定义。
 
-## getAppConfig
+## broadcast
 
-获得应用配置，与`useAppConfig`作用相同，区别是此方法为函数。
+- 类型 `(data: any, opts: object ) => void`
+
+应用间广播消息，用于应用通信。
+
+父子应用，可以通过 Widget 的 appProps 来传递信息。broadcast 主要用于多层级应用间通信，实现了一个简易版 redux 的全局状态。
+
+示例：
 
 ```ts
-import { getAppConfig } from 'k2-portal';
+import { broadcast } from 'k2-portal';
 
-getAppConfig<{ a: 1 }>('case').then((config) => {
-  const a = config.a;
-});
+// 向所有应用发送名称为appName.data数据，消息名称appName.data必须在portal.ts中注册，否则会报错
+broadcast({ 'appName.data': [] });
 ```
 
-## ButtonPermissionCheck
+| 属性 | 说明            | 类型                  | 默认值 |
+| ---- | --------------- | --------------------- | ------ |
+| data | 待广播的数据    | `{[key:string]: any}` | `--`   |
+| opts | 选项，详见 opts | `object`              | `{}`   |
 
-按钮级权限组件，如果当前权限不允许操作，则会使 forbiddenFieldProps 的设置应用到子组件内部。
+_options_
 
 | 属性 | 说明 | 类型 | 默认值 |
 | --- | --- | --- | --- |
-| accessKey | 权限名称 | `string` | `null` |
-| forbiddenFieldProps | 子组件属性，如果禁止生效，则将其属性赋值到子组件内部 | `any` | `null` |
-| deps | 依赖项，如果依赖项不更新，子组件是不会刷新的 | `any[]` | `[]` |
-
-```ts
-import { ButtonPermissionCheck } from 'k2-portal';
-
-export default () => {
-  return (
-    <ButtonPermissionCheck
-      accessKey="case.edit"
-      forbiddenFieldProps={{ disabled: true }}
-    >
-      <Button>编辑</Button>
-    </ButtonPermissionCheck>
-  );
-};
-```
+| persist | 缓存到全局历史消息中，新接入应用会第一时间收到 | `boolean` | `false` |
 
 ## useAppProps
 
 作为服务化应用，获得当前应用的传参，也可以接收`appDefaultProps`默认传参，用于特定调试场景。
-
-<Alert type="info">系统会自动传`theme`，来通知应用当前 `Portal` 的主题</Alert>
 
 示例：
 
@@ -102,61 +91,23 @@ export default () => {
 };
 ```
 
-## useAppConfig
+## useMessage
 
-如果当前应用在建模器有设置，则可以获得应用设置
+接收全局消息。由于人为原因，为了避免垃圾消息影响，需要在 portal.ts 中订阅感兴趣的消息字段。
 
-| 属性          | 说明         | 类型                 | 默认值 |
-| ------------- | ------------ | -------------------- | ------ |
-| appKey        | 应用 key     | `string`             | `null` |
-| defaultConfig | 默认配置     | `any`                | `null` |
-| fn            | 返回结果处理 | `(config: any) => T` | `null` |
+<Alert type="info">useMessage 实际上是 useAppProps 的一个子集，专门返回消息数据，并且其返回结果带有类型声明。</Alert>
+
+示例：
 
 ```ts
-import { useAppConfig } from 'k2-portal';
+import { useMessage } from 'k2-portal';
 
 export default () => {
-  const a = useAppConfig<{ a: number }>('case', { a: 1 }, (config) => {
-    return config.a;
-  });
-};
-```
+  const message = useMessage();
 
-## useConfigColumns
-
-获得表格定制列。在 useAppConfig 的基础上进一步封装。
-
-```ts
-import { useConfigColumns } from 'k2-portal';
-
-export default () => {
-  const tableColumns = useConfigColumns<ProColumns>((config) => {
-    const configColumns: any[] = config?.columns ?? [];
-    const optionColumn: ProColumns[] = [
-      {
-        title: '操作',
-        valueType: 'option',
-        fixed: 'right',
-      },
-    ];
-
-    return [...configColumns, ...optionColumn];
-  });
-};
-```
-
-## useButtonPermissionCheck
-
-按钮级别的权限控制，设置`config/portal.ts`的`buttonPermissionCheck`会做全局开关控制。如果开启`nacos`，开关会被线上的设置覆盖。
-
-<Alert type="info">与`ButtonPermissionCheck`组件作用相同，只是应用场景不同。如果在一个表格里，重复渲染 ButtonPermissionCheck 有性能损耗，使用 hooks 的话只会调用一遍</Alert>
-
-```ts
-import { useButtonPermissionCheck } from 'k2-portal';
-
-export default () => {
-  const canEdit = useButtonPermissionCheck('case.edit');
-  return <Button disabled={!canEdit}>编辑</Button>;
+  useEffect(() => {
+    // bla...
+  }, [message['portal.theme']]);
 };
 ```
 
@@ -187,8 +138,6 @@ export default () => {
 
 ## utils
 
-工具函数
-
 ### isInWidget
 
 - 类型 `boolean`
@@ -202,10 +151,6 @@ export default () => {
 判断当前应用是否被其他应用引用，并且顶层应用是`Portal`。
 
 ## portal
-
-- 类型 `object`
-
-portal 全局 api。
 
 ### version
 

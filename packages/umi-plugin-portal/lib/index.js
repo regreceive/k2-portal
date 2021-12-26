@@ -113,7 +113,8 @@ function _ref() {
           },
           role: 'app',
           customToken: '',
-          interestMessage: ['portal'],
+          interestedMessage: ['portal.theme'],
+          declaredMessage: [],
           nacos: {
             default: {
               appRootPathName: '/web/apps',
@@ -133,7 +134,8 @@ function _ref() {
               username: joi.string().required(),
               password: joi.string().required()
             }).description('开发环境Basic认证，请求产品接口可以免登录通过BCF网关'),
-            interestMessage: joi.array().items(joi.string()).description('定义应用间感兴趣消息的标签，其它标签的消息会被过滤掉'),
+            interestedMessage: joi.array().items(joi.string()).description('订阅感兴趣的消息字段，非订阅消息字段被过滤'),
+            declaredMessage: joi.array().items(joi.string()).description('声明消息字段，该字段消息被所有应用接收'),
             customToken: joi.string().description('自定义token，将覆盖http头部的Authorization，优先级高于devAuth。'),
             role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
             nacos: joi.object({
@@ -182,14 +184,16 @@ function _ref() {
             devAuth = _ref3.devAuth,
             customToken = _ref3.customToken,
             role = _ref3.role,
-            interestMessage = _ref3.interestMessage;
+            interestedMessage = _ref3.interestedMessage,
+            declaredMessage = _ref3.declaredMessage;
 
       let base64 = '';
 
       if (api.env !== 'production') {
         base64 = 'Basic ' + Buffer.from(`${devAuth.username}:${(0, _md().default)(devAuth.password)}`).toString('base64');
-      } // 生成portal.less
+      }
 
+      const nextInterestedMessage = Array.from(new Set([...interestedMessage, 'portal.theme'])); // 生成portal.less
 
       api.writeTmpFile({
         path: 'plugin-portal/portal.less',
@@ -255,15 +259,19 @@ function _ref() {
         path: 'plugin-portal/portal.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', `portal.${role === 'portal' ? 'real' : 'mock'}.tpl`), 'utf-8'), {
           basic: base64,
+          declaredMessage: JSON.stringify(declaredMessage),
           version: require('../package').version
         })
       }); // 生成sdk.ts
 
+      const interestStr = JSON.stringify(nextInterestedMessage);
       api.writeTmpFile({
         path: 'plugin-portal/sdk.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
           appKey: appKey,
-          service: Object.keys(nacos.default.service)
+          service: Object.keys(nacos.default.service),
+          interestedMessage: interestStr,
+          interestedMessageType: interestStr.replace(/","/g, '"|"').replace(/\[|\]/g, '')
         })
       }); // 生成runtime
 
@@ -274,7 +282,7 @@ function _ref() {
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
-          interestMessage: JSON.stringify(interestMessage)
+          interestedMessage: interestStr
         })
       });
     })); // 阻止antd被优化加载，否则antd无法被externals

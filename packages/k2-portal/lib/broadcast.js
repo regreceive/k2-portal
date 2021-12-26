@@ -25,23 +25,36 @@ function _portal() {
   return data;
 }
 
+function _isPlainObject() {
+  const data = _interopRequireDefault(require("lodash/isPlainObject"));
+
+  _isPlainObject = function _isPlainObject() {
+    return data;
+  };
+
+  return data;
+}
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// @ts-ignore
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 /**
  * 向所有应用发送数据
  * @param data 数据
- * @param tag 数据的标题，如果不是其它应用感兴趣的，会被过滤掉
+ * @param opts 参数
  */
-function broadcast(data, tag) {
-  if (!tag) {
-    throw 'tag cannot be empty';
+function broadcast(data, opts) {
+  if (!(0, _isPlainObject().default)(data)) {
+    throw 'data must be pattern of key/value';
   }
 
-  _portal().portal._broadcast(data, {
+  _portal().portal._emit(data, _objectSpread({
     // @ts-ignore
-    blockList: [window.$$config.id],
-    tag
-  });
+    blockList: [window.$$config.id]
+  }, opts));
 }

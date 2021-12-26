@@ -38,7 +38,8 @@ export default async function (api: IApi) {
         },
         role: 'app',
         customToken: '',
-        interestMessage: ['portal'],
+        interestedMessage: ['portal.theme'],
+        declaredMessage: [],
         nacos: {
           default: {
             appRootPathName: '/web/apps',
@@ -66,12 +67,14 @@ export default async function (api: IApi) {
             .description(
               '开发环境Basic认证，请求产品接口可以免登录通过BCF网关',
             ),
-          interestMessage: joi
+          interestedMessage: joi
             .array()
             .items(joi.string())
-            .description(
-              '定义应用间感兴趣消息的标签，其它标签的消息会被过滤掉',
-            ),
+            .description('订阅感兴趣的消息字段，非订阅消息字段被过滤'),
+          declaredMessage: joi
+            .array()
+            .items(joi.string())
+            .description('声明消息字段，该字段消息被所有应用接收'),
           customToken: joi
             .string()
             .description(
@@ -151,7 +154,8 @@ export default async function (api: IApi) {
       devAuth,
       customToken,
       role,
-      interestMessage,
+      interestedMessage,
+      declaredMessage,
     } = api.config?.portal ?? {};
 
     let base64 = '';
@@ -163,6 +167,9 @@ export default async function (api: IApi) {
         );
     }
 
+    const nextInterestedMessage = Array.from(
+      new Set([...interestedMessage, 'portal.theme']),
+    );
     // 生成portal.less
     api.writeTmpFile({
       path: 'plugin-portal/portal.less',
@@ -267,12 +274,14 @@ export default async function (api: IApi) {
         ),
         {
           basic: base64,
+          declaredMessage: JSON.stringify(declaredMessage),
           version: require('../package').version,
         },
       ),
     });
 
     // 生成sdk.ts
+    const interestStr = JSON.stringify(nextInterestedMessage);
     api.writeTmpFile({
       path: 'plugin-portal/sdk.ts',
       content: Mustache.render(
@@ -280,6 +289,10 @@ export default async function (api: IApi) {
         {
           appKey: appKey,
           service: Object.keys(nacos.default.service),
+          interestedMessage: interestStr,
+          interestedMessageType: interestStr
+            .replace(/","/g, '"|"')
+            .replace(/\[|\]/g, ''),
         },
       ),
     });
@@ -294,7 +307,7 @@ export default async function (api: IApi) {
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
-          interestMessage: JSON.stringify(interestMessage),
+          interestedMessage: interestStr,
         },
       ),
     });

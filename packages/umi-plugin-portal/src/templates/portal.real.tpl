@@ -1,7 +1,7 @@
 import clone from 'lodash/clone';
 import type { History } from 'umi';
 import { history } from 'umi';
-import { utils } from 'k2-portal';
+import * as utils from 'k2-portal/lib/utils';
 import qs from 'query-string';
 // @ts-ignore
 import sha1 from 'hash.js/lib/hash/sha/1';
@@ -36,9 +36,8 @@ type GlobalPortalType = {
   /** 
    * 设置主题
    * @param theme antd自定义主题名称
-   * @param style 亮色还是暗色，用于应用自定样式跟随
    */
-  setTheme: (theme: string, style?: 'light' | 'dark') => void;
+  setTheme: (theme: string) => void;
   /** 登录 */
   login: () => void;
   /** 登出 */
@@ -122,11 +121,15 @@ let signMgr: SingleSign;
 
 const appHandlers = new Map();
 let cacheMessage = {};
+const declaredMessage = new Set({{{ declaredMessage }}});
 
 // 封印，防止不讲究的代码
 export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPortalType, {
   version: {
     value: '{{{ version }}}',
+  },
+  appHandlers: {
+    get: () => appHandlers,
   },
   setTheme: {
     get() {
@@ -140,7 +143,7 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         if (link && theme) {
           link.href = theme.chunk;
           localStorage.setItem('k2_portal_theme', theme.name);
-          portal._emit({ theme }, { tag: 'portal', persist: true });
+          portal._emit({ 'portal.theme': theme }, { persist: true });
         }
       };
     },
@@ -168,16 +171,22 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   _emit: {
     get() {
-      return (data: any, { blockList = [], tag, persist = false }) => {
-        if ( persist ) {
-          cacheMessage[tag] = { ...data };
-        }
-        appHandlers.forEach((app, id) => {
-          if (blockList.indexOf(id) > -1) {
+      return (data: any, { blockList = [], persist = false }) => {
+        Object.keys(data).forEach(key => {
+          if (!declaredMessage.has(key)) {
+            utils.warn(`unregister declared key for message: ${key}`);
             return;
           }
-          app(data, tag);
-        });
+          if (persist) {
+            cacheMessage[key] = data[key];
+          }
+          appHandlers.forEach((app, id) => {
+            if (blockList.indexOf(id) > -1) {
+              return;
+            }
+            app(data[key], key);
+          });
+        })
       };
     },
   },
@@ -356,5 +365,8 @@ window.g_portal = portal;
 
 const theme = portal.config.antdThemes.find((theme) => theme.defaultSelected);
 if (theme) {
-  portal._emit({ theme }, { tag: 'portal', persist: true });
+  portal._emit(
+    { 'portal.theme': theme },
+    { persist: true },
+  );
 }

@@ -6,6 +6,10 @@ export default {
   navs: [
     null,
     {
+      title: 'Demo',
+      path: 'http://192.168.130.100:8342/portal/',
+    },
+    {
       title: 'GitLab',
       path: 'https://gitlab.kstonedata.k2/bcf/front-end/k2-portal',
     },
