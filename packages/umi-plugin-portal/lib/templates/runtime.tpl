@@ -28,7 +28,7 @@ window.addEventListener('unload', () => {
 });
 
 const interest = new Set({{{ interestedMessage }}});
-if (utils.isInPortal || utils.isPortal) {
+if (utils.isInPortal() || utils.isPortal()) {
   window.$$config.id = portal._registerMessageSubscriber(
     (data: any, tag: string) => {
       if (!interest.has(tag)) {
@@ -38,7 +38,7 @@ if (utils.isInPortal || utils.isPortal) {
       if (!digest) {
         return;
       }
-      if (utils.isInWidget) {
+      if (utils.isInWidget()) {
         if (rootElement) {
           renderChildApp(rootElement, {[tag]: data});
         } else {
@@ -66,7 +66,7 @@ export function modifyClientRenderOpts(memo: any) {
 
 export function render(renderNow: Function) {
   appRender = renderNow;
-  if (!utils.isInWidget) {
+  if (!utils.isInWidget()) {
     renderNow();
   }
 }
@@ -96,7 +96,7 @@ export function rootContainer(container) {
           componentSize="middle"
           locale={zhCN}
           getPopupContainer={() => {
-            if (utils.isInPortal) {
+            if (utils.isInPortal()) {
               return window.parent?.document.querySelector('#{{{ appKey }}}');
             }
             return document.body;

@@ -21,7 +21,7 @@ const ThemeLayout: React.FC = (props) => {
 
     const style = ref.current!.style;
     Object.entries<string>(appTheme).map(([key, value]) => {
-      if (key.startsWith('--portal') && utils.isInWidget) {
+      if (key.startsWith('--portal') && utils.isInWidget()) {
         return;
       }
       style.setProperty(key, value);

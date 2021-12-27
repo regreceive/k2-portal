@@ -4,79 +4,6 @@ order: 3
 toc: menu
 ---
 
-## 应用服务化
-
-应用打包部署后，可以被其它应用引用，通过传输参数来改变应用的行为。
-
-示例，嵌入一个测点展示应用：
-
-```ts
-import { Widget } from 'k2-portal';
-
-export default () => {
-  return (
-    <>
-      <div>测点展示demo</div>
-      <Widget
-        src="/web/public/apps/points"
-        style={{ height: 200 }}
-        appProps={{ points: [] }}
-      />;
-    </>
-  );
-};
-```
-
-### 让自己的应用对外提供服务
-
-上面调用测点应用的示例，其中 appProps 是应用入参，在测点应用中是这样接收入参的：
-
-```ts
-import { useAppProps } from 'k2-portal';
-
-export default () => {
-  const appProps = useAppProps<{ points: any[] }>();
-
-  return (
-    <>
-      <div>我是测点应用，接收到的测点列表</div>
-      <div>{JSON.stringify(appProps.points)}</div>
-    </>
-  );
-};
-```
-
-### 设置入参默认值
-
-可以对应用入参设置默认值，这样做的好处是：
-
-1. 避免调用者没有传入相关参数导致程序错误
-2. 便于调试，作为服务化应用只需要模拟一个真实环境传入的参数即可
-
-找到`config/portal.ts`，新增 appDefaultProps 字段，设置入参的默认值
-
-```ts
-import { IConfigFromPlugins } from '@@/core/pluginConfig';
-
-const portal: IConfigFromPlugins['portal'] = {
-  appKey: 'demo',
-
-  appDefaultProps: {
-    points: [],
-  },
-};
-
-export default portal;
-```
-
-### 系统默认入参
-
-除了以上自定义的入参之外，系统会默认传入一些入参，可以协助在应用中适配不同的运行场景：
-
-| 属性  | 说明 | 类型              | 默认值  |
-| ----- | ---- | ----------------- | ------- |
-| theme | 主题 | `light` \| `dark` | `light` |
-
 ## antd 自定义主题
 
 `k2-portal`约定在`src/antd-theme/`下定义的 less 文件为 antd 主题，可定义多个主题，页面初始加载时默认使用`default.less`定义的主题。
@@ -215,5 +142,122 @@ export default () => {
   const { data, loading } = useQuery(service.apps.gql);
 
   return <div>应用信息：{JSON.stringify(data, null, 2)}</div>;
+};
+```
+
+## 应用服务化
+
+应用打包部署后，可以被其它应用引用，通过传输参数来改变应用的行为。
+
+示例，嵌入一个测点展示应用：
+
+```ts
+import { Widget } from 'k2-portal';
+
+export default () => {
+  return (
+    <>
+      <div>测点展示demo</div>
+      <Widget
+        src="/web/public/apps/points"
+        style={{ height: 200 }}
+        appProps={{ points: [] }}
+      />;
+    </>
+  );
+};
+```
+
+### 让自己的应用对外提供服务
+
+上面调用测点应用的示例，其中 appProps 是应用入参，在测点应用中是这样接收入参的：
+
+```ts
+import { useAppProps } from 'k2-portal';
+
+export default () => {
+  const appProps = useAppProps<{ points: any[] }>();
+
+  return (
+    <>
+      <div>我是测点应用，接收到的测点列表</div>
+      <div>{JSON.stringify(appProps.points)}</div>
+    </>
+  );
+};
+```
+
+### 设置入参默认值
+
+可以对应用入参设置默认值，这样做的好处是：
+
+1. 避免调用者没有传入相关参数导致程序错误
+2. 便于调试，作为服务化应用只需要模拟一个真实环境传入的参数即可
+
+找到`config/portal.ts`，新增 appDefaultProps 字段，设置入参的默认值
+
+```ts
+// config/portal.ts
+export default {
+  appDefaultProps: {
+    points: [],
+  },
+};
+```
+
+## 全局数据接收/转发
+
+`k2-portal`是通用框架，不会参与具体的业务处理。只是为业务应用提供一个全局数据接口，方便应用将自己的业务方法、数据共享转发给其它应用，实质上提供了一个应用间通信的管道。
+
+### 数据发送端
+
+1. 在 portal.ts 中设置要发送的数据字段名称，否则会报错。为避免字段名重复，建议为字段名设置命名空间，比如`entry`应用共享当前登录用户信息：
+
+```ts
+// config/portal.ts
+export default {
+  declaredMessage: ['entry.userData'],
+};
+```
+
+2. 共享数据。在具体业务模块中将取得的用户数据通过`broadcast`广播到全局。
+
+```ts
+import { broadcast } from 'k2-portal';
+
+export default () => {
+  useEffect(() => {
+    getData().then((res) => {
+      const userData = res.data;
+      broadcast({ 'entry.userData': userData });
+    });
+  }, []);
+};
+```
+
+### 数据接收端
+
+1. 在 portal.ts 中设置要接收的数据字段名称，否则收不到。比如要接收来自`entry`应用的用户信息：
+
+```ts
+// config/portal.ts
+export default {
+  interestedMessage: ['entry.userData'],
+};
+```
+
+2. 接收数据。在具体业务模块中接收全局数据，hooks 形式提供。
+
+```ts
+import { useMessage } from 'k2-portal';
+
+export default () => {
+  const userData = useMessage('entry.userData');
+
+  useEffect(() => {
+    if (userData) {
+      console.log(userData);
+    }
+  }, [userData]);
 };
 ```

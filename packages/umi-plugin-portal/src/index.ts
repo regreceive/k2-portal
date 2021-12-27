@@ -511,6 +511,11 @@ export default async function (api: IApi) {
       antd: false,
       copy: api.env === 'test' ? memo.copy : copy,
       manifest: {},
+      metas: [
+        { 'http-equiv': 'pragma', content: 'no-cache' },
+        { 'http-equiv': 'Cache-Control', content: 'no-store, must-revalidate' },
+        { 'http-equiv': 'expires', content: '0' },
+      ],
       define: { ...memo.define, ...runtimeEnv() },
     };
   });

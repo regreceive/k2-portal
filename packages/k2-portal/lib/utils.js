@@ -3,15 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.doc = void 0;
-exports.formatDateTime = formatDateTime;
-exports.isPortal = exports.isInWidget = exports.isInPortal = void 0;
-exports.log = log;
-exports.mergeTimeSeries = mergeTimeSeries;
 exports.pickProps = pickProps;
+exports.mergeTimeSeries = mergeTimeSeries;
+exports.log = log;
+exports.warn = warn;
+exports.formatDateTime = formatDateTime;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.warn = warn;
+exports.doc = exports.isInWidget = exports.isInPortal = exports.isPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -73,34 +72,35 @@ function pickProps(component) {
 /**
  * 当前应用是否是portal
  */
+// @ts-ignore
 
 
-const isPortal = {
-  // @ts-ignore
-  get: () => parent === window && !!window.g_portal
-};
+const isPortal = () => parent === window && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
+// @ts-ignore
+
 
 exports.isPortal = isPortal;
-const isInPortal = {
-  // @ts-ignore
-  get: () => {
-    var _parent;
 
-    return parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
-  }
+const isInPortal = () => {
+  var _parent;
+
+  return parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
 };
 /**
  * 判断当前应用是否被其他应用引用。
  */
 
+
 exports.isInPortal = isInPortal;
-const isInWidget = parent !== window;
+
+const isInWidget = () => parent !== window;
 /**
  * 取得应用自身的document
  */
+
 
 exports.isInWidget = isInWidget;
 const doc = window.self.document;

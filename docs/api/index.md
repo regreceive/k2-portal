@@ -140,15 +140,19 @@ export default () => {
 
 ### isInWidget
 
-- 类型 `boolean`
+- 类型 `() => boolean`
 
 判断当前应用是否被其他应用引用。
 
 ### isInPortal
 
-- 类型 `boolean`
+- 类型 `() => boolean`
 
-判断当前应用是否被其他应用引用，并且顶层应用是`Portal`。
+### isPortal
+
+- 类型 `() => boolean`
+
+判断当前应用是不是`Portal`。
 
 ## portal
 

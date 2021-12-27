@@ -33,16 +33,22 @@ export function useAppProps<T>() {
   return useContext<T>(AppContext);
 }
 
+const interest = {{{ interestedMessage }}};
 /**
  * 返回应用订阅的全局消息
  */
-const interest = {{{ interestedMessage }}};
-export function useMessage() {
+export function useMessage<T = any>(): T;
+export function useMessage<T extends {}>(key: {{{ interestedMessageType }}}): T | undefined;
+export function useMessage(key?: {{{ interestedMessageType }}}) {
   const props = useContext(AppContext);
   return useMemo(() => {
-    return interest.reduce((prev, curr) => {
+    const data = interest.reduce((prev, curr) => {
       return props[curr] ? { ...prev, [curr]: props[curr] } : prev;
-    }, {} as Partial<Record<{{{ interestedMessageType }}},any>>);
+    }, {} as Partial<Record<{{{ interestedMessageType }}}, any>>);
+    if (key) {
+      return data.hasOwnProperty(key) ? data[key] : undefined;
+    }
+    return data;
   }, [props]);
 }
 

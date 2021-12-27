@@ -3,19 +3,15 @@ export declare function pickProps<P>(component: React.FC<P>): React.FC<P>;
 /**
  * 当前应用是否是portal
  */
-export declare const isPortal: {
-    get: () => boolean;
-};
+export declare const isPortal: () => boolean;
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
-export declare const isInPortal: {
-    get: () => boolean;
-};
+export declare const isInPortal: () => boolean;
 /**
  * 判断当前应用是否被其他应用引用。
  */
-export declare const isInWidget: boolean;
+export declare const isInWidget: () => boolean;
 /**
  * 取得应用自身的document
  */
