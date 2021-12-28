@@ -12,9 +12,8 @@
     "test": "__tests__"
   },
   "dependencies": {
-    "diff": "^5.0.0",
-    "md5": "^2.3.0",
-    "webpack": "^5.40.0"
+    "@apollo/client": "^3.5.5",
+    "graphql": "^16.0.1"
   },
   "files": [
     "lib"
@@ -25,13 +24,14 @@
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62",
   "devDependencies": {
-    "@apollo/client": "^3.5.5",
     "@types/diff": "^5.0.1",
     "@types/md5": "^2.3.0",
     "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
-    "graphql": "^16.0.1",
-    "umi": "^3.4.25"
+    "diff": "^5.0.0",
+    "md5": "^2.3.0",
+    "umi": "^3.4.25",
+    "webpack": "^5.40.0"
   }
 }
