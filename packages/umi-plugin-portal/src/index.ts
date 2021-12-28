@@ -1,12 +1,9 @@
 // ref:
 // - https://umijs.org/plugins/api
 import { IApi } from '@umijs/types';
+import { createHash } from 'crypto';
 import { diffJson } from 'diff';
 import { readdirSync, readFileSync } from 'fs';
-// @ts-ignore
-import sha1 from 'hash.js/lib/hash/sha/1';
-// @ts-ignore
-import md5 from 'md5';
 import { EOL } from 'os';
 import path, { dirname, join } from 'path';
 import WaitRunWebpackPlugin from './WaitRunPlugin';
@@ -36,7 +33,7 @@ export default async function (api: IApi) {
         appDefaultProps: {},
         devAuth: {
           username: 'admin',
-          password: 'admin',
+          password: 'f7da3686bd81225d9b35b6166efb0129',
         },
         role: 'app',
         customToken: '',
@@ -54,7 +51,9 @@ export default async function (api: IApi) {
       },
       schema(joi) {
         return joi.object({
-          appKey: sha1().update(Math.random().toString()).digest('hex'),
+          appKey: createHash('sha1')
+            .update(Math.random().toString())
+            .digest('hex'),
           appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
           devAuth: joi
             .object({
@@ -159,7 +158,7 @@ export default async function (api: IApi) {
     if (api.env !== 'production') {
       base64 =
         'Basic ' +
-        Buffer.from(`${devAuth.username}:${md5(devAuth.password)}`).toString(
+        Buffer.from(`${devAuth.username}:${devAuth.password}`).toString(
           'base64',
         );
     }

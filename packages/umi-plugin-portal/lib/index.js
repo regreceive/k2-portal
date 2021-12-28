@@ -15,6 +15,16 @@ function _react() {
   return data;
 }
 
+function _crypto() {
+  const data = require("crypto");
+
+  _crypto = function _crypto() {
+    return data;
+  };
+
+  return data;
+}
+
 function _diff() {
   const data = require("diff");
 
@@ -34,18 +44,6 @@ function _fs() {
 
   return data;
 }
-
-function _md() {
-  const data = _interopRequireDefault(require("md5"));
-
-  _md = function _md() {
-    return data;
-  };
-
-  return data;
-}
-
-var _2 = _interopRequireDefault(require("hash.js/lib/hash/sha/1"));
 
 function _os() {
   const data = require("os");
@@ -111,7 +109,7 @@ function _ref() {
           appDefaultProps: {},
           devAuth: {
             username: 'admin',
-            password: 'admin'
+            password: 'f7da3686bd81225d9b35b6166efb0129'
           },
           role: 'app',
           customToken: '',
@@ -130,7 +128,7 @@ function _ref() {
 
         schema(joi) {
           return joi.object({
-            appKey: (0, _2.default)().update(Math.random().toString()).digest('hex'),
+            appKey: (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex'),
             appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
             devAuth: joi.object({
               username: joi.string().required(),
@@ -192,7 +190,7 @@ function _ref() {
       let base64 = '';
 
       if (api.env !== 'production') {
-        base64 = 'Basic ' + Buffer.from(`${devAuth.username}:${(0, _md().default)(devAuth.password)}`).toString('base64');
+        base64 = 'Basic ' + Buffer.from(`${devAuth.username}:${devAuth.password}`).toString('base64');
       }
 
       const nextInterestedMessage = Array.from(new Set([...interestedMessage, 'portal.theme'])); // 生成portal.less
