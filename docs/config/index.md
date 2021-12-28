@@ -96,21 +96,6 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 
 ## 启动配置
 
-### appKey
-
-- 类型: `string`
-- 默认值：`null`
-
-当前应用在建模器中注册的 key 名称，框架内提供的业务函数会调用它。如果没有定义正确的 key，调用业务函数（比如应用配置）会出错。
-
-示例：
-
-```js
-{
-  appKey: 'case',
-}
-```
-
 ### interestedMessage
 
 - 类型：`string[]`
@@ -148,15 +133,7 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 - 类型：`portal | app`
 - 默认值：`app`
 
-当前应用类型，可以选择 portal 或者 app。下面的命令，其传参的实质就是改变了 role：
-
-```shell
-# portal
-npx create-portal-app --portal
-
-# app
-npx create-portal-app
-```
+当前应用类型，可以选择 portal 或者 app。在一个微前端项目中，只允许有一个 portal，可以有多个 app。
 
 ### devAuth<Badge>开发环境</Badge>
 
