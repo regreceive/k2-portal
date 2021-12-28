@@ -13,7 +13,10 @@
   },
   "dependencies": {
     "@apollo/client": "^3.5.5",
-    "graphql": "^16.0.1"
+    "diff": "^5.0.0",
+    "graphql": "^16.0.1",
+    "md5": "^2.3.0",
+    "webpack": "^5.40.0"
   },
   "files": [
     "lib"
@@ -29,9 +32,6 @@
     "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
-    "diff": "^5.0.0",
-    "md5": "^2.3.0",
-    "umi": "^3.4.25",
-    "webpack": "^5.40.0"
+    "umi": "^3.4.25"
   }
 }
