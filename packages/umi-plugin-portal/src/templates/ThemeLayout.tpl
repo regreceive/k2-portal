@@ -6,14 +6,11 @@ import { useMessage } from './sdk';
 
 const ThemeLayout: React.FC = (props) => {
   const ref = useRef<HTMLDivElement>(null);
-  const appProps = useMessage();
+  const currTheme = useMessage('portal.theme');
 
   useEffect(() => {
-    if (!appProps['portal.theme']) {
-      return;
-    }
-    const appTheme = plugin.applyPlugins({
-      key: appProps['portal.theme'].style + 'Theme',
+     const appTheme = plugin.applyPlugins({
+      key: (currTheme?.style ?? 'light') + 'Theme',
       type: ApplyPluginsType.modify,
       initialValue: {},
       async: false,
@@ -26,7 +23,7 @@ const ThemeLayout: React.FC = (props) => {
       }
       style.setProperty(key, value);
     });
-  }, [appProps['portal.theme']]);
+  }, [currTheme]);
 
   return (
     <div className="k2-umi-root" ref={ref}>

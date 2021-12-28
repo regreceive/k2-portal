@@ -4,22 +4,24 @@ order: 2
 toc: menu
 ---
 
-## 脚手架
+## 创建微前端
 
-先找个地方建个空目录:
+通过应用生成器创建微前端架构至少要两个应用，分别是 portal 和 app 子应用。
+
+**创建 Portal**
 
 ```shell
-$ mkdir myapp && cd myapp
+$ mkdir portal
+$ cd portal
+npx create-portal-app@2.x --portal
 ```
 
-通过应用生成器创建项目:
+**创建子应用**
 
 ```shell
-# 创建应用
+$ mkdir app
+$ cd app
 npx create-portal-app@2.x
-
-# 创建Portal
-npx create-portal-app@2.x --portal
 ```
 
 ## 安装依赖
