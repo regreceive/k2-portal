@@ -38,10 +38,6 @@ api.dataService.get('/xxx').then((res) => {
 });
 ```
 
-## appKey
-
-运行时获取，返回应用的 appKey，此设置在 `config/portal.ts` 中定义。
-
 ## broadcast
 
 - 类型 `(data: any, opts: object ) => void`

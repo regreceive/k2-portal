@@ -57,7 +57,7 @@ class AppGenerator extends _utils().Generator {
         target: _this.cwd
       });
 
-      console.log('\nThe boom💣has been planted. version: @%s', _utils().chalk.cyan(version));
+      console.log('\nThe boom has been planted. version: @%s', _utils().chalk.cyan(version));
     })();
   }
 

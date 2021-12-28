@@ -90,8 +90,6 @@ export const api: ServiceListType = Object.entries<string>(
   return { ...prev, [key]: new CommonService(value, key) };
 }, {});
 
-export const appKey = '{{{ appKey }}}';
-
 interface ResponseData {
   code?: number;
   data?: any;

@@ -45,6 +45,8 @@ function _md() {
   return data;
 }
 
+var _2 = _interopRequireDefault(require("hash.js/lib/hash/sha/1"));
+
 function _os() {
   const data = require("os");
 
@@ -128,7 +130,7 @@ function _ref() {
 
         schema(joi) {
           return joi.object({
-            appKey: joi.string().required().description('app的唯一标识，一般用于业务功能，与建模器应用标识保持一致。'),
+            appKey: (0, _2.default)().update(Math.random().toString()).digest('hex'),
             appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
             devAuth: joi.object({
               username: joi.string().required(),
@@ -248,8 +250,7 @@ function _ref() {
             options: JSON.stringify(_objectSpread(_objectSpread({}, options), type === 'browser' || type === 'hash' ? {
               basename: api.config.base
             } : {}), null, 2),
-            runtimePath,
-            appKey
+            runtimePath
           })
         });
       } // 生成portal.ts
@@ -268,7 +269,6 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/sdk.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'sdk.tpl'), 'utf-8'), {
-          appKey: appKey,
           service: Object.keys(nacos.default.service),
           interestedMessage: interestStr,
           interestedMessageType: interestStr.replace(/","/g, '"|"').replace(/\[|\]/g, '')

@@ -4,6 +4,8 @@ import { IApi } from '@umijs/types';
 import { diffJson } from 'diff';
 import { readdirSync, readFileSync } from 'fs';
 // @ts-ignore
+import sha1 from 'hash.js/lib/hash/sha/1';
+// @ts-ignore
 import md5 from 'md5';
 import { EOL } from 'os';
 import path, { dirname, join } from 'path';
@@ -52,12 +54,7 @@ export default async function (api: IApi) {
       },
       schema(joi) {
         return joi.object({
-          appKey: joi
-            .string()
-            .required()
-            .description(
-              'app的唯一标识，一般用于业务功能，与建模器应用标识保持一致。',
-            ),
+          appKey: sha1().update(Math.random().toString()).digest('hex'),
           appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
           devAuth: joi
             .object({
@@ -255,7 +252,6 @@ export default async function (api: IApi) {
             2,
           ),
           runtimePath,
-          appKey,
         }),
       });
     }
@@ -287,7 +283,6 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'sdk.tpl'), 'utf-8'),
         {
-          appKey: appKey,
           service: Object.keys(nacos.default.service),
           interestedMessage: interestStr,
           interestedMessageType: interestStr
