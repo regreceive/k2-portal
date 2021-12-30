@@ -185,7 +185,7 @@ function _ref() {
             interestedMessage = _ref3.interestedMessage,
             declaredMessage = _ref3.declaredMessage;
 
-      const antdPopContainerId = (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
+      const antdPopContainerId = 'pop-' + (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
       let base64 = '';
 
       if (api.env !== 'production') {

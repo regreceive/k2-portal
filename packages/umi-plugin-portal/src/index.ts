@@ -150,9 +150,9 @@ export default async function (api: IApi) {
       declaredMessage,
     } = api.config?.portal ?? {};
 
-    const antdPopContainerId = createHash('sha1')
-      .update(Math.random().toString())
-      .digest('hex');
+    const antdPopContainerId =
+      'pop-' +
+      createHash('sha1').update(Math.random().toString()).digest('hex');
 
     let base64 = '';
     if (api.env !== 'production') {
