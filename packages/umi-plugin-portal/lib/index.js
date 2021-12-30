@@ -128,7 +128,6 @@ function _ref() {
 
         schema(joi) {
           return joi.object({
-            appKey: (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex'),
             appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
             devAuth: joi.object({
               username: joi.string().required(),
@@ -178,7 +177,6 @@ function _ref() {
       api.logger.info('gen portal files...');
 
       const _ref3 = (_api$config$portal = (_api$config = api.config) === null || _api$config === void 0 ? void 0 : _api$config.portal) !== null && _api$config$portal !== void 0 ? _api$config$portal : {},
-            appKey = _ref3.appKey,
             nacos = _ref3.nacos,
             appDefaultProps = _ref3.appDefaultProps,
             devAuth = _ref3.devAuth,
@@ -187,6 +185,7 @@ function _ref() {
             interestedMessage = _ref3.interestedMessage,
             declaredMessage = _ref3.declaredMessage;
 
+      const antdPopContainerId = (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
       let base64 = '';
 
       if (api.env !== 'production') {
@@ -214,7 +213,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/init.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
-          appKey,
+          antdPopContainerId,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes)
@@ -276,7 +275,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
-          appKey,
+          antdPopContainerId,
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),

@@ -51,9 +51,6 @@ export default async function (api: IApi) {
       },
       schema(joi) {
         return joi.object({
-          appKey: createHash('sha1')
-            .update(Math.random().toString())
-            .digest('hex'),
           appDefaultProps: joi.object().description('应用服务化接受默认的传参'),
           devAuth: joi
             .object({
@@ -144,7 +141,6 @@ export default async function (api: IApi) {
     api.logger.info('gen portal files...');
 
     const {
-      appKey,
       nacos,
       appDefaultProps,
       devAuth,
@@ -153,6 +149,10 @@ export default async function (api: IApi) {
       interestedMessage,
       declaredMessage,
     } = api.config?.portal ?? {};
+
+    const antdPopContainerId = createHash('sha1')
+      .update(Math.random().toString())
+      .digest('hex');
 
     let base64 = '';
     if (api.env !== 'production') {
@@ -195,7 +195,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
-          appKey,
+          antdPopContainerId,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
@@ -297,7 +297,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
-          appKey,
+          antdPopContainerId,
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),

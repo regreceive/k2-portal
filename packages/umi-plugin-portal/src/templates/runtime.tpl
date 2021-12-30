@@ -97,7 +97,7 @@ export function rootContainer(container) {
           locale={zhCN}
           getPopupContainer={() => {
             if (utils.isInPortal()) {
-              return window.parent?.document.querySelector('#{{{ appKey }}}');
+              return window.parent?.document.querySelector('#{{{ antdPopContainerId }}}');
             }
             return document.body;
           }}

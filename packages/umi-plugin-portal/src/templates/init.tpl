@@ -206,9 +206,9 @@ window.publicPath = location.pathname;
     } else {
       // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
       const doc = window.parent.document;
-      if (!doc.querySelector('#{{{ appKey }}}')) {
+      if (!doc.querySelector('#{{{ antdPopContainerId }}}')) {
         const antPopContainer = doc.createElement('div');
-        antPopContainer.id = '{{{ appKey }}}';
+        antPopContainer.id = '{{{ antdPopContainerId }}}';
         doc.body.appendChild(antPopContainer);
         window.addEventListener('unload', () => {
           doc.body.removeChild(antPopContainer);
