@@ -88,7 +88,6 @@ const client = new ApolloClient({
 });
 
 export function rootContainer(container) {
-  // 不管是独立应用还是子应用，都要使用antd中文包
   return (
     <AppContext.Provider value={appProps}>
       <ApolloProvider client={client}>
@@ -134,6 +133,9 @@ const codeMessage: { [key: number]: string } = {
 const errorHandler = (error: { response: Response }) => {
   const { response } = error;
   if (response && response.status) {
+    if (response.status === 401) {
+      return portal.login();
+    }
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
 

@@ -336,8 +336,9 @@ history.listen((listener) => {
 window.g_portal = portal;
 
 // 登录
+
 (function () {
-  if (process.env.NODE_ENV !== 'production' || getAccessToken()) {
+  if (process.env.NODE_ENV !== 'production') {
     return;
   }
   if (portal.config.nacos.ssoAuthorityUrl) {
@@ -345,7 +346,11 @@ window.g_portal = portal;
       portal.config.nacos.ssoAuthorityUrl, 
       location.origin + location.pathname,
     );
-
+  }
+  if (getAccessToken().length > 0) {
+    return;
+  }
+  if (portal.config.nacos.ssoAuthorityUrl) {
     if (location.search.startsWith('?code=')) {
       // 登录成功跳转，再去获取token
       signMgr.mgr.signinCallback().then((res) => {
