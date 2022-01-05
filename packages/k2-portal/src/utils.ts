@@ -22,7 +22,8 @@ export const isInPortal = () => parent !== window && !!parent?.g_portal;
 /**
  * 判断当前应用是否被其他应用引用。
  */
-export const isInWidget = () => parent !== window;
+// @ts-ignore
+export const isInWidget = () => parent !== window && !!parent.$$config;
 
 /**
  * 取得应用自身的document

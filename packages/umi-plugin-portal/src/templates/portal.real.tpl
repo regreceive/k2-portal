@@ -346,6 +346,9 @@ window.g_portal = portal;
       portal.config.nacos.ssoAuthorityUrl, 
       location.origin + location.pathname,
     );
+    if (location.search.startsWith('?state=')) {
+      location.replace(location.pathname);
+    }
   }
   if (getAccessToken().length > 0) {
     return;
@@ -359,9 +362,6 @@ window.g_portal = portal;
         location.replace(location.pathname);
       });
       return;
-    }
-    if (location.search.startsWith('?state=')) {
-      location.replace(location.pathname);
     }
     
     portal.login();

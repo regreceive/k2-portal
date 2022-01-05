@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo } from 'react';
 import { request } from 'umi';
+import { portal } from './portal';
 export { useQuery, useMutation, useLazyQuery } from '@apollo/client';
 
 type CommonServiceType = {
@@ -85,7 +86,7 @@ class CommonService {
 }
 
 export const api: ServiceListType = Object.entries<string>(
-  window.$$config.nacos.service,
+  portal.config.nacos.service,
 ).reduce((prev, [key, value]) => {
   return { ...prev, [key]: new CommonService(value, key) };
 }, {});

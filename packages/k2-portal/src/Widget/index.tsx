@@ -21,6 +21,22 @@ type Props = {
   appRoot?: boolean;
 };
 
+const appKeySet = new Set();
+
+// 防iframe页面缓存
+function preventDiskCache(url: string) {
+  if (url === '') {
+    return url;
+  }
+  const data = new URL(location.origin + url);
+  if (appKeySet.has(data.pathname)) {
+    return url;
+  }
+  appKeySet.add(data.pathname);
+  data.searchParams.set('pdc', Math.random().toString().slice(2));
+  return data.toString();
+}
+
 const Widget: FC<Props> = (props) => {
   const frame = useRef<HTMLIFrameElement>(null);
   const link = useRef<HTMLDivElement>(null);
@@ -35,7 +51,7 @@ const Widget: FC<Props> = (props) => {
       if (portal.currAppUrl === '') {
         return '';
       }
-      return url;
+      return preventDiskCache(url);
     }
     const targetUrl = (
       portal.config.nacos.appRootPathName +
@@ -48,9 +64,9 @@ const Widget: FC<Props> = (props) => {
       props.src.includes('#') ||
       props.src.endsWith('/')
     ) {
-      return targetUrl;
+      return preventDiskCache(targetUrl);
     }
-    return targetUrl + '/';
+    return preventDiskCache(targetUrl + '/');
   }, [props.src, props.appRoot]);
 
   const renderApp = useCallback(() => {
@@ -80,7 +96,7 @@ const Widget: FC<Props> = (props) => {
           if (!url.startsWith(location.pathname)) {
             setLoading(true);
           }
-          location.replace(url);
+          location.replace(preventDiskCache(url));
         } catch (e) {
           warn('主应用跨域');
           frame.current!.src = url;

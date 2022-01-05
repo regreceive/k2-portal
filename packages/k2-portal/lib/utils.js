@@ -92,11 +92,12 @@ const isInPortal = () => {
 /**
  * 判断当前应用是否被其他应用引用。
  */
+// @ts-ignore
 
 
 exports.isInPortal = isInPortal;
 
-const isInWidget = () => parent !== window;
+const isInWidget = () => parent !== window && !!parent.$$config;
 /**
  * 取得应用自身的document
  */

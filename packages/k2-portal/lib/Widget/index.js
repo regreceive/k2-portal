@@ -47,6 +47,24 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
+var appKeySet = new Set(); // 防iframe页面缓存
+
+function preventDiskCache(url) {
+  if (url === '') {
+    return url;
+  }
+
+  var data = new URL(location.origin + url);
+
+  if (appKeySet.has(data.pathname)) {
+    return url;
+  }
+
+  appKeySet.add(data.pathname);
+  data.searchParams.set('pdc', Math.random().toString().slice(2));
+  return data.toString();
+}
+
 var Widget = function Widget(props) {
   var frame = (0, _react.useRef)(null);
   var link = (0, _react.useRef)(null);
@@ -67,16 +85,16 @@ var Widget = function Widget(props) {
         return '';
       }
 
-      return url;
+      return preventDiskCache(url);
     }
 
     var targetUrl = (_.portal.config.nacos.appRootPathName + '/' + props.src).replace(/\/{2,}/g, '/');
 
     if (props.src === '' || props.src.includes('#') || props.src.endsWith('/')) {
-      return targetUrl;
+      return preventDiskCache(targetUrl);
     }
 
-    return targetUrl + '/';
+    return preventDiskCache(targetUrl + '/');
   }, [props.src, props.appRoot]);
   var renderApp = (0, _react.useCallback)(function () {
     var _frame$current, _frame$current$conten, _frame$current$conten2;
@@ -100,13 +118,13 @@ var Widget = function Widget(props) {
     if (props.appRoot) {
       _.portal.setRootAppChangeUrl(function (url) {
         try {
-          var location = frame.current.contentWindow.location;
+          var _location = frame.current.contentWindow.location;
 
-          if (!url.startsWith(location.pathname)) {
+          if (!url.startsWith(_location.pathname)) {
             setLoading(true);
           }
 
-          location.replace(url);
+          _location.replace(preventDiskCache(url));
         } catch (e) {
           (0, _utils.warn)('主应用跨域');
           frame.current.src = url;
