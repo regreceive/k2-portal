@@ -10,7 +10,11 @@ type Config = {
     /** 应用目录的绝对路径。比如 /web/apps */
     appRootPathName: string;
   };
-
+  /** 自定义主题 */
+  antdThemes: {
+    name: string;
+    chunk: string;
+  }[];
 };
 
 type GlobalPortalType = {
