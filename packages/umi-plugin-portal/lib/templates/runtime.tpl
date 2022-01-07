@@ -134,7 +134,7 @@ const errorHandler = (error: { response: Response }) => {
   const { response } = error;
   if (response && response.status) {
     if (response.status === 401) {
-      return portal.login();
+      return portal.logout();
     }
     const errorText = codeMessage[response.status] || response.statusText;
     const { status, url } = response;
