@@ -432,16 +432,6 @@ function _ref() {
         antd: false,
         copy: api.env === 'test' ? memo.copy : copy,
         manifest: {},
-        metas: [{
-          'http-equiv': 'pragma',
-          content: 'no-cache'
-        }, {
-          'http-equiv': 'Cache-Control',
-          content: 'no-store, must-revalidate'
-        }, {
-          'http-equiv': 'expires',
-          content: '0'
-        }],
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
       });
     });
