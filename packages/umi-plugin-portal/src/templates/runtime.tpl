@@ -4,7 +4,15 @@ import zhCN from 'antd/lib/locale/zh_CN';
 import React from 'react';
 import isEqual from 'lodash/isEqual';
 import { utils } from 'k2-portal';
-import { ApolloClient, ApolloProvider, InMemoryCache, HttpLink, from } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloProvider,
+  InMemoryCache,
+  ApolloLink,
+  Observable,
+  from,
+  createHttpLink,
+} from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
 import { AppContext } from './sdk';
 import { portal } from './portal';
@@ -75,15 +83,36 @@ const errorLink = onError((error) => {
   console.log(error);
 });
 
-const requestLink = new HttpLink({
-  uri: portal.config.nacos.service.graphql,
-  headers: {
-    Authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
-  },
-});
+const middlewareLink = new ApolloLink((operation, forward) => {
+  return new Observable((observer) => {
+    let handle;
+    portal._ensureTokenReady
+      .then(() => {
+        operation.setContext({
+          headers: {
+            authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
+          },
+        });
+        handle = forward(operation).subscribe({
+          next: observer.next.bind(observer),
+          error: observer.error.bind(observer),
+          complete: observer.complete.bind(observer),
+        });
+      })
+      .catch(observer.error.bind(observer));
+
+    return () => {
+      if (handle) handle.unsubscribe();
+    };
+  });
+}).concat(
+  createHttpLink({
+    uri: portal.config.nacos.service.graphql,
+  }),
+);
 
 const client = new ApolloClient({
-  link: from([errorLink, requestLink]),
+  link: from([errorLink, middlewareLink]),
   cache: new InMemoryCache(),
 });
 
@@ -156,18 +185,20 @@ export const request = {
   errorHandler,
   requestInterceptors: [
     (url, options) => {
-      const headers = {
-        ...options.headers,
-        // k2assets接口需要添加权限字段
-        Authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
-      };
-      return {
-        url,
-        options: {
-          ...options,
-          headers,
-        },
-      };
+      return portal._ensureTokenReady.then(() => {
+        const headers = {
+          ...options.headers,
+          // k2assets接口需要添加权限字段
+          Authorization: portal.accessToken || '{{{ customToken }}}' || '{{{ basic }}}',
+        };
+        return {
+          url,
+          options: {
+            ...options,
+            headers,
+          },
+        };
+      });
     },
   ],
 };

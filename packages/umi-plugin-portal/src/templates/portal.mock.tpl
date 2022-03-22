@@ -104,6 +104,7 @@ const mockPortal: GlobalPortalType =  {
   _registerMessageSubscriber: () => {},
   _unregisterMessageSubscriber: () => {},
   _emit: () => {},
+  _ensureTokenReady: Promise.resolve(),
 }
 
 export const portal = parent.g_portal as GlobalPortalType || mockPortal;

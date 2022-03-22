@@ -118,6 +118,10 @@ let _rootAppChangeUrl: (url: string) => void;
 const portalMather = /^\/([\w\d\-]+)\/([^\/]+)(?:\/(\S*))?/;
 // 登录
 let signMgr: SingleSign;
+let _singleSignResolve = (value?: any) => {};
+const _singleSignPromise = new Promise(
+  (resolve) => (_singleSignResolve = resolve),
+);
 
 const appHandlers = new Map();
 let cacheMessage = {};
@@ -188,6 +192,11 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
           });
         })
       };
+    },
+  },
+  _ensureTokenReady: {
+    get() {
+      return _singleSignPromise;
     },
   },
   handleHistory: {
@@ -339,6 +348,7 @@ window.g_portal = portal;
 
 (function () {
   if (process.env.NODE_ENV !== 'production') {
+    _singleSignResolve();
     return;
   }
   if (portal.config.nacos.ssoAuthorityUrl) {
@@ -351,6 +361,7 @@ window.g_portal = portal;
     }
   }
   if (getAccessToken().length > 0) {
+    _singleSignResolve();
     return;
   }
   if (portal.config.nacos.ssoAuthorityUrl) {
@@ -358,6 +369,7 @@ window.g_portal = portal;
       // 登录成功跳转，再去获取token
       signMgr.mgr.signinCallback().then((res) => {
         localStorage.setItem('k2_portal_token', res.access_token);
+        _singleSignResolve();
         // 去掉 ?code=
         location.replace(location.pathname);
       });
