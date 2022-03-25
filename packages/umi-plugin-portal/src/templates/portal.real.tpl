@@ -241,7 +241,8 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   login: {
     get() {
       return () => {
-        signMgr?.signIn()
+        localStorage.removeItem('k2_portal_token');
+        signMgr?.signIn();
       };
     },
   },
