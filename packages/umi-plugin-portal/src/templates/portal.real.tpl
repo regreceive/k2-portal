@@ -376,6 +376,12 @@ window.g_portal = portal;
       });
       return;
     }
+
+    // 维信传送门
+    if (location.search.startsWith('?username')) {
+      sessionStorage.setItem('source_url', document.referrer);
+      sessionStorage.setItem('login_redirect_url', location.href);
+    }
     
     portal.login();
   }
