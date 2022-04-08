@@ -1,6 +1,6 @@
 {
   "name": "k2-portal",
-  "version": "2.2.12",
+  "version": "2.2.13",
   "description": "k2-portal libraries",
   "author": "liyao <liyao@k2data.com.cn>",
   "homepage": "",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "@types/lodash": "^4.14.170",
     "moment": "^2.29.1",
-    "umi-plugin-portal": "^2.2.12"
+    "umi-plugin-portal": "^2.2.13"
   },
   "gitHead": "4e833c10bc4c035f48750f34d1e17b762d9b1f62"
 }
