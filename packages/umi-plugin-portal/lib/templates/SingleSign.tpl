@@ -44,14 +44,11 @@ export default class SingleSign {
         .then((user: any) => {
           if (user == null) {
             this.signIn();
+            resolve(null);
           } else {
             this.sessionId = user.profile.sid || '';
             window.localStorage.setItem('sid', this.sessionId);
-            return resolve({
-              username: user.username,
-              permissions: user.permissions,
-              accessToken: user.accessToken,
-            });
+            return resolve(user);
           }
         })
         .catch(function (err) {
