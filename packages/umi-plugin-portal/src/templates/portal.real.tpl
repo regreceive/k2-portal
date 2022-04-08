@@ -42,6 +42,12 @@ type GlobalPortalType = {
   login: () => void;
   /** 登出 */
   logout: () => void;
+  /** 取得(单点登录)用户信息 */
+  getUser:() => Promise<{
+    username: string;
+    permissions: string;
+    accessToken: string;
+  }>;
   /**
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
@@ -253,6 +259,11 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         signMgr?.signOut();
       };
     },
+  },
+  getUser: {
+    get() {
+      return () => signMgr?.getUser();
+    }
   },
   openApp: {
     get() {

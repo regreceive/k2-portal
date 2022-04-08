@@ -18,7 +18,7 @@ export default class SingleSign {
       scope: 'openid offline',
       post_logout_redirect_uri: oidc_callback_url,
       silent_redirect_uri: oidc_callback_url,
-      automaticSilentRenew: true,
+      automaticSilentRenew: false,
       filterProtocolClaims: true,
       loadUserInfo: false,
       response_mode: 'query',

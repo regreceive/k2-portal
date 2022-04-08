@@ -19,7 +19,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "ahooks": "^2.10.6",
+    "ahooks": "^3.3.0",
     "echarts": "^5.2.0"
   },
   "devDependencies": {

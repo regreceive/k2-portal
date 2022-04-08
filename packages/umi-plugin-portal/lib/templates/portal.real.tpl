@@ -42,6 +42,12 @@ type GlobalPortalType = {
   login: () => void;
   /** 登出 */
   logout: () => void;
+  /** 取得(单点登录)用户信息 */
+  getUser:() => Promise<{
+    username: string;
+    permissions: string;
+    accessToken: string;
+  }>;
   /**
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
@@ -254,6 +260,11 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
       };
     },
   },
+  getUser: {
+    get() {
+      return () => signMgr?.getUser();
+    }
+  },
   openApp: {
     get() {
       return (appKey: string, path: string = '', opts = {}) => {
@@ -375,6 +386,12 @@ window.g_portal = portal;
         location.replace(location.pathname);
       });
       return;
+    }
+
+    // 维信传送门
+    if (location.search.startsWith('?username')) {
+      sessionStorage.setItem('source_url', document.referrer);
+      sessionStorage.setItem('login_redirect_url', location.href);
     }
     
     portal.login();
