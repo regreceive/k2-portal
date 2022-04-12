@@ -100,6 +100,7 @@ const mockPortal: GlobalPortalType =  {
   config: freezeDeep<Config>(window.$$config),
   login: () => {},
   logout: () => {},
+  getUser: () => Promise.resolve({}),
   openApp: (appKey: string, path: string = '/', replace?: boolean) => {},
   setRootAppChangeUrl: (fn: (url: string) => void) => {},
   currLayout: '',
