@@ -290,7 +290,8 @@ function _ref() {
       const importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
       importList.push({
         libraryName: 'lodash',
-        libraryDirectory: ''
+        libraryDirectory: '',
+        camel2DashComponentName: false
       });
       return _objectSpread(_objectSpread({}, opts), {}, {
         import: importList
@@ -395,13 +396,8 @@ function _ref() {
       const esModule = /^antd\/es\/([\w\-]+)$/;
       const linkedString = /\-(\w)/;
       const initials = /^\w/;
-      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        moment: 'moment',
-        antd: 'antd'
-      }), function ({
-        context,
+
+      const handle = function handle({
         request
       }, callback) {
         // 会有代码或依赖包直接引用antd中es样式，要排除其打包
@@ -414,11 +410,27 @@ function _ref() {
         const match = esModule.exec(request);
 
         if (match) {
+          console.log(request);
           callback(null, ['antd', match[1].replace(linkedString, (_, $1) => $1.toUpperCase()).replace(initials, letter => letter.toUpperCase())]);
           return;
         }
 
         callback();
+      };
+
+      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        moment: 'moment',
+        antd: 'antd'
+      }), function (p1, p2, p3) {
+        if (p1.request) {
+          handle(p1, p2);
+        } else {
+          handle({
+            request: p2
+          }, p3);
+        }
       }];
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,

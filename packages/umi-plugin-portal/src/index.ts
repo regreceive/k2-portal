@@ -311,7 +311,11 @@ export default async function (api: IApi) {
   api.modifyBabelPresetOpts((opts) => {
     const importList =
       opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
-    importList.push({ libraryName: 'lodash', libraryDirectory: '' });
+    importList.push({
+      libraryName: 'lodash',
+      libraryDirectory: '',
+      camel2DashComponentName: false,
+    });
 
     return {
       ...opts,
@@ -464,6 +468,27 @@ export default async function (api: IApi) {
     const linkedString = /\-(\w)/;
     const initials = /^\w/;
 
+    const handle = function ({ request }: any, callback: any) {
+      // 会有代码或依赖包直接引用antd中es样式，要排除其打包
+      if (esStyle.test(request)) {
+        return callback(null, 'undefined');
+      }
+
+      // antd/es/table/hooks/xxx可以打包
+      // antd/es/table排除打包
+      const match = esModule.exec(request);
+      if (match) {
+        callback(null, [
+          'antd',
+          match[1]
+            .replace(linkedString, (_, $1) => $1.toUpperCase())
+            .replace(initials, (letter) => letter.toUpperCase()),
+        ]);
+        return;
+      }
+      callback();
+    };
+
     const externals = [
       {
         ...memo.externals,
@@ -472,25 +497,12 @@ export default async function (api: IApi) {
         moment: 'moment',
         antd: 'antd',
       },
-      function ({ context, request }: any, callback: any) {
-        // 会有代码或依赖包直接引用antd中es样式，要排除其打包
-        if (esStyle.test(request)) {
-          return callback(null, 'undefined');
+      function (p1: any, p2: any, p3: any) {
+        if (p1.request) {
+          handle(p1, p2);
+        } else {
+          handle({ request: p2 }, p3);
         }
-
-        // antd/es/table/hooks/xxx可以打包
-        // antd/es/table排除打包
-        const match = esModule.exec(request);
-        if (match) {
-          callback(null, [
-            'antd',
-            match[1]
-              .replace(linkedString, (_, $1) => $1.toUpperCase())
-              .replace(initials, (letter) => letter.toUpperCase()),
-          ]);
-          return;
-        }
-        callback();
       },
     ];
 
