@@ -410,7 +410,6 @@ function _ref() {
         const match = esModule.exec(request);
 
         if (match) {
-          console.log(request);
           callback(null, ['antd', match[1].replace(linkedString, (_, $1) => $1.toUpperCase()).replace(initials, letter => letter.toUpperCase())]);
           return;
         }
