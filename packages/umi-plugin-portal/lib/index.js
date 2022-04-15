@@ -308,7 +308,9 @@ function _ref() {
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
-      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
+      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // compatible with react-dnd
+
+      config.module.rule('mjs-rule').test(/.m?js/).resolve.set('fullySpecified', false); // 确保打包输出不同的css名称，防止多应用样式冲突
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);

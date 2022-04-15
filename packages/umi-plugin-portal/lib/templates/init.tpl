@@ -161,8 +161,20 @@ window.publicPath = location.pathname;
     'scrollY',
     'pageXOffset',
     'pageYOffset',
+    'addEventListener',
+    'removeEventListener',
   ];
   
+  function getProp(scope: Object, key: string) {
+    const prop = Reflect.get(scope, key);
+    if (typeof prop === 'function' && !prop['prototype']) {
+      return (...args) => {
+        return Reflect.apply(prop, parent, args);
+      }
+    }
+    return prop;
+  }
+
   const proxyWindow = new Proxy({}, {
     get(target, key) {
       // 针对paper.js: self.window
@@ -170,15 +182,9 @@ window.publicPath = location.pathname;
         return proxyWindow;
       }
       if (allowAccessParentProp.includes(key)) {
-        return parent[key];
+        return getProp(parent, key);
       }
-      const prop = Reflect.get(window, key);
-      if (typeof prop === 'function' && !prop['prototype']) {
-        return (...args) => {
-          return Reflect.apply(prop, window, args);
-        }
-      }
-      return prop;
+      return getProp(window, key);
     },
     set(target, key, value) {
       return Reflect.set(window, key, value);
