@@ -25,7 +25,8 @@ export default class SingleSign {
     });
 
     this.mgr.events.addAccessTokenExpired(() => {
-      this.signOut();
+      this.isLogout = true;
+      window.localStorage.removeItem('sid');
     });
     this.mgr.events.addUserLoaded((user) => {
       this.sessionId = user.profile.sid || '';

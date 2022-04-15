@@ -389,8 +389,8 @@ window.g_portal = portal;
     }
 
     // 维信传送门
-    if (location.search.startsWith('?username')) {
-      sessionStorage.setItem('source_url', document.referrer);
+    if (location.search.startsWith('?username=')) {
+      sessionStorage.setItem('source_url', 'https://bpmprod.mflex.com.cn/');
       sessionStorage.setItem('login_redirect_url', location.href);
     }
     

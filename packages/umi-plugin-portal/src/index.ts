@@ -355,6 +355,12 @@ export default async function (api: IApi) {
       .use('graphql-modules')
       .loader(require.resolve('./graphql-loader'));
 
+    // compatible with react-dnd
+    config.module
+      .rule('mjs-rule')
+      .test(/.m?js/)
+      .resolve.set('fullySpecified', false);
+
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
       const hashPrefix = Math.random().toString().slice(-5);
