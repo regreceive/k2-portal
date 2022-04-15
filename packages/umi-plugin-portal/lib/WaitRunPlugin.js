@@ -49,8 +49,9 @@ class WaitRunWebpackPlugin {
       var _this$options$test;
 
       if ((_this$options$test = this.options.test) === null || _this$options$test === void 0 ? void 0 : _this$options$test.test(key)) {
+        // SVGElement 为了兼容jointjs
         ret = [key, `(function () {
-          var run = function (window, document, self) {
+          var run = function (window, document, self, SVGElement) {
             ${assets[key].source()}
           };
           var evt = document.createEvent('CustomEvent');
@@ -106,8 +107,9 @@ class WaitRunWebpackPlugin {
 
                   if (chunkNameMatcher.test(file)) {
                     compilation.updateAsset(file, old => {
+                      // SVGElement 为了兼容jointjs
                       return new (_webpack().default.sources.ConcatSource)(`(function () {
-                        var run = function (window, document, self) {\n`, old, `\n };
+                        var run = function (window, document, self, SVGElement) {\n`, old, `\n };
                         var evt = document.createEvent('CustomEvent');
                         evt.initCustomEvent('bundleReady', false, false, {run: run});
                         window.dispatchEvent(evt);

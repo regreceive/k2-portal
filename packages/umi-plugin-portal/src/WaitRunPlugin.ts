@@ -15,10 +15,11 @@ class WaitRunWebpackPlugin {
     let ret: string[] = [];
     Object.keys(assets).some((key) => {
       if (this.options.test?.test(key)) {
+        // SVGElement 为了兼容jointjs
         ret = [
           key,
           `(function () {
-          var run = function (window, document, self) {
+          var run = function (window, document, self, SVGElement) {
             ${assets[key].source()}
           };
           var evt = document.createEvent('CustomEvent');
@@ -62,9 +63,10 @@ class WaitRunWebpackPlugin {
               for (const file of chunk.files) {
                 if (chunkNameMatcher.test(file)) {
                   compilation.updateAsset(file, (old) => {
+                    // SVGElement 为了兼容jointjs
                     return new webpack.sources.ConcatSource(
                       `(function () {
-                        var run = function (window, document, self) {\n`,
+                        var run = function (window, document, self, SVGElement) {\n`,
                       old,
                       `\n };
                         var evt = document.createEvent('CustomEvent');

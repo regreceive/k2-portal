@@ -169,13 +169,13 @@ window.publicPath = location.pathname;
     const prop = Reflect.get(scope, key);
     if (typeof prop === 'function' && !prop['prototype']) {
       return (...args) => {
-        return Reflect.apply(prop, parent, args);
+        return Reflect.apply(prop, scope, args);
       }
     }
     return prop;
   }
 
-  const proxyWindow = new Proxy({}, {
+  const proxyWindow = new Proxy(window, {
     get(target, key) {
       // 针对paper.js: self.window
       if (key === 'window') {
@@ -206,7 +206,7 @@ window.publicPath = location.pathname;
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(window, document, window);
+          event.detail.run(window, document, window, SVGElement);
         });
       });
     } else {
@@ -220,7 +220,8 @@ window.publicPath = location.pathname;
           doc.body.removeChild(antPopContainer);
         });
       }
-      event.detail.run(proxyWindow, window.parent.document, proxyWindow);
+      // SVGElement 为了兼容jointjs
+      event.detail.run(proxyWindow, window.parent.document, proxyWindow, parent.SVGElement);
     }
   });
 })();
