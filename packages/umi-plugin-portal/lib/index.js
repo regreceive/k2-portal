@@ -298,7 +298,11 @@ function _ref() {
       });
     }); // webpack额外配置
 
-    api.chainWebpack(config => {
+    api.chainWebpack((config, {
+      webpack
+    }) => {
+      var _webpack$version;
+
       antdThemes.forEach(themeName => {
         config.entry('theme-' + themeName).add(_path().default.resolve(api.paths.absTmpPath, `plugin-portal/${themeName}.less`));
       }); // 阻止bundle载入后立即启动。具体控制在init.js中
@@ -310,7 +314,11 @@ function _ref() {
       config.optimization.set('runtimeChunk', 'single');
       config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // compatible with react-dnd
 
-      config.module.rule('mjs-rule').test(/.m?js/).resolve.set('fullySpecified', false); // 确保打包输出不同的css名称，防止多应用样式冲突
+      if ((_webpack$version = webpack.version) === null || _webpack$version === void 0 ? void 0 : _webpack$version.startsWith('5.')) {
+        // v4会报错
+        config.module.rule('mjs-rule').test(/.m?js/).resolve.set('fullySpecified', false);
+      } // 确保打包输出不同的css名称，防止多应用样式冲突
+
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);
@@ -424,15 +432,9 @@ function _ref() {
         'react-dom': 'ReactDOM',
         moment: 'moment',
         antd: 'antd'
-      }), function (p1, p2, p3) {
-        if (p1.request) {
-          handle(p1, p2);
-        } else {
-          handle({
-            request: p2
-          }, p3);
-        }
-      }];
+      }), memo.webpack5 ? handle : (context, request, cb) => handle({
+        request
+      }, cb)];
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,
         publicPath: './',

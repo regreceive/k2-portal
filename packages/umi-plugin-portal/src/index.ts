@@ -324,7 +324,7 @@ export default async function (api: IApi) {
   });
 
   // webpack额外配置
-  api.chainWebpack((config) => {
+  api.chainWebpack((config, { webpack }) => {
     antdThemes.forEach((themeName) => {
       config
         .entry('theme-' + themeName)
@@ -356,10 +356,13 @@ export default async function (api: IApi) {
       .loader(require.resolve('./graphql-loader'));
 
     // compatible with react-dnd
-    config.module
-      .rule('mjs-rule')
-      .test(/.m?js/)
-      .resolve.set('fullySpecified', false);
+    if (webpack.version?.startsWith('5.')) {
+      // v4会报错
+      config.module
+        .rule('mjs-rule')
+        .test(/.m?js/)
+        .resolve.set('fullySpecified', false);
+    }
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
@@ -503,13 +506,10 @@ export default async function (api: IApi) {
         moment: 'moment',
         antd: 'antd',
       },
-      function (p1: any, p2: any, p3: any) {
-        if (p1.request) {
-          handle(p1, p2);
-        } else {
-          handle({ request: p2 }, p3);
-        }
-      },
+      memo.webpack5
+        ? handle
+        : (context: string, request: string, cb: Function) =>
+            handle({ request }, cb),
     ];
 
     return {
