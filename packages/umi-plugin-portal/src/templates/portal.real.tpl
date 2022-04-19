@@ -262,8 +262,14 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   getUser: {
     get() {
-      return () => signMgr?.getUser();
-    }
+      return () =>
+        signMgr?.getUser() ??
+        Promise.resolve({
+          profile: {
+            permissions: '',
+          },
+        });
+    },
   },
   openApp: {
     get() {
@@ -348,7 +354,7 @@ history.listen((listener) => {
     const url = `${portal.config.nacos.appRootPathName}/${appKey.replaceAll(
       '.',
       '/',
-    )}/#${path}`.replace(/\/{2,}/g, '/');
+    )}/#/${path}`.replace(/\/{2,}/g, '/');
 
     _rootAppChangeUrl(url);
   }
