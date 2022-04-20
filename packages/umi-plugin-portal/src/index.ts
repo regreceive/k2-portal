@@ -199,6 +199,7 @@ export default async function (api: IApi) {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
+          webpack5: !!api.userConfig.webpack5,
         },
       ),
     });

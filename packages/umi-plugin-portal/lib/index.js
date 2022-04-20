@@ -216,7 +216,8 @@ function _ref() {
           antdPopContainerId,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          antdThemes: JSON.stringify(antdThemes)
+          antdThemes: JSON.stringify(antdThemes),
+          webpack5: !!api.userConfig.webpack5
         })
       }); // 生成ThemeLayout.tsx
 

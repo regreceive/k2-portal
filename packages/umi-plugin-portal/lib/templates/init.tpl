@@ -136,7 +136,7 @@ window.publicPath = location.pathname;
         }
         if (theme) {
           theme.defaultSelected = true;
-          addLink(theme.chunk, '');
+          addLink({{{ webpack5 }}} ? theme.chunk : theme.chunk.replace('.css', '.chunk.css'), '');
         }
       }
     } else {
