@@ -15,15 +15,21 @@ import { api, Widget, utils, portal } from 'k2-portal';
 
 ## api
 
-api 是前端服务，它将 service 配置自动包装为服务，服务类型目前默认支持的有：
+网络请求入口封装，`Portal`预制了 2 个请求服务：
 
 - graphql 建模器 3.0
 - gateway BCF 服务接口
 
-开发创建启用服务方式
+每个服务支持 4 种请求方式：
 
-1. 在`config/portal.ts`配置`nacos.default.service`，输入服务名称和服务地址。
-2. 到`config/proxy.ts`中做进一步代理配置。
+```ts
+type CustomService = {
+  get: (url: string) => Promise<ResponseData>;
+  post: (url: string, data: {}): Promise<ResponseData>;
+  put: (url: string, data: {}): Promise<ResponseData>;
+  delete: (url: string) => Promise<ResponseData>;
+}
+```
 
 示例：
 
@@ -31,11 +37,16 @@ api 是前端服务，它将 service 配置自动包装为服务，服务类型�
 import { api } from 'k2-portal';
 
 // get
-api.gateway.post('/xxx', payload);
+api.gateway.get('/xxx?id=1');
+
 // post
-api.dataService.get('/xxx').then((res) => {
-  return res.data || [];
-});
+api.gateway.post('/xxx', { data: 'hello' });
+
+// put
+api.gateway.put('/xxx?id=1', { data: 'hello' });
+
+// delete
+api.gateway.delete('/xxx?id=1');
 ```
 
 ## broadcast
@@ -44,7 +55,7 @@ api.dataService.get('/xxx').then((res) => {
 
 应用间广播消息，用于应用通信。
 
-父子应用，可以通过 Widget 的 appProps 来传递信息。broadcast 主要用于多层级应用间通信，实现了一个简易版 redux 的全局状态。
+如果是父子应用，可以通过 Widget 的 `appProps` 来传递信息。如果面对多层级应用间通信，就需要 broadcast 进行全局广播了。
 
 示例：
 
@@ -68,7 +79,7 @@ _options_
 
 ## useAppProps
 
-作为服务化应用，获得当前应用的传参，也可以接收`appDefaultProps`默认传参，用于特定调试场景。
+获得父级应用传给子应用的参数，也可以接收`appDefaultProps`默认传参，用于特定调试场景。
 
 示例：
 
@@ -82,16 +93,14 @@ export default () => {
   }>();
 
   useEffect(() => {
-    // bla...
-  }, [appProps.param1]);
+    console.log('本应用收到了来自父级应用的传参' + JSON.stringify(appProps)));
+  }, [appProps]);
 };
 ```
 
 ## useMessage
 
-接收全局消息。由于人为原因，为了避免垃圾消息影响，需要在 portal.ts 中订阅感兴趣的消息字段。
-
-<Alert type="info">useMessage 实际上是 useAppProps 的一个子集，专门返回消息数据，并且其返回结果带有类型声明。</Alert>
+接收全局消息。考虑到某些人为原因，为了避免垃圾消息影响，需要在 portal.ts 中订阅感兴趣的消息字段。
 
 示例：
 
@@ -99,11 +108,11 @@ export default () => {
 import { useMessage } from 'k2-portal';
 
 export default () => {
-  const message = useMessage();
+  const themeName = useMessage('portal.theme');
 
   useEffect(() => {
-    // bla...
-  }, [message['portal.theme']]);
+    console.log('当前的主题风格是：' + themeName);
+  }, [themeName]);
 };
 ```
 

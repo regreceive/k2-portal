@@ -43,8 +43,8 @@ export default async function (api: IApi) {
           default: {
             appRootPathName: '/web/apps',
             service: {
-              gateway: '//fill_api_here',
-              graphql: '//fill_api_here',
+              gateway: '//fill_api_url_here',
+              graphql: '//fill_api_url_here',
             },
           },
         },
