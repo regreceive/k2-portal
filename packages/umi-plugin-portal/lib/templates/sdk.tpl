@@ -7,15 +7,22 @@ type CommonServiceType = {
   get: (url: string) => Promise<ResponseData>;
   post: {
     /**
+     * @param url 相对地址
+     * @param data 发送的消息体
+     */
+    (url: string, data: {}): Promise<ResponseData>;
+    /**
      * @param data 发送的消息体
      */
     (data: {}): Promise<ResponseData>;
-    /**
-     * @param pathname 相对地址
-     * @param data 发送的消息体
-     */
-    (pathname: string, data: {}): Promise<ResponseData>;
+
   };
+  /**
+    * @param url 相对地址
+    * @param data 发送的消息体
+    */
+  put: (url: string, data: {}) => Promise<ResponseData>
+  delete: (url: string) => Promise<ResponseData>;
 };
 
 type ServiceListType = {
@@ -71,13 +78,13 @@ class CommonService {
   }
 
   post(url: string, data: any) {
-    // for graphql
     if (typeof url === 'string') {
       return request<ResponseData>(this.host + url, {
         method: 'POST',
         data,
       });
     }
+    // for graphql
     return request<ResponseData>(this.host, {
       method: 'POST',
       data: url,

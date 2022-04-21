@@ -7,15 +7,22 @@ type CommonServiceType = {
   get: (url: string) => Promise<ResponseData>;
   post: {
     /**
+     * @param url 相对地址
+     * @param data 发送的消息体
+     */
+    (url: string, data: {}): Promise<ResponseData>;
+    /**
      * @param data 发送的消息体
      */
     (data: {}): Promise<ResponseData>;
-    /**
-     * @param pathname 相对地址
-     * @param data 发送的消息体
-     */
-    (pathname: string, data: {}): Promise<ResponseData>;
+
   };
+  /**
+    * @param url 相对地址
+    * @param data 发送的消息体
+    */
+  put: (url: string, data: {}) => Promise<ResponseData>
+  delete: (url: string) => Promise<ResponseData>;
 };
 
 type ServiceListType = {
