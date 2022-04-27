@@ -197,11 +197,10 @@ window.publicPath = location.pathname;
       addScript('react.js').then(() => {
         Promise.all([
           addAntdTheme(),
-          addScript('react-dom.js'),
+          addScript('react-dom.js').then(() => addScript('antd.js')),
           addScript('moment.js').then(() => {
             addScript('zh-cn.js');
           }),
-          addScript('antd.js'),
           getRuntimeConfig(),
         ]).then(() => {
           // 独立运行
