@@ -31,6 +31,12 @@ type GlobalPortalType = {
   login: () => void;
   /** 登出 */
   logout: () => void;
+  /** 取得(单点登录)用户信息 */
+  getUser:() => Promise<{
+    username: string;
+    permissions: string;
+    accessToken: string;
+  }>;
   /**
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
@@ -94,6 +100,7 @@ const mockPortal: GlobalPortalType =  {
   config: freezeDeep<Config>(window.$$config),
   login: () => {},
   logout: () => {},
+  getUser: () => Promise.resolve({}),
   openApp: (appKey: string, path: string = '/', replace?: boolean) => {},
   setRootAppChangeUrl: (fn: (url: string) => void) => {},
   currLayout: '',
@@ -104,6 +111,7 @@ const mockPortal: GlobalPortalType =  {
   _registerMessageSubscriber: () => {},
   _unregisterMessageSubscriber: () => {},
   _emit: () => {},
+  _ensureTokenReady: Promise.resolve(),
 }
 
 export const portal = parent.g_portal as GlobalPortalType || mockPortal;

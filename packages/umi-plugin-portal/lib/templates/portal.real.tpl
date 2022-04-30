@@ -42,6 +42,12 @@ type GlobalPortalType = {
   login: () => void;
   /** 登出 */
   logout: () => void;
+  /** 取得(单点登录)用户信息 */
+  getUser:() => Promise<{
+    username: string;
+    permissions: string;
+    accessToken: string;
+  }>;
   /**
    * 应用间跳转
    * @param appKey 应用路径，如果存在多级目录，用“.”连接
@@ -118,6 +124,10 @@ let _rootAppChangeUrl: (url: string) => void;
 const portalMather = /^\/([\w\d\-]+)\/([^\/]+)(?:\/(\S*))?/;
 // 登录
 let signMgr: SingleSign;
+let _singleSignResolve = (value?: any) => {};
+const _singleSignPromise = new Promise(
+  (resolve) => (_singleSignResolve = resolve),
+);
 
 const appHandlers = new Map();
 let cacheMessage = {};
@@ -190,6 +200,11 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
       };
     },
   },
+  _ensureTokenReady: {
+    get() {
+      return _singleSignPromise;
+    },
+  },
   handleHistory: {
     get() {
       return (appHistory: History, pathname: string) => {
@@ -232,7 +247,8 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   login: {
     get() {
       return () => {
-        signMgr?.signIn()
+        localStorage.removeItem('k2_portal_token');
+        signMgr?.signIn();
       };
     },
   },
@@ -242,6 +258,17 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
         localStorage.removeItem('k2_portal_token');
         signMgr?.signOut();
       };
+    },
+  },
+  getUser: {
+    get() {
+      return () =>
+        signMgr?.getUser() ??
+        Promise.resolve({
+          profile: {
+            permissions: '',
+          },
+        });
     },
   },
   openApp: {
@@ -327,7 +354,7 @@ history.listen((listener) => {
     const url = `${portal.config.nacos.appRootPathName}/${appKey.replaceAll(
       '.',
       '/',
-    )}/#${path}`.replace(/\/{2,}/g, '/');
+    )}/#/${path}`.replace(/\/{2,}/g, '/');
 
     _rootAppChangeUrl(url);
   }
@@ -339,6 +366,7 @@ window.g_portal = portal;
 
 (function () {
   if (process.env.NODE_ENV !== 'production') {
+    _singleSignResolve();
     return;
   }
   if (portal.config.nacos.ssoAuthorityUrl) {
@@ -351,6 +379,7 @@ window.g_portal = portal;
     }
   }
   if (getAccessToken().length > 0) {
+    _singleSignResolve();
     return;
   }
   if (portal.config.nacos.ssoAuthorityUrl) {
@@ -358,10 +387,17 @@ window.g_portal = portal;
       // 登录成功跳转，再去获取token
       signMgr.mgr.signinCallback().then((res) => {
         localStorage.setItem('k2_portal_token', res.access_token);
+        _singleSignResolve();
         // 去掉 ?code=
         location.replace(location.pathname);
       });
       return;
+    }
+
+    // 维信传送门
+    if (location.search.startsWith('?username=')) {
+      sessionStorage.setItem('source_url', 'https://bpmprod.mflex.com.cn/');
+      sessionStorage.setItem('login_redirect_url', location.href);
     }
     
     portal.login();

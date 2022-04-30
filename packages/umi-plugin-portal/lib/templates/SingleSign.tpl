@@ -18,14 +18,15 @@ export default class SingleSign {
       scope: 'openid offline',
       post_logout_redirect_uri: oidc_callback_url,
       silent_redirect_uri: oidc_callback_url,
-      automaticSilentRenew: true,
+      automaticSilentRenew: false,
       filterProtocolClaims: true,
       loadUserInfo: false,
       response_mode: 'query',
     });
 
     this.mgr.events.addAccessTokenExpired(() => {
-      this.signOut();
+      this.isLogout = true;
+      window.localStorage.removeItem('sid');
     });
     this.mgr.events.addUserLoaded((user) => {
       this.sessionId = user.profile.sid || '';
@@ -44,14 +45,11 @@ export default class SingleSign {
         .then((user: any) => {
           if (user == null) {
             this.signIn();
+            resolve(null);
           } else {
             this.sessionId = user.profile.sid || '';
             window.localStorage.setItem('sid', this.sessionId);
-            return resolve({
-              username: user.username,
-              permissions: user.permissions,
-              accessToken: user.accessToken,
-            });
+            return resolve(user);
           }
         })
         .catch(function (err) {

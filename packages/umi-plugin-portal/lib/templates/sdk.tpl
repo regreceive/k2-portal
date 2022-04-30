@@ -83,6 +83,19 @@ class CommonService {
       data: url,
     });
   }
+
+  put(url: string, data: any) {
+    return request<ResponseData>(this.host + url, {
+      method: 'PUT',
+      data,
+    });
+  }
+
+  delete(url: string) {
+    return request<ResponseData>(this.host + url, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const api: ServiceListType = Object.entries<string>(

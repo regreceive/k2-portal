@@ -199,6 +199,7 @@ export default async function (api: IApi) {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
+          webpack5: !!api.userConfig.webpack5,
         },
       ),
     });
@@ -311,7 +312,11 @@ export default async function (api: IApi) {
   api.modifyBabelPresetOpts((opts) => {
     const importList =
       opts.import?.filter((opt) => opt.libraryName !== 'antd') ?? [];
-    importList.push({ libraryName: 'lodash', libraryDirectory: '' });
+    importList.push({
+      libraryName: 'lodash',
+      libraryDirectory: '',
+      camel2DashComponentName: false,
+    });
 
     return {
       ...opts,
@@ -320,7 +325,7 @@ export default async function (api: IApi) {
   });
 
   // webpack额外配置
-  api.chainWebpack((config) => {
+  api.chainWebpack((config, { webpack }) => {
     antdThemes.forEach((themeName) => {
       config
         .entry('theme-' + themeName)
@@ -350,6 +355,15 @@ export default async function (api: IApi) {
       .end()
       .use('graphql-modules')
       .loader(require.resolve('./graphql-loader'));
+
+    // compatible with react-dnd
+    if (webpack.version?.startsWith('5.')) {
+      // v4会报错
+      config.module
+        .rule('mjs-rule')
+        .test(/.m?js/)
+        .resolve.set('fullySpecified', false);
+    }
 
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
@@ -464,6 +478,27 @@ export default async function (api: IApi) {
     const linkedString = /\-(\w)/;
     const initials = /^\w/;
 
+    const handle = function ({ request }: any, callback: any) {
+      // 会有代码或依赖包直接引用antd中es样式，要排除其打包
+      if (esStyle.test(request)) {
+        return callback(null, 'undefined');
+      }
+
+      // antd/es/table/hooks/xxx可以打包
+      // antd/es/table排除打包
+      const match = esModule.exec(request);
+      if (match) {
+        callback(null, [
+          'antd',
+          match[1]
+            .replace(linkedString, (_, $1) => $1.toUpperCase())
+            .replace(initials, (letter) => letter.toUpperCase()),
+        ]);
+        return;
+      }
+      callback();
+    };
+
     const externals = [
       {
         ...memo.externals,
@@ -472,26 +507,10 @@ export default async function (api: IApi) {
         moment: 'moment',
         antd: 'antd',
       },
-      function ({ context, request }: any, callback: any) {
-        // 会有代码或依赖包直接引用antd中es样式，要排除其打包
-        if (esStyle.test(request)) {
-          return callback(null, 'undefined');
-        }
-
-        // antd/es/table/hooks/xxx可以打包
-        // antd/es/table排除打包
-        const match = esModule.exec(request);
-        if (match) {
-          callback(null, [
-            'antd',
-            match[1]
-              .replace(linkedString, (_, $1) => $1.toUpperCase())
-              .replace(initials, (letter) => letter.toUpperCase()),
-          ]);
-          return;
-        }
-        callback();
-      },
+      memo.webpack5
+        ? handle
+        : (context: string, request: string, cb: Function) =>
+            handle({ request }, cb),
     ];
 
     return {

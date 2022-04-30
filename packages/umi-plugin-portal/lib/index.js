@@ -216,7 +216,8 @@ function _ref() {
           antdPopContainerId,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
-          antdThemes: JSON.stringify(antdThemes)
+          antdThemes: JSON.stringify(antdThemes),
+          webpack5: !!api.userConfig.webpack5
         })
       }); // 生成ThemeLayout.tsx
 
@@ -290,14 +291,19 @@ function _ref() {
       const importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
       importList.push({
         libraryName: 'lodash',
-        libraryDirectory: ''
+        libraryDirectory: '',
+        camel2DashComponentName: false
       });
       return _objectSpread(_objectSpread({}, opts), {}, {
         import: importList
       });
     }); // webpack额外配置
 
-    api.chainWebpack(config => {
+    api.chainWebpack((config, {
+      webpack
+    }) => {
+      var _webpack$version;
+
       antdThemes.forEach(themeName => {
         config.entry('theme-' + themeName).add(_path().default.resolve(api.paths.absTmpPath, `plugin-portal/${themeName}.less`));
       }); // 阻止bundle载入后立即启动。具体控制在init.js中
@@ -307,7 +313,13 @@ function _ref() {
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
-      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // 确保打包输出不同的css名称，防止多应用样式冲突
+      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // compatible with react-dnd
+
+      if ((_webpack$version = webpack.version) === null || _webpack$version === void 0 ? void 0 : _webpack$version.startsWith('5.')) {
+        // v4会报错
+        config.module.rule('mjs-rule').test(/.m?js/).resolve.set('fullySpecified', false);
+      } // 确保打包输出不同的css名称，防止多应用样式冲突
+
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);
@@ -395,13 +407,8 @@ function _ref() {
       const esModule = /^antd\/es\/([\w\-]+)$/;
       const linkedString = /\-(\w)/;
       const initials = /^\w/;
-      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        moment: 'moment',
-        antd: 'antd'
-      }), function ({
-        context,
+
+      const handle = function handle({
         request
       }, callback) {
         // 会有代码或依赖包直接引用antd中es样式，要排除其打包
@@ -419,7 +426,16 @@ function _ref() {
         }
 
         callback();
-      }];
+      };
+
+      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
+        react: 'React',
+        'react-dom': 'ReactDOM',
+        moment: 'moment',
+        antd: 'antd'
+      }), memo.webpack5 ? handle : (context, request, cb) => handle({
+        request
+      }, cb)];
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,
         publicPath: './',
@@ -432,16 +448,6 @@ function _ref() {
         antd: false,
         copy: api.env === 'test' ? memo.copy : copy,
         manifest: {},
-        metas: [{
-          'http-equiv': 'pragma',
-          content: 'no-cache'
-        }, {
-          'http-equiv': 'Cache-Control',
-          content: 'no-store, must-revalidate'
-        }, {
-          'http-equiv': 'expires',
-          content: '0'
-        }],
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
       });
     });

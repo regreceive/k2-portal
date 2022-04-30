@@ -136,7 +136,7 @@ window.publicPath = location.pathname;
         }
         if (theme) {
           theme.defaultSelected = true;
-          addLink(theme.chunk, '');
+          addLink({{{ webpack5 }}} ? theme.chunk : theme.chunk.replace('.css', '.chunk.css'), '');
         }
       }
     } else {
@@ -161,24 +161,30 @@ window.publicPath = location.pathname;
     'scrollY',
     'pageXOffset',
     'pageYOffset',
+    'addEventListener',
+    'removeEventListener',
   ];
   
-  const proxyWindow = new Proxy({}, {
+  function getProp(scope: Object, key: string) {
+    const prop = Reflect.get(scope, key);
+    if (typeof prop === 'function' && !prop['prototype']) {
+      return (...args) => {
+        return Reflect.apply(prop, scope, args);
+      }
+    }
+    return prop;
+  }
+
+  const proxyWindow = new Proxy(window, {
     get(target, key) {
       // 针对paper.js: self.window
       if (key === 'window') {
         return proxyWindow;
       }
       if (allowAccessParentProp.includes(key)) {
-        return parent[key];
+        return getProp(parent, key);
       }
-      const prop = Reflect.get(window, key);
-      if (typeof prop === 'function' && !prop['prototype']) {
-        return (...args) => {
-          return Reflect.apply(prop, window, args);
-        }
-      }
-      return prop;
+      return getProp(window, key);
     },
     set(target, key, value) {
       return Reflect.set(window, key, value);
@@ -200,7 +206,7 @@ window.publicPath = location.pathname;
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(window, document, window);
+          event.detail.run(window, document, window, SVGElement);
         });
       });
     } else {
@@ -214,7 +220,8 @@ window.publicPath = location.pathname;
           doc.body.removeChild(antPopContainer);
         });
       }
-      event.detail.run(proxyWindow, window.parent.document, proxyWindow);
+      // SVGElement 为了兼容jointjs
+      event.detail.run(proxyWindow, window.parent.document, proxyWindow, parent.SVGElement);
     }
   });
 })();

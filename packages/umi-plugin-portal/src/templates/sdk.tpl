@@ -71,16 +71,29 @@ class CommonService {
   }
 
   post(url: string, data: any) {
-    // for graphql
     if (typeof url === 'string') {
       return request<ResponseData>(this.host + url, {
         method: 'POST',
         data,
       });
     }
+    // for graphql
     return request<ResponseData>(this.host, {
       method: 'POST',
       data: url,
+    });
+  }
+
+  put(url: string, data: any) {
+    return request<ResponseData>(this.host + url, {
+      method: 'PUT',
+      data,
+    });
+  }
+
+  delete(url: string) {
+    return request<ResponseData>(this.host + url, {
+      method: 'DELETE',
     });
   }
 }
