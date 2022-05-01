@@ -2,6 +2,10 @@
 
 [![NPM version](https://img.shields.io/npm/v/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal) [![NPM downloads](http://img.shields.io/npm/dm/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal)
 
+查看使用文档 [DOC](https://k2-portal.vercel.app/)
+
+[Demo](https://k2-portal-demo.vercel.app/)
+
 ## 这个框架的意义
 
 市面上已经有很多优秀微前端框架，但都是一些通用功能的实现，即它可以帮你把不同的 app 合到一起来展现，但是这一切并不包含特定的业务场景。
