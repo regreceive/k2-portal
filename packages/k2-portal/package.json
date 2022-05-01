@@ -3,7 +3,7 @@
   "version": "2.2.21",
   "description": "k2-portal libraries",
   "author": "liyao <liyao@k2data.com.cn>",
-  "homepage": "",
+  "homepage": "https://github.com/regreceive/k2-portal",
   "license": "MIT",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

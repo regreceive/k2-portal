@@ -75,9 +75,9 @@ nacos 线上地址。开发环境读取线上 nacos 配置，覆盖本地默认�
 示例：
 
 ```js
-  service: {
-    gateway: '/bcf/api',
-  }
+service: {
+  gateway: '/bcf/api',
+}
 
 // 数据请求时接口服务调用
 import { api } from 'k2-portal';
@@ -122,10 +122,10 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 示例：
 
 ```js
-  appDefaultProps: {
-    id: 1,
-    onChange: () => {}
-  }
+appDefaultProps: {
+  id: 1,
+  onChange: () => {}
+}
 ```
 
 ### role
@@ -138,18 +138,22 @@ const res = await api.gateway.get('/xxx-service/getXXX?id=1');
 ### devAuth<Badge>开发环境</Badge>
 
 - 类型：`Object`
-- 默认值：`{ username: 'admin', password: 'admin' }`
+- 默认值：`{ username: 'admin', password: 'f7da3686bd81225d9b35b6166efb0129' }`
 
-开发环境 Basic 认证。开发环境下，接口请求会走认证网关，有此设置后不需要登录操作，避免返回 401 状态。
+开发环境自动生成认证方式为 Basic 的 token。
+
+在开发环境下，因为接口会走认证网关，有此设置后不需要登录操作，避免返回 401 状态。
 
 <Alert type="info">仅对开发环境有效，此设置不会被打包。</Alert>
+
+<Alert type="info">password 不一定是明文，请根据用户系统采用的加密方式来设置。</Alert>
 
 示例：
 
 ```js
 auth: {
-  username: 'test',
-  password: 'test',
+  username: 'admin',
+  password: 'f7da3686bd81225d9b35b6166efb0129',
 }
 ```
 
@@ -158,7 +162,9 @@ auth: {
 - 类型：`string`
 - 默认值：`null`
 
-开发环境中，与`devAuth`Basic 自动认证方式不同，`customToken`可直接设置 http 消息头`Authorization`，此时`devAuth`的设置将会被覆盖。
+与`devAuth`形成对比的是，`customToken`可直接设置 http 消息头`Authorization`。
+
+出于某种原因（比如说懒）你可以直接复制来自线上环境的 token，此时`devAuth`的设置将会被覆盖。
 
 示例：
 
