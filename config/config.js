@@ -7,11 +7,11 @@ export default {
     null,
     {
       title: 'Demo',
-      path: 'http://192.168.130.100:8342/portal/',
+      path: 'https://k2-portal-demo.vercel.app/',
     },
     {
-      title: 'GitLab',
-      path: 'https://gitlab.kstonedata.k2/bcf/front-end/k2-portal',
+      title: 'GitHub',
+      path: 'https://github.com/regreceive/k2-portal',
     },
     // { title: '更新日志', path: 'https://github.com/umijs/dumi/releases' },
   ],
