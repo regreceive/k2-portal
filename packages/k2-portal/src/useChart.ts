@@ -46,7 +46,7 @@ export default function useChart<T extends HTMLDivElement>(
     if (chart.current) {
       chart.current.resize();
     }
-  }, [box.width, box.height]);
+  }, [box?.width, box?.height]);
 
   // 强制初始化
   const enforceInit = useCallback((newTheme?: string, newOpts?: Options) => {

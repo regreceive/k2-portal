@@ -82,7 +82,7 @@ function useChart(theme, opts) {
     if (chart.current) {
       chart.current.resize();
     }
-  }, [box.width, box.height]); // 强制初始化
+  }, [box === null || box === void 0 ? void 0 : box.width, box === null || box === void 0 ? void 0 : box.height]); // 强制初始化
 
   const enforceInit = (0, _react().useCallback)((newTheme, newOpts) => {
     chart.current = echarts().init(ref.current, newTheme || theme, newOpts || opts);
