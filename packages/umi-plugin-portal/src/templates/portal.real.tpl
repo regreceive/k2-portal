@@ -361,13 +361,14 @@ window.g_portal = portal;
 // 登录
 
 (function () {
-  if (process.env.NODE_ENV !== 'production') {
+  const sso = portal.config.nacos.ssoAuthorityUrl;
+  if (process.env.NODE_ENV !== 'production' || !sso) {
     _singleSignResolve();
     return;
   }
-  if (portal.config.nacos.ssoAuthorityUrl) {
+  if (sso) {
     signMgr = new SingleSign(
-      portal.config.nacos.ssoAuthorityUrl, 
+      sso, 
       location.origin + location.pathname,
     );
     if (location.search.startsWith('?state=')) {
@@ -378,7 +379,7 @@ window.g_portal = portal;
     _singleSignResolve();
     return;
   }
-  if (portal.config.nacos.ssoAuthorityUrl) {
+  if (sso) {
     if (location.search.startsWith('?code=')) {
       // 登录成功跳转，再去获取token
       signMgr.mgr.signinCallback().then((res) => {
