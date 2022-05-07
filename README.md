@@ -1,6 +1,6 @@
 # k2-portal 微前端应用框架
 
-[![NPM version](https://img.shields.io/npm/v/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal) [![NPM downloads](http://img.shields.io/npm/dm/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal)[![install size](https://packagephobia.com/badge?p=k2-portal)](https://packagephobia.com/result?p=k2-portal)[![brotli](https://badgen.net/bundlephobia/minzip/k2-portal)](https://bundlephobia.com/result?p=k2-portal)
+[![NPM version](https://img.shields.io/npm/v/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal) [![NPM downloads](http://img.shields.io/npm/dm/k2-portal.svg?style=flat)](https://npmjs.org/package/k2-portal) [![install size](https://packagephobia.com/badge?p=k2-portal)](https://packagephobia.com/result?p=k2-portal) [![brotli](https://badgen.net/bundlephobia/minzip/k2-portal)](https://bundlephobia.com/result?p=k2-portal)
 
 查看使用文档 [DOC](https://k2-portal.vercel.app/)
 
