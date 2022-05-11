@@ -16,8 +16,7 @@ declare type Options = {
  */
 export default function useChart<T extends HTMLDivElement>(theme?: string, opts?: Options): {
     ref: import("react").RefObject<T>;
-    setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean | undefined, lazyUpdate?: boolean | undefined) => void;
-    enforceInit: (newTheme?: string | undefined, newOpts?: Options | undefined) => void;
+    setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean | undefined, lazyUpdate?: boolean | undefined, forceInit?: any) => void;
     showEmpty: (text?: string) => void;
     chart: echarts.ECharts | undefined;
 };

@@ -29,7 +29,10 @@ export default function useChart<T extends HTMLDivElement>(
 
   useEffect(() => {
     if (ref.current) {
-      chart.current = echarts.init(ref.current as HTMLDivElement, theme, opts);
+      chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
+        height: ref.current.offsetHeight,
+        ...opts,
+      });
       update();
     }
 
@@ -44,18 +47,9 @@ export default function useChart<T extends HTMLDivElement>(
   const box = useSize(ref.current);
   useEffect(() => {
     if (chart.current) {
-      chart.current.resize();
+      chart.current.resize({ height: opts?.height || box.height });
     }
   }, [box?.width, box?.height]);
-
-  // 强制初始化
-  const enforceInit = useCallback((newTheme?: string, newOpts?: Options) => {
-    chart.current = echarts.init(
-      ref.current as HTMLDivElement,
-      newTheme || theme,
-      newOpts || opts,
-    );
-  }, []);
 
   // 图表选项设置
   const setOption = useCallback(
@@ -63,10 +57,17 @@ export default function useChart<T extends HTMLDivElement>(
       EChartsOption: echarts.EChartsOption,
       notMerge?: boolean,
       lazyUpdate?: boolean,
+      forceInit = false,
     ) => {
       if (emptyView.current) {
         chart.current?.clear();
         emptyView.current = false;
+      }
+      if (forceInit) {
+        chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
+          height: ref.current?.offsetHeight,
+          ...opts,
+        });
       }
       chart.current?.setOption(EChartsOption, notMerge, lazyUpdate);
     },
@@ -94,7 +95,6 @@ export default function useChart<T extends HTMLDivElement>(
   return {
     ref,
     setOption,
-    enforceInit,
     showEmpty,
     chart: chart.current,
   };
