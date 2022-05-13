@@ -47,7 +47,10 @@ export default function useChart<T extends HTMLDivElement>(
   const box = useSize(ref.current);
   useEffect(() => {
     if (chart.current) {
-      chart.current.resize({ height: opts?.height || box.height });
+      chart.current.resize({
+        width: box.width,
+        height: opts?.height || box.height,
+      });
     }
   }, [box?.width, box?.height]);
 
