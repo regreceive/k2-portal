@@ -124,10 +124,10 @@ export function rootContainer(container) {
           componentSize="middle"
           locale={zhCN}
           getPopupContainer={() => {
-            if (utils.isInPortal()) {
+            if (utils.isInWidget()) {
               return window.parent?.document.querySelector('#{{{ antdPopContainerId }}}');
             }
-            return document.body;
+            return document.querySelector('#{{{ antdPopContainerId }}}');
           }}
         >
           <ThemeLayout>{container}</ThemeLayout>
@@ -205,12 +205,10 @@ export const request = {
 
 export const lightTheme = {
   '--portal-scrollbar-fore': 'rgb(190, 190, 190)',
-  '--portal-scrollbar-back': 'rgba(219, 219, 219, .5)',
   '--portal-boxArea-bgColor': '#ffffff',
 };
 
 export const darkTheme = {
   '--portal-scrollbar-fore': 'rgb(90, 90, 90)',
-  '--portal-scrollbar-back': 'rgba(90, 90, 90, .3)',
   '--portal-boxArea-bgColor': '#000000',
 };

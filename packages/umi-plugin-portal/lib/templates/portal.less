@@ -11,88 +11,84 @@ body {
 
 #root {
   height: 100%;
+}
 
-  .ant-spin-nested-loading,
-  .ant-spin-container {
-    height: 100%;
-    overflow: hidden;
+.ant-spin-nested-loading,
+.ant-spin-container {
+  height: 100%;
+  overflow: hidden;
+}
+
+// pro-table高度自适应
+.ant-pro-table {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .ant-pro-table-search {
+    background: var(--portal-boxArea-bgColor);
   }
 
-  // pro-table高度自适应
-  .ant-pro-table {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  > .ant-card,
+  .ant-pro-card:last-child {
+    flex: auto;
+    height: 0;
+    > .ant-card-body,
+    .ant-pro-card-body {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
 
-    .ant-pro-table-search {
-      background: var(--portal-boxArea-bgColor);
-    }
-
-    > .ant-card {
-      flex: auto;
-      height: 0;
-      > .ant-card-body {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-
-        > .ant-table-wrapper {
-          flex: auto;
-          height: 0;
-          > .ant-spin-nested-loading {
-            > .ant-spin-container {
-              display: flex;
-              flex-direction: column;
-            }
+      > .ant-table-wrapper {
+        flex: auto;
+        height: 0;
+        > .ant-spin-nested-loading {
+          > .ant-spin-container {
+            display: flex;
+            flex-direction: column;
           }
         }
       }
     }
-    .ant-table {
+  }
+  .ant-table {
+    flex: auto;
+    height: 0;
+  }
+  .ant-table-container {
+    display: flex;
+    flex-direction: column;
+  }
+  .ant-table-container,
+  .ant-table-content {
+    height: 100%;
+  }
+  .ant-table-container {
+    > .ant-table-header {
+      flex: 0 0 47px;
+    }
+    > .ant-table-body {
       flex: auto;
-      height: 0;
     }
-    .ant-table-container {
-      display: flex;
-      flex-direction: column;
-    }
-    .ant-table-container,
-    .ant-table-content {
-      height: 100%;
-    }
-    .ant-table-container {
-      > .ant-table-header {
-        flex: 0 0 47px;
-      }
-      > .ant-table-body {
-        flex: auto;
-      }
-    }
-  }
-
-  .ant-table-body {
-    // anti-portal-css
-    overflow-x: unset !important;
-  }
-
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-    background: var(--portal-scrollbar-back);
-  }
-
-  ::-webkit-scrollbar-corner {
-    display: none;
-  }
-
-  ::-webkit-scrollbar-track {
-    background: var(--portal-scrollbar-back);
-    border-radius: 5px;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: var(--portal-scrollbar-fore);
-    border-radius: 5px;
   }
 }
 
+.ant-table-body {
+  overflow-x: unset !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: rgba(127, 127, 127, 0.05);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-corner {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--portal-scrollbar-fore);
+  border-radius: 5px;
+}

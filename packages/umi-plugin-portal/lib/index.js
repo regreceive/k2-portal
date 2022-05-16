@@ -223,7 +223,9 @@ function _ref() {
 
       api.writeTmpFile({
         path: 'plugin-portal/ThemeLayout.tsx',
-        content: (0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8')
+        content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8'), {
+          antdPopContainerId
+        })
       });
 
       if (role === 'portal') {

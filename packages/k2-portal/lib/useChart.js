@@ -89,6 +89,7 @@ function useChart(theme, opts) {
   (0, _react().useEffect)(() => {
     if (chart.current) {
       chart.current.resize({
+        width: box.width,
         height: (opts === null || opts === void 0 ? void 0 : opts.height) || box.height
       });
     }

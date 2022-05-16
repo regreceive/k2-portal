@@ -191,6 +191,18 @@ window.publicPath = location.pathname;
     }
   });
 
+  // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
+  function createAntPopContainer(doc) {
+    if (!doc.querySelector('#{{{ antdPopContainerId }}}')) {
+      const antPopContainer = doc.createElement('div');
+      antPopContainer.id = '{{{ antdPopContainerId }}}';
+      doc.body.appendChild(antPopContainer);
+      window.addEventListener('unload', () => {
+        doc.body.removeChild(antPopContainer);
+      });
+    }
+  }
+
   window.addEventListener('bundleReady', function (event) {
     // 动态加载全局资源，此时作为独立应用或者Portal
     if (!window.React) {
@@ -208,17 +220,9 @@ window.publicPath = location.pathname;
           event.detail.run(window, document, window, SVGElement);
         });
       });
+      createAntPopContainer(window.parent.document);
     } else {
-      // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
-      const doc = window.parent.document;
-      if (!doc.querySelector('#{{{ antdPopContainerId }}}')) {
-        const antPopContainer = doc.createElement('div');
-        antPopContainer.id = '{{{ antdPopContainerId }}}';
-        doc.body.appendChild(antPopContainer);
-        window.addEventListener('unload', () => {
-          doc.body.removeChild(antPopContainer);
-        });
-      }
+      createAntPopContainer(document);
       // SVGElement 为了兼容jointjs
       event.detail.run(proxyWindow, window.parent.document, proxyWindow, parent.SVGElement);
     }

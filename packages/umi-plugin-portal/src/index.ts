@@ -207,9 +207,11 @@ export default async function (api: IApi) {
     // 生成ThemeLayout.tsx
     api.writeTmpFile({
       path: 'plugin-portal/ThemeLayout.tsx',
-      content: readFileSync(
-        join(__dirname, 'templates', 'ThemeLayout.tpl'),
-        'utf-8',
+      content: Mustache.render(
+        readFileSync(join(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8'),
+        {
+          antdPopContainerId,
+        },
       ),
     });
 
