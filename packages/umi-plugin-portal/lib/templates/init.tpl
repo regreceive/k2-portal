@@ -220,9 +220,9 @@ window.publicPath = location.pathname;
           event.detail.run(window, document, window, SVGElement);
         });
       });
-      createAntPopContainer(window.parent.document);
-    } else {
       createAntPopContainer(document);
+    } else {
+      createAntPopContainer(window.parent.document);
       // SVGElement 为了兼容jointjs
       event.detail.run(proxyWindow, window.parent.document, proxyWindow, parent.SVGElement);
     }
