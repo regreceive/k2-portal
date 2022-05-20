@@ -29,10 +29,7 @@ export default function useChart<T extends HTMLDivElement>(
 
   useEffect(() => {
     if (ref.current) {
-      chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
-        height: ref.current.offsetHeight,
-        ...opts,
-      });
+      chart.current = echarts.init(ref.current as HTMLDivElement, theme, opts);
       update();
     }
 
@@ -47,10 +44,7 @@ export default function useChart<T extends HTMLDivElement>(
   const box = useSize(ref.current);
   useEffect(() => {
     if (chart.current) {
-      chart.current.resize({
-        width: box?.width,
-        height: opts?.height || box?.height,
-      });
+      chart.current.resize();
     }
   }, [box?.width, box?.height]);
 
@@ -67,10 +61,11 @@ export default function useChart<T extends HTMLDivElement>(
         emptyView.current = false;
       }
       if (forceInit) {
-        chart.current = echarts.init(ref.current as HTMLDivElement, theme, {
-          height: ref.current?.offsetHeight,
-          ...opts,
-        });
+        chart.current = echarts.init(
+          ref.current as HTMLDivElement,
+          theme,
+          opts,
+        );
       }
       chart.current?.setOption(EChartsOption, notMerge, lazyUpdate);
     },
