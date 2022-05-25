@@ -51,12 +51,6 @@ function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "functio
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 /**
  *
  * @param theme 预设了light和dark，默认是light
@@ -71,9 +65,7 @@ function useChart(theme, opts) {
   const update = (0, _useUpdate().default)();
   (0, _react().useEffect)(() => {
     if (ref.current) {
-      chart.current = echarts().init(ref.current, theme, _objectSpread({
-        height: ref.current.offsetHeight
-      }, opts));
+      chart.current = echarts().init(ref.current, theme, opts);
       update();
     }
 
@@ -88,10 +80,7 @@ function useChart(theme, opts) {
   const box = (0, _useSize().default)(ref.current);
   (0, _react().useEffect)(() => {
     if (chart.current) {
-      chart.current.resize({
-        width: box === null || box === void 0 ? void 0 : box.width,
-        height: (opts === null || opts === void 0 ? void 0 : opts.height) || (box === null || box === void 0 ? void 0 : box.height)
-      });
+      chart.current.resize();
     }
   }, [box === null || box === void 0 ? void 0 : box.width, box === null || box === void 0 ? void 0 : box.height]); // 图表选项设置
 
@@ -106,11 +95,7 @@ function useChart(theme, opts) {
     }
 
     if (forceInit) {
-      var _ref$current;
-
-      chart.current = echarts().init(ref.current, theme, _objectSpread({
-        height: (_ref$current = ref.current) === null || _ref$current === void 0 ? void 0 : _ref$current.offsetHeight
-      }, opts));
+      chart.current = echarts().init(ref.current, theme, opts);
     }
 
     (_chart$current2 = chart.current) === null || _chart$current2 === void 0 ? void 0 : _chart$current2.setOption(EChartsOption, notMerge, lazyUpdate);
