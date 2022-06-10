@@ -15,7 +15,7 @@ export declare const isInWidget: () => boolean;
 /**
  * 取得应用自身的document
  */
-export declare const doc: Document;
+export declare const doc: any;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params

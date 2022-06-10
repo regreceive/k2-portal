@@ -11,24 +11,26 @@ export function pickProps<P>(component: React.FC<P>) {
  * 当前应用是否是portal
  */
 // @ts-ignore
-export const isPortal = () => parent === window && !!window.g_portal;
+export const isPortal = () => window === OwnWindow && !!window.g_portal;
 
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 // @ts-ignore
-export const isInPortal = () => parent !== window && !!parent?.g_portal;
+export const isInPortal = () => window !== OwnWindow && !!window.g_portal;
 
 /**
  * 判断当前应用是否被其他应用引用。
  */
 // @ts-ignore
-export const isInWidget = () => parent !== window && !!parent.$$config;
+export const isInWidget = () =>
+  window !== OwnWindow && !window?.g_portal && !!window.$$config;
 
 /**
  * 取得应用自身的document
  */
-export const doc = window.self.document;
+// @ts-ignore
+export const doc = ownWindow.document;
 
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位

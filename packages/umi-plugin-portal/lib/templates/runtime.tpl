@@ -124,9 +124,6 @@ export function rootContainer(container) {
           componentSize="middle"
           locale={zhCN}
           getPopupContainer={() => {
-            if (utils.isInWidget()) {
-              return window.parent?.document.querySelector('#{{{ antdPopContainerId }}}');
-            }
             return document.querySelector('#{{{ antdPopContainerId }}}');
           }}
         >

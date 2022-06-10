@@ -376,9 +376,6 @@ function _ref() {
       }, {
         from: `${relative}node_modules/moment/locale/zh-cn.js`,
         to: 'alone/zh-cn.js'
-      }, {
-        from: `${relative}node_modules/antd/dist/antd.min.js`,
-        to: 'alone/antd.js'
       }]);
 
       if (antdThemes.length === 0) {
@@ -388,9 +385,20 @@ function _ref() {
         });
       }
 
-      if (api.env === 'development') {
+      if (api.env === 'production') {
         copy.push({
-          from: `${relative}node_modules/antd/dist/antd.min.js.map`,
+          from: `${relative}node_modules/antd/dist/antd.min.js`,
+          to: 'alone/antd.js'
+        });
+      }
+
+      if (api.env === 'development') {
+        copy.push( // 方便本地调试框架对antd的兼容性问题
+        {
+          from: `${relative}node_modules/antd/dist/antd.js`,
+          to: 'alone/antd.js'
+        }, {
+          from: `${relative}node_modules/antd/dist/antd.js.map`,
           to: 'alone/antd.min.js.map'
         }, {
           from: `${relative}node_modules/moment/min/moment.min.js.map`,

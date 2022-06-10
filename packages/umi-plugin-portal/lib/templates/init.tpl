@@ -153,6 +153,7 @@ window.publicPath = location.pathname;
   window.moment = parent.moment;
 
   const allowAccessParentProp = [
+    'SVGElement',
     'HTMLCanvasElement',
     'document',
     'innerWidth',
@@ -163,6 +164,7 @@ window.publicPath = location.pathname;
     'pageYOffset',
     'addEventListener',
     'removeEventListener',
+    'RegExp'
   ];
   
   function getProp(scope: Object, key: string) {
@@ -177,10 +179,6 @@ window.publicPath = location.pathname;
 
   const proxyWindow = new Proxy(window, {
     get(target, key) {
-      // 针对paper.js: self.window
-      if (key === 'window') {
-        return proxyWindow;
-      }
       if (allowAccessParentProp.includes(key)) {
         return getProp(parent, key);
       }
@@ -217,14 +215,14 @@ window.publicPath = location.pathname;
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(window, document, window, SVGElement);
+          event.detail.run(window, window);
         });
       });
       createAntPopContainer(document);
     } else {
       createAntPopContainer(window.parent.document);
       // SVGElement 为了兼容jointjs
-      event.detail.run(proxyWindow, window.parent.document, proxyWindow, parent.SVGElement);
+      event.detail.run(proxyWindow, window);
     }
   });
 })();

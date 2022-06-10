@@ -3,15 +3,14 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.doc = void 0;
-exports.formatDateTime = formatDateTime;
-exports.isPortal = exports.isInWidget = exports.isInPortal = void 0;
-exports.log = log;
-exports.mergeTimeSeries = mergeTimeSeries;
 exports.pickProps = pickProps;
+exports.mergeTimeSeries = mergeTimeSeries;
+exports.log = log;
+exports.warn = warn;
+exports.formatDateTime = formatDateTime;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.warn = warn;
+exports.doc = exports.isInWidget = exports.isInPortal = exports.isPortal = void 0;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -76,7 +75,7 @@ function pickProps(component) {
 // @ts-ignore
 
 
-const isPortal = () => parent === window && !!window.g_portal;
+const isPortal = () => window === OwnWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
@@ -85,11 +84,7 @@ const isPortal = () => parent === window && !!window.g_portal;
 
 exports.isPortal = isPortal;
 
-const isInPortal = () => {
-  var _parent;
-
-  return parent !== window && !!((_parent = parent) === null || _parent === void 0 ? void 0 : _parent.g_portal);
-};
+const isInPortal = () => window !== OwnWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用。
  */
@@ -98,14 +93,19 @@ const isInPortal = () => {
 
 exports.isInPortal = isInPortal;
 
-const isInWidget = () => parent !== window && !!parent.$$config;
+const isInWidget = () => {
+  var _window;
+
+  return window !== OwnWindow && !((_window = window) === null || _window === void 0 ? void 0 : _window.g_portal) && !!window.$$config;
+};
 /**
  * 取得应用自身的document
  */
+// @ts-ignore
 
 
 exports.isInWidget = isInWidget;
-const doc = window.self.document;
+const doc = ownWindow.document;
 /**
  * 把多组时序通过时间索引，合并时序数据，如果时序之间时间不一样，则用null补齐空位
  * @param params
