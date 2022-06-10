@@ -88,7 +88,6 @@ const isInPortal = () => window !== OwnWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用。
  */
-// @ts-ignore
 
 
 exports.isInPortal = isInPortal;
@@ -96,7 +95,9 @@ exports.isInPortal = isInPortal;
 const isInWidget = () => {
   var _window;
 
-  return window !== OwnWindow && !((_window = window) === null || _window === void 0 ? void 0 : _window.g_portal) && !!window.$$config;
+  return (// @ts-ignore
+    window !== OwnWindow && !((_window = window) === null || _window === void 0 ? void 0 : _window.g_portal) && !!window.$$config
+  );
 };
 /**
  * 取得应用自身的document

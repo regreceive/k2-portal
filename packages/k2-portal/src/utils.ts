@@ -22,8 +22,8 @@ export const isInPortal = () => window !== OwnWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用。
  */
-// @ts-ignore
 export const isInWidget = () =>
+  // @ts-ignore
   window !== OwnWindow && !window?.g_portal && !!window.$$config;
 
 /**
