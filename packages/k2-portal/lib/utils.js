@@ -3,14 +3,15 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.pickProps = pickProps;
-exports.mergeTimeSeries = mergeTimeSeries;
-exports.log = log;
-exports.warn = warn;
+exports.doc = void 0;
 exports.formatDateTime = formatDateTime;
+exports.isPortal = exports.isInWidget = exports.isInPortal = void 0;
+exports.log = log;
+exports.mergeTimeSeries = mergeTimeSeries;
+exports.pickProps = pickProps;
 exports.stringifyParamValue = stringifyParamValue;
 exports.transformQuery = transformQuery;
-exports.doc = exports.isInWidget = exports.isInPortal = exports.isPortal = void 0;
+exports.warn = warn;
 
 function _react() {
   const data = _interopRequireDefault(require("react"));
@@ -75,7 +76,7 @@ function pickProps(component) {
 // @ts-ignore
 
 
-const isPortal = () => window === OwnWindow && !!window.g_portal;
+const isPortal = () => window === ownWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
@@ -84,7 +85,7 @@ const isPortal = () => window === OwnWindow && !!window.g_portal;
 
 exports.isPortal = isPortal;
 
-const isInPortal = () => window !== OwnWindow && !!window.g_portal;
+const isInPortal = () => window !== ownWindow && !!window.g_portal;
 /**
  * 判断当前应用是否被其他应用引用。
  */
@@ -96,7 +97,7 @@ const isInWidget = () => {
   var _window;
 
   return (// @ts-ignore
-    window !== OwnWindow && !((_window = window) === null || _window === void 0 ? void 0 : _window.g_portal) && !!window.$$config
+    window !== ownWindow && !((_window = window) === null || _window === void 0 ? void 0 : _window.g_portal) && !!window.$$config
   );
 };
 /**

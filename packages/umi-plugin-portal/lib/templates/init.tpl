@@ -152,7 +152,7 @@ window.publicPath = location.pathname;
   window.antd = parent.antd;
   window.moment = parent.moment;
 
-  const allowAccessParentProp = [
+  const allowedPortalProps = new Set([
     'SVGElement',
     'HTMLCanvasElement',
     'document',
@@ -165,7 +165,7 @@ window.publicPath = location.pathname;
     'addEventListener',
     'removeEventListener',
     'RegExp'
-  ];
+  ]);
   
   function getProp(scope: Object, key: string) {
     const prop = Reflect.get(scope, key);
@@ -179,7 +179,11 @@ window.publicPath = location.pathname;
 
   const proxyWindow = new Proxy(window, {
     get(target, key) {
-      if (allowAccessParentProp.includes(key)) {
+      // 针对paper.js: self.window
+      if (key === 'window') {
+        return proxyWindow;
+      }
+      if (allowedPortalProps.has(key)) {
         return getProp(parent, key);
       }
       return getProp(window, key);
@@ -215,14 +219,16 @@ window.publicPath = location.pathname;
         ]).then(() => {
           // 独立运行
           window.$$config.alone = true;
-          event.detail.run(window, window);
+          const props = Array.from(allowedPortalProps).map(key => window[key]);
+          event.detail.run(...Array(4).fill(window), ...props);
         });
       });
       createAntPopContainer(document);
     } else {
       createAntPopContainer(window.parent.document);
-      // SVGElement 为了兼容jointjs
-      event.detail.run(proxyWindow, window);
+      // ownWindow, window, self, globalThis
+      const props = Array.from(allowedPortalProps).map(key => parent[key]);
+      event.detail.run(window, proxyWindow, proxyWindow, proxyWindow, ...props);
     }
   });
 })();

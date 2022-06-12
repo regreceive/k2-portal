@@ -4,6 +4,21 @@ type Options = {
   test: RegExp;
 };
 
+const allowedPortalProps = [
+  'SVGElement',
+  'HTMLCanvasElement',
+  'document',
+  'innerWidth',
+  'innerHeight',
+  'scrollX',
+  'scrollY',
+  'pageXOffset',
+  'pageYOffset',
+  'addEventListener',
+  'removeEventListener',
+  'RegExp',
+].join(',');
+
 class WaitRunWebpackPlugin {
   constructor(private options: Options) {
     if (typeof options.test !== 'object') {
@@ -19,7 +34,7 @@ class WaitRunWebpackPlugin {
         ret = [
           key,
           `(function () {
-          var run = function (window, ownWindow) {
+          var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
             with(window) {
               ${assets[key].source()}
             }
@@ -68,7 +83,7 @@ class WaitRunWebpackPlugin {
                     // SVGElement 为了兼容jointjs
                     return new webpack.sources.ConcatSource(
                       `(function () {
-                        var run = function (window, ownWindow) {
+                        var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
                           with(window) {`,
                       old,
                       `   }

@@ -33,6 +33,8 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
 
+const allowedPortalProps = ['SVGElement', 'HTMLCanvasElement', 'document', 'innerWidth', 'innerHeight', 'scrollX', 'scrollY', 'pageXOffset', 'pageYOffset', 'addEventListener', 'removeEventListener', 'RegExp'].join(',');
+
 class WaitRunWebpackPlugin {
   constructor(options) {
     this.options = void 0;
@@ -51,7 +53,7 @@ class WaitRunWebpackPlugin {
       if ((_this$options$test = this.options.test) === null || _this$options$test === void 0 ? void 0 : _this$options$test.test(key)) {
         // SVGElement 为了兼容jointjs
         ret = [key, `(function () {
-          var run = function (window, ownWindow) {
+          var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
             with(window) {
               ${assets[key].source()}
             }
@@ -111,7 +113,7 @@ class WaitRunWebpackPlugin {
                     compilation.updateAsset(file, old => {
                       // SVGElement 为了兼容jointjs
                       return new (_webpack().default.sources.ConcatSource)(`(function () {
-                        var run = function (window, ownWindow) {
+                        var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
                           with(window) {`, old, `   }
                         };
                         var evt = document.createEvent('CustomEvent');

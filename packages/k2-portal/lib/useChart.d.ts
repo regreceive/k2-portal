@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import * as echarts from 'echarts';
 declare type Options = {
     renderer?: 'canvas' | 'svg';

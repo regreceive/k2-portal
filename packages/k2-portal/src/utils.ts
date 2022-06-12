@@ -11,20 +11,20 @@ export function pickProps<P>(component: React.FC<P>) {
  * 当前应用是否是portal
  */
 // @ts-ignore
-export const isPortal = () => window === OwnWindow && !!window.g_portal;
+export const isPortal = () => window === ownWindow && !!window.g_portal;
 
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
 // @ts-ignore
-export const isInPortal = () => window !== OwnWindow && !!window.g_portal;
+export const isInPortal = () => window !== ownWindow && !!window.g_portal;
 
 /**
  * 判断当前应用是否被其他应用引用。
  */
 export const isInWidget = () =>
   // @ts-ignore
-  window !== OwnWindow && !window?.g_portal && !!window.$$config;
+  window !== ownWindow && !window?.g_portal && !!window.$$config;
 
 /**
  * 取得应用自身的document
