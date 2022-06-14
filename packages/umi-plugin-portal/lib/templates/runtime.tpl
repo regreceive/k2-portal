@@ -23,13 +23,13 @@ let appRender: Function;
 let appProps = {{{ appDefaultProps }}};
 
 //@ts-ignore
-window.renderChildApp =  (element: HTMLDivElement, props: any) => {
+ownWindow.renderChildApp =  (element: HTMLDivElement, props: any) => {
   appProps = {...appProps, ...props};
   rootElement = element;
   appRender();
 };
 
-window.addEventListener('unload', () => {
+ownWindow.addEventListener('unload', () => {
   if (rootElement) {
     ReactDOM.unmountComponentAtNode(rootElement);
   }
@@ -37,7 +37,7 @@ window.addEventListener('unload', () => {
 
 const interest = new Set({{{ interestedMessage }}});
 if (utils.isInPortal() || utils.isPortal()) {
-  window.$$config.id = portal._registerMessageSubscriber(
+  ownWindow.$$config.id = portal._registerMessageSubscriber(
     (data: any, tag: string) => {
       if (!interest.has(tag)) {
         return;
@@ -60,8 +60,8 @@ if (utils.isInPortal() || utils.isPortal()) {
       }
     },
   );
-  window.addEventListener('unload', () => {
-    portal._unregisterMessageSubscriber(window.$$config.id);
+  ownWindow.addEventListener('unload', () => {
+    portal._unregisterMessageSubscriber(ownWindow.$$config.id);
   });
 }
 

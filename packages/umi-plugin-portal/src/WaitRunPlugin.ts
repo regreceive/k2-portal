@@ -35,9 +35,7 @@ class WaitRunWebpackPlugin {
           key,
           `(function () {
           var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
-            with(window) {
               ${assets[key].source()}
-            }
           };
           var evt = document.createEvent('CustomEvent');
           evt.initCustomEvent('bundleReady', false, false, {run: run});
@@ -83,11 +81,9 @@ class WaitRunWebpackPlugin {
                     // SVGElement 为了兼容jointjs
                     return new webpack.sources.ConcatSource(
                       `(function () {
-                        var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
-                          with(window) {`,
+                        var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {\n`,
                       old,
-                      `   }
-                        };
+                      `\n };
                         var evt = document.createEvent('CustomEvent');
                         evt.initCustomEvent('bundleReady', false, false, {run: run});
                         window.dispatchEvent(evt);

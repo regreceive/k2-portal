@@ -17,14 +17,9 @@ const ThemeLayout: React.FC = (props) => {
     });
 
     const style = ref.current!.style;
-    const popContainer = utils.isInWidget()
-      ? window.parent?.document.querySelector<HTMLDivElement>('#{{antdPopContainerId}}')
-      : document.querySelector<HTMLDivElement>('#{{antdPopContainerId}}');
+    const popContainer = document.querySelector<HTMLDivElement>('#{{antdPopContainerId}}');
 
     Object.entries<string>(appTheme).map(([key, value]) => {
-      if (key.startsWith('--portal') && utils.isInWidget()) {
-        return;
-      }
       style.setProperty(key, value);
       popContainer.style.setProperty(key, value);
     });

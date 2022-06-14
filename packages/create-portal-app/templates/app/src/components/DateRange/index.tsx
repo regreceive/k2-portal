@@ -6,7 +6,7 @@ import { usePrevious } from 'ahooks';
 
 interface Props {
   show?: boolean;
-  defaultValue?: [number, number];
+  initValue?: [number, number];
   /**
    * 时间范围限制天数，默认不限制
    */
@@ -35,8 +35,8 @@ const DateRange: FC<Props> = (props) => {
   useEffect(() => {
     let range: RangeValue<Moment> = null;
 
-    if (Array.isArray(props.defaultValue) && props.defaultValue.length === 2) {
-      range = [moment(props.defaultValue[0]), moment(props.defaultValue[1])];
+    if (Array.isArray(props.initValue) && props.initValue.length === 2) {
+      range = [moment(props.initValue[0]), moment(props.initValue[1])];
     } else if (props.preset?.recentDays) {
       range = [
         moment().startOf('second').subtract(props.preset.recentDays, 'day'),
@@ -62,7 +62,7 @@ const DateRange: FC<Props> = (props) => {
     props.preset?.recentDays,
     props.preset?.recentHours,
     props.preset?.recentMinutes,
-    props.defaultValue,
+    props.initValue,
   ]);
 
   //  默认起止时间

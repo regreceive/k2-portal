@@ -9,7 +9,7 @@ export declare const isPortal: () => boolean;
  */
 export declare const isInPortal: () => boolean;
 /**
- * 判断当前应用是否被其他应用引用。
+ * 判断当前应用是否被其他应用（包括Portal）引用。
  */
 export declare const isInWidget: () => boolean;
 /**
