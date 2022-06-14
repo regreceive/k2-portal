@@ -118,13 +118,21 @@ var Widget = function Widget(props) {
     if (props.appRoot) {
       _.portal.setRootAppChangeUrl(function (url) {
         try {
+          var _frame$current3, _frame$current3$conte;
+
           var _location = frame.current.contentWindow.location;
 
           if (!url.startsWith(_location.pathname)) {
+            // 应用间切换
             setLoading(true);
-          }
 
-          _location.replace(preventDiskCache(url));
+            _location.replace(preventDiskCache(url));
+
+            return;
+          } // 应用内部的路由切换
+
+
+          (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentWindow) === null || _frame$current3$conte === void 0 ? void 0 : _frame$current3$conte.history.replaceState(null, '', url);
         } catch (e) {
           (0, _utils.warn)('主应用跨域');
           frame.current.src = url;
@@ -133,9 +141,9 @@ var Widget = function Widget(props) {
     }
   }, [props.appRoot]);
   var moveCSS = (0, _react.useCallback)(function () {
-    var _frame$current3, _frame$current3$conte, _frame$current3$conte2;
+    var _frame$current4, _frame$current4$conte, _frame$current4$conte2;
 
-    var url = (_frame$current3 = frame.current) === null || _frame$current3 === void 0 ? void 0 : (_frame$current3$conte = _frame$current3.contentDocument) === null || _frame$current3$conte === void 0 ? void 0 : (_frame$current3$conte2 = _frame$current3$conte.querySelector('link[href$=".css"]')) === null || _frame$current3$conte2 === void 0 ? void 0 : _frame$current3$conte2.href;
+    var url = (_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentDocument) === null || _frame$current4$conte === void 0 ? void 0 : (_frame$current4$conte2 = _frame$current4$conte.querySelector('link[href$=".css"]')) === null || _frame$current4$conte2 === void 0 ? void 0 : _frame$current4$conte2.href;
 
     if (url) {
       var _link$current, _link$current2;
@@ -166,10 +174,10 @@ var Widget = function Widget(props) {
     ref: frame,
     onLoad: function onLoad() {
       try {
-        var _frame$current4, _frame$current4$conte;
+        var _frame$current5, _frame$current5$conte;
 
         // about: blank也会触发onload，这里判断一下
-        if (((_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentWindow) === null || _frame$current4$conte === void 0 ? void 0 : _frame$current4$conte.location.host) !== '') {
+        if (((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : (_frame$current5$conte = _frame$current5.contentWindow) === null || _frame$current5$conte === void 0 ? void 0 : _frame$current5$conte.location.host) !== '') {
           setLoading(false);
           moveCSS(); // spin更新不及时，会导致容器还处在未渲染状态
 
@@ -178,9 +186,9 @@ var Widget = function Widget(props) {
           }, 1);
         }
       } catch (e) {
-        var _frame$current5;
+        var _frame$current6;
 
-        (0, _utils.warn)("Widget.src[".concat((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : _frame$current5.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
+        (0, _utils.warn)("Widget.src[".concat((_frame$current6 = frame.current) === null || _frame$current6 === void 0 ? void 0 : _frame$current6.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
       }
     }
   }, iframeUrl ? {

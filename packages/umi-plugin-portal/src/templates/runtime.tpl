@@ -169,13 +169,7 @@ const errorHandler = (error: { response: Response }) => {
       message: `请求错误 ${status}: ${url}`,
       description: errorText,
     });
-    return;
   }
-
-  notification.error({
-    description: '您的网络发生异常，无法连接服务器',
-    message: '网络异常',
-  });
 };
 
 export const request = {

@@ -16,8 +16,8 @@ export const isPortal = () => window === ownWindow && !!ownWindow.g_portal;
 /**
  * 判断当前应用是否被其他应用引用，并且顶层应用是Portal
  */
-// @ts-ignore
 export const isInPortal = () =>
+  // @ts-ignore
   window !== ownWindow && !!ownWindow.parent.g_portal;
 
 /**

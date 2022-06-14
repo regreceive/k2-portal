@@ -94,9 +94,13 @@ const Widget: FC<Props> = (props) => {
         try {
           const location = frame.current!.contentWindow!.location;
           if (!url.startsWith(location.pathname)) {
+            // 应用间切换
             setLoading(true);
+            location.replace(preventDiskCache(url));
+            return;
           }
-          location.replace(preventDiskCache(url));
+          // 应用内部的路由切换
+          frame.current?.contentWindow?.history.replaceState(null, '', url);
         } catch (e) {
           warn('主应用跨域');
           frame.current!.src = url;

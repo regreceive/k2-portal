@@ -417,9 +417,16 @@ export default async function (api: IApi) {
       '../../',
     );
 
-    const relative = winPath(path.relative(api.cwd, root) + '/');
+    const relative = winPath(
+      (path.relative(api.cwd, root) + '/').replace(/^\/$/, ''),
+    );
 
-    api.logger.info(`Copying directory: '${path.resolve(api.cwd, relative)}'`);
+    api.logger.info('Relative Path:', relative);
+
+    api.logger.info(
+      'Copying Modules Path:',
+      path.resolve(api.cwd, relative, 'node_modules'),
+    );
 
     const copy = [...(memo.copy || [])];
 

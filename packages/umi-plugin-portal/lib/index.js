@@ -361,8 +361,9 @@ function _ref() {
         paths: [api.cwd]
       })), '../../');
 
-      const relative = winPath(_path().default.relative(api.cwd, root) + '/');
-      api.logger.info(`Copying directory: '${_path().default.resolve(api.cwd, relative)}'`);
+      const relative = winPath((_path().default.relative(api.cwd, root) + '/').replace(/^\/$/, ''));
+      api.logger.info('Relative Path:', relative);
+      api.logger.info('Copying Modules Path:', _path().default.resolve(api.cwd, relative, 'node_modules'));
       const copy = [...(memo.copy || [])];
       copy.push(...[{
         from: `${relative}node_modules/react/umd/react.${resourceName}.js`,
