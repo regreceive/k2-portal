@@ -159,6 +159,9 @@ const codeMessage: { [key: number]: string } = {
 const errorHandler = (error: { response: Response }) => {
   const { response } = error;
   if (response && response.status) {
+    if (response.status === 200) {
+      return;
+    }
     if (response.status === 401) {
       return portal.login();
     }

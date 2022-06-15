@@ -16,5 +16,10 @@
     "**/*.e2e.ts",
     "**/fixtures/**",
     "**/test/**"
-  ]
+  ],
+  "command": {
+    "publish": {
+      "registry": "https://registry.npmjs.org/"
+    }
+  }
 }
