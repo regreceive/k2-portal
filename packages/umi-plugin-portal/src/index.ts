@@ -200,6 +200,7 @@ export default async function (api: IApi) {
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
           webpack5: !!api.userConfig.webpack5,
+          version: require('../package').version,
         },
       ),
     });

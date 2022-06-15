@@ -217,7 +217,8 @@ function _ref() {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
-          webpack5: !!api.userConfig.webpack5
+          webpack5: !!api.userConfig.webpack5,
+          version: require('../package').version
         })
       }); // 生成ThemeLayout.tsx
 

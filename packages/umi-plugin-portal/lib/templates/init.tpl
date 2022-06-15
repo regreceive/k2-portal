@@ -1,5 +1,6 @@
 // 初始默认的service，如果请求nacos，会被覆盖
 window.$$config = {
+  version: '{{{ version }}}',
   nacos: {{{ nacos }}},
   alone: false,
 };
