@@ -74,32 +74,32 @@ class CommonService {
   }
 
   get(url: string) {
-    return request<ResponseData>(this.host + url);
+    return request(this.host + url);
   }
 
   post(url: string, data: any) {
     if (typeof url === 'string') {
-      return request<ResponseData>(this.host + url, {
+      return request(this.host + url, {
         method: 'POST',
         data,
       });
     }
     // for graphql
-    return request<ResponseData>(this.host, {
+    return request(this.host, {
       method: 'POST',
       data: url,
     });
   }
 
   put(url: string, data: any) {
-    return request<ResponseData>(this.host + url, {
+    return request(this.host + url, {
       method: 'PUT',
       data,
     });
   }
 
   delete(url: string) {
-    return request<ResponseData>(this.host + url, {
+    return request(this.host + url, {
       method: 'DELETE',
     });
   }
@@ -110,35 +110,3 @@ export const api: ServiceListType = Object.entries<string>(
 ).reduce((prev, [key, value]) => {
   return { ...prev, [key]: new CommonService(value, key) };
 }, {});
-
-interface ResponseData {
-  code?: number;
-  data?: any;
-  results?: {
-    series?: {
-      tags: { node_id: string; [key: string]: string };
-      values: any[];
-    }[];
-  }[];
-  body?: {
-    items: {
-      k_ts: number;
-      // @ts-ignore
-      k_device: string;
-      [key: string]: number;
-    }[];
-    deviceIds: string[];
-    all: {
-      name: string;
-      type: string;
-    }[];
-    exist: {
-      name: string;
-      type: string;
-    }[];
-    [key: string]: any;
-  };
-  page_info?: {
-    total: number;
-  };
-}

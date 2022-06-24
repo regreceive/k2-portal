@@ -1,4 +1,5 @@
-import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { useDebounceEffect } from 'ahooks';
 import { DatePicker, message } from 'antd';
 import { RangeValue } from 'rc-picker/lib/interface';
 import moment, { Moment } from 'moment';
@@ -12,7 +13,7 @@ interface Props {
    */
   limitDays?: number;
   /**
-   * 显示最近几天，与defaultValue相斥，优先defaultValue
+   * 显示最近几天
    */
   preset?: {
     recentDays?: number;
@@ -70,23 +71,30 @@ const DateRange: FC<Props> = (props) => {
     return [moment().startOf('day').add(8, 'hour'), moment().startOf('hour')];
   }, []);
 
-  useEffect(() => {
-    if (range) {
-      if (range[0] && range[1]) {
-        if (range[0].isSame(previous?.[0]) && range[1].isSame(previous?.[1])) {
-          return;
+  useDebounceEffect(
+    () => {
+      if (range) {
+        if (range[0] && range[1]) {
+          if (
+            range[0].isSame(previous?.[0]) &&
+            range[1].isSame(previous?.[1])
+          ) {
+            return;
+          }
+          if (
+            props.limitDays &&
+            range[1]?.diff(range[0], 'days') > props.limitDays
+          ) {
+            message.error(`时间范围不能超过${props.limitDays}天`);
+            return;
+          }
+          props.onChange?.(range as Moment[]);
         }
-        if (
-          props.limitDays &&
-          range[1]?.diff(range[0], 'days') > props.limitDays
-        ) {
-          message.error(`时间范围不能超过${props.limitDays}天`);
-          return;
-        }
-        props.onChange?.(range as Moment[]);
       }
-    }
-  }, [range, props.limitDays]);
+    },
+    [range, props.limitDays],
+    { wait: 1000 },
+  );
 
   // 响应时间范围组件
   const handleChange = useCallback(
