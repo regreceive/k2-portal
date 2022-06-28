@@ -17,7 +17,7 @@ const ThemeLayout: React.FC = (props) => {
     });
 
     const style = ref.current!.style;
-    const popContainer = document.querySelector<HTMLDivElement>('#{{antdPopContainerId}}');
+    const popContainer = document.querySelector<HTMLDivElement>('#pop-{{antdPopContainerId}}');
 
     Object.entries<string>(appTheme).map(([key, value]) => {
       style.setProperty(key, value);

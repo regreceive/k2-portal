@@ -137,6 +137,9 @@ function _ref() {
             declaredMessage: joi.array().items(joi.string()).description('声明消息字段，该字段消息被所有应用接收'),
             customToken: joi.string().description('自定义token，将覆盖http头部的Authorization，优先级高于devAuth。'),
             role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
+            ownAntd: joi.object({
+              antPrefix: joi.string().required().description('antd样式名称前缀。为了与Portal样式隔离，请设置为其他名称。')
+            }).description('是否随应用一起按需打包antd，默认使用来自Portal的antd'),
             nacos: joi.object({
               url: joi.string().description('线上的nacos地址，如果不输入，会取default配置'),
               default: joi.object({
@@ -182,10 +185,11 @@ function _ref() {
             devAuth = _ref3.devAuth,
             customToken = _ref3.customToken,
             role = _ref3.role,
+            ownAntd = _ref3.ownAntd,
             interestedMessage = _ref3.interestedMessage,
             declaredMessage = _ref3.declaredMessage;
 
-      const antdPopContainerId = 'pop-' + (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
+      const antdPopContainerId = (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
       let base64 = '';
 
       if (api.env !== 'production') {
@@ -217,6 +221,7 @@ function _ref() {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
+          ownAntd: !!ownAntd,
           webpack5: !!api.userConfig.webpack5,
           version: require('../package').version
         })
@@ -283,15 +288,19 @@ function _ref() {
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
-          interestedMessage: interestStr
+          interestedMessage: interestStr,
+          ownAntd
         })
       });
     })); // 阻止antd被优化加载，否则antd无法被externals
 
     api.modifyBabelPresetOpts(opts => {
-      var _opts$import$filter, _opts$import;
+      let importList = opts.import || [];
 
-      const importList = (_opts$import$filter = (_opts$import = opts.import) === null || _opts$import === void 0 ? void 0 : _opts$import.filter(opt => opt.libraryName !== 'antd')) !== null && _opts$import$filter !== void 0 ? _opts$import$filter : [];
+      if (!api.config.portal.ownAntd) {
+        importList = importList.filter(row => row.libraryName !== 'antd');
+      }
+
       importList.push({
         libraryName: 'lodash',
         libraryDirectory: '',
@@ -346,15 +355,19 @@ function _ref() {
     }); // 复制资源文件到输出目录
 
     api.modifyConfig(memo => {
-      try {
-        const themeName = /[\w\d\-]+(?=\.less$)/;
-        antdThemes = (0, _fs().readdirSync)(_path().default.resolve(api.paths.absSrcPath, 'antd-theme')).map(filename => {
-          var _result$;
+      const ownAntd = memo.portal.ownAntd;
 
-          const result = themeName.exec(filename);
-          return (_result$ = result === null || result === void 0 ? void 0 : result[0]) !== null && _result$ !== void 0 ? _result$ : '';
-        }).filter(filename => filename);
-      } catch (_unused2) {}
+      if (!ownAntd) {
+        try {
+          const themeName = /[\w\d\-]+(?=\.less$)/;
+          antdThemes = (0, _fs().readdirSync)(_path().default.resolve(api.paths.absSrcPath, 'antd-theme')).map(filename => {
+            var _result$;
+
+            const result = themeName.exec(filename);
+            return (_result$ = result === null || result === void 0 ? void 0 : result[0]) !== null && _result$ !== void 0 ? _result$ : '';
+          }).filter(filename => filename);
+        } catch (_unused2) {}
+      }
 
       const resourceName = api.env === 'development' ? 'development' : 'production.min';
 
@@ -380,14 +393,14 @@ function _ref() {
         to: 'alone/zh-cn.js'
       }]);
 
-      if (antdThemes.length === 0) {
+      if (antdThemes.length === 0 && !ownAntd) {
         copy.push({
           from: `${relative}node_modules/antd/dist/antd.min.css`,
           to: 'alone/antd.css'
         });
       }
 
-      if (api.env === 'production') {
+      if (api.env === 'production' && !ownAntd) {
         copy.push({
           from: `${relative}node_modules/antd/dist/antd.min.js`,
           to: 'alone/antd.js'
@@ -395,23 +408,27 @@ function _ref() {
       }
 
       if (api.env === 'development') {
-        copy.push( // 方便本地调试框架对antd的兼容性问题
-        {
-          from: `${relative}node_modules/antd/dist/antd.js`,
-          to: 'alone/antd.js'
-        }, {
-          from: `${relative}node_modules/antd/dist/antd.js.map`,
-          to: 'alone/antd.min.js.map'
-        }, {
+        copy.push({
           from: `${relative}node_modules/moment/min/moment.min.js.map`,
           to: 'alone/moment.min.js.map'
         });
 
-        if (antdThemes.length === 0) {
-          copy.push({
-            from: `${relative}node_modules/antd/dist/antd.min.css.map`,
-            to: 'alone/antd.min.css.map'
+        if (!ownAntd) {
+          copy.push( // 方便本地调试框架对antd的兼容性问题
+          {
+            from: `${relative}node_modules/antd/dist/antd.js`,
+            to: 'alone/antd.js'
+          }, {
+            from: `${relative}node_modules/antd/dist/antd.js.map`,
+            to: 'alone/antd.min.js.map'
           });
+
+          if (antdThemes.length === 0) {
+            copy.push({
+              from: `${relative}node_modules/antd/dist/antd.min.css.map`,
+              to: 'alone/antd.min.css.map'
+            });
+          }
         }
       }
 
@@ -440,14 +457,19 @@ function _ref() {
         callback();
       };
 
-      const externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
+      let externals = [_objectSpread(_objectSpread({}, memo.externals), {}, {
         react: 'React',
         'react-dom': 'ReactDOM',
-        moment: 'moment',
-        antd: 'antd'
-      }), memo.webpack5 ? handle : (context, request, cb) => handle({
-        request
-      }, cb)];
+        moment: 'moment'
+      })];
+
+      if (!ownAntd) {
+        externals[0].antd = 'antd';
+        externals.push(memo.webpack5 ? handle : (context, request, cb) => handle({
+          request
+        }, cb));
+      }
+
       return _objectSpread(_objectSpread({}, memo), {}, {
         runtimePublicPath: true,
         publicPath: './',
@@ -457,10 +479,13 @@ function _ref() {
         },
         chunks: ['runtime', 'init', 'umi'],
         externals: externals,
-        antd: false,
         copy: api.env === 'test' ? memo.copy : copy,
         manifest: {},
-        define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv())
+        define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv()),
+        antd: false,
+        theme: ownAntd ? _objectSpread(_objectSpread({}, memo.theme), {}, {
+          '@ant-prefix': ownAntd.antPrefix
+        }) : memo.theme
       });
     });
   });

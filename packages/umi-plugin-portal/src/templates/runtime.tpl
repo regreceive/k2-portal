@@ -124,8 +124,11 @@ export function rootContainer(container) {
           componentSize="middle"
           locale={zhCN}
           getPopupContainer={() => {
-            return document.querySelector('#{{{ antdPopContainerId }}}');
+            return document.querySelector('#pop-{{{ antdPopContainerId }}}');
           }}
+          {{#ownAntd}}
+          prefixCls="{{ownAntd.antPrefix}}"
+          {{/ownAntd}}
         >
           <ThemeLayout>{container}</ThemeLayout>
         </ConfigProvider>

@@ -140,29 +140,6 @@ var Widget = function Widget(props) {
       });
     }
   }, [props.appRoot]);
-  var moveCSS = (0, _react.useCallback)(function () {
-    var _frame$current4, _frame$current4$conte, _frame$current4$conte2;
-
-    var url = (_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentDocument) === null || _frame$current4$conte === void 0 ? void 0 : (_frame$current4$conte2 = _frame$current4$conte.querySelector('link[href$=".css"]')) === null || _frame$current4$conte2 === void 0 ? void 0 : _frame$current4$conte2.href;
-
-    if (url) {
-      var _link$current, _link$current2;
-
-      var ele = ((_link$current = link.current) === null || _link$current === void 0 ? void 0 : _link$current.querySelector("link")) || ((_link$current2 = link.current) === null || _link$current2 === void 0 ? void 0 : _link$current2.ownerDocument.createElement('link'));
-
-      if (ele) {
-        ele.href = url;
-        ele.type = 'text/css';
-        ele.rel = 'stylesheet';
-
-        if (!ele.parentNode) {
-          var _link$current3;
-
-          (_link$current3 = link.current) === null || _link$current3 === void 0 ? void 0 : _link$current3.appendChild(ele);
-        }
-      }
-    }
-  }, []);
   return /*#__PURE__*/_react.default.createElement("div", {
     "data-name": "widget",
     style: _objectSpread({}, props.style),
@@ -174,21 +151,20 @@ var Widget = function Widget(props) {
     ref: frame,
     onLoad: function onLoad() {
       try {
-        var _frame$current5, _frame$current5$conte;
+        var _frame$current4, _frame$current4$conte;
 
         // about: blank也会触发onload，这里判断一下
-        if (((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : (_frame$current5$conte = _frame$current5.contentWindow) === null || _frame$current5$conte === void 0 ? void 0 : _frame$current5$conte.location.host) !== '') {
-          setLoading(false);
-          moveCSS(); // spin更新不及时，会导致容器还处在未渲染状态
+        if (((_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentWindow) === null || _frame$current4$conte === void 0 ? void 0 : _frame$current4$conte.location.host) !== '') {
+          setLoading(false); // spin更新不及时，会导致容器还处在未渲染状态
 
           setTimeout(function () {
             renderApp();
           }, 1);
         }
       } catch (e) {
-        var _frame$current6;
+        var _frame$current5;
 
-        (0, _utils.warn)("Widget.src[".concat((_frame$current6 = frame.current) === null || _frame$current6 === void 0 ? void 0 : _frame$current6.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
+        (0, _utils.warn)("Widget.src[".concat((_frame$current5 = frame.current) === null || _frame$current5 === void 0 ? void 0 : _frame$current5.src, "]\n\u5B50\u5E94\u7528\u8DE8\u57DF\u4E86\uFF0C\u8FD4\u56DE403\u3001404\u9519\u8BEF\u90FD\u4F1A\u5BFC\u81F4\u8DE8\u57DF\u3002"));
       }
     }
   }, iframeUrl ? {

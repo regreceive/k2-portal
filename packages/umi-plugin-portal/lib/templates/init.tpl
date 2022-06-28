@@ -36,6 +36,16 @@ window.publicPath = location.pathname;
     document.head.prepend(link);
   }
 
+  function addChildLink(src, id) {
+    const link = parent.document.createElement('link');
+    link.setAttribute('type', 'text/css');
+    link.setAttribute('rel', 'stylesheet');
+    link.setAttribute('href', src);
+    link.setAttribute('id', id);
+    parent.document.head.prepend(link);
+    return link;
+  }
+
   /** 加载nacos配置，如果加载失败，则启用自身env的配置 */
   function getRuntimeConfig() {
     const nacosUrl = '{{{ nacosUrl }}}';
@@ -150,8 +160,11 @@ window.publicPath = location.pathname;
   // 使用portal的资源
   window.React = parent.React;
   window.ReactDOM = parent.ReactDOM;
-  window.antd = parent.antd;
   window.moment = parent.moment;
+
+  {{^ownAntd}}
+  window.antd = parent.antd;
+  {{/ownAntd}}
 
   const allowedPortalProps = new Set([
     'SVGElement',
@@ -196,9 +209,9 @@ window.publicPath = location.pathname;
 
   // 为应用在portal上面创建一个antd弹出层容器，应用离开后删除这个容器
   function createAntPopContainer(doc) {
-    if (!doc.querySelector('#{{{ antdPopContainerId }}}')) {
+    if (!doc.querySelector('#pop-{{{ antdPopContainerId }}}')) {
       const antPopContainer = doc.createElement('div');
-      antPopContainer.id = '{{{ antdPopContainerId }}}';
+      antPopContainer.id = 'pop-{{{ antdPopContainerId }}}';
       doc.body.appendChild(antPopContainer);
       window.addEventListener('unload', () => {
         doc.body.removeChild(antPopContainer);
@@ -211,8 +224,14 @@ window.publicPath = location.pathname;
     if (!window.React) {
       addScript('react.js').then(() => {
         Promise.all([
+          {{^ownAntd}}
           addAntdTheme(),
-          addScript('react-dom.js').then(() => addScript('antd.js')),
+          {{/ownAntd}}
+          addScript('react-dom.js').then(() => {
+            {{^ownAntd}}
+            return addScript('antd.js');
+            {{/ownAntd}}
+          }),
           addScript('moment.js').then(() => {
             addScript('zh-cn.js');
           }),
@@ -226,6 +245,11 @@ window.publicPath = location.pathname;
       });
       createAntPopContainer(document);
     } else {
+      const href = document.querySelector('link[href$=".css"]')?.href;
+      const link = addChildLink(href, 'css-{{ antdPopContainerId }}');
+      window.addEventListener('unload', () => {
+        parent.document.head.removeChild(link);
+      });
       createAntPopContainer(window.parent.document);
       // ownWindow, window, self, globalThis
       const props = Array.from(allowedPortalProps).map(key => parent[key]);

@@ -109,26 +109,6 @@ const Widget: FC<Props> = (props) => {
     }
   }, [props.appRoot]);
 
-  const moveCSS = useCallback(() => {
-    const url =
-      frame.current?.contentDocument?.querySelector<HTMLLinkElement>(
-        'link[href$=".css"]',
-      )?.href;
-    if (url) {
-      const ele =
-        link.current?.querySelector(`link`) ||
-        link.current?.ownerDocument.createElement('link');
-      if (ele) {
-        ele.href = url;
-        ele.type = 'text/css';
-        ele.rel = 'stylesheet';
-        if (!ele.parentNode) {
-          link.current?.appendChild(ele);
-        }
-      }
-    }
-  }, []);
-
   return (
     <div
       data-name="widget"
@@ -143,7 +123,6 @@ const Widget: FC<Props> = (props) => {
             // about: blank也会触发onload，这里判断一下
             if (frame.current?.contentWindow?.location.host !== '') {
               setLoading(false);
-              moveCSS();
               // spin更新不及时，会导致容器还处在未渲染状态
               setTimeout(() => {
                 renderApp();
