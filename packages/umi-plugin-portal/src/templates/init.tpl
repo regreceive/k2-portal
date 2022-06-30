@@ -33,6 +33,7 @@ window.publicPath = location.pathname;
     link.setAttribute('type', 'text/css');
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', dir + src);
+    link.setAttribute('id', 'antd-css');
     document.head.prepend(link);
   }
 
@@ -41,7 +42,7 @@ window.publicPath = location.pathname;
     link.setAttribute('type', 'text/css');
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', src);
-    parent.document.head.prepend(link);
+    parent.document.head.insertBefore(link, parent.document.querySelector('#antd-css').nextElementSibling);
     return link;
   }
 
