@@ -36,12 +36,11 @@ window.publicPath = location.pathname;
     document.head.prepend(link);
   }
 
-  function addChildLink(src, id) {
+  function addChildLink(src) {
     const link = parent.document.createElement('link');
     link.setAttribute('type', 'text/css');
     link.setAttribute('rel', 'stylesheet');
     link.setAttribute('href', src);
-    link.setAttribute('id', id);
     parent.document.head.prepend(link);
     return link;
   }
@@ -260,9 +259,9 @@ window.publicPath = location.pathname;
       createAntPopContainer(document);
     } else {
       const href = document.querySelector('link[href$=".css"]')?.href;
-      const link = addChildLink(href, 'css-{{ antdPopContainerId }}');
+      const link = addChildLink(href);
       window.addEventListener('unload', () => {
-        parent.document.body.removeChild(link);
+        parent.document.head.removeChild(link);
       });
       createAntPopContainer(window.parent.document);
       // ownWindow, window, self, globalThis, document
