@@ -126,9 +126,9 @@ export function rootContainer(container) {
           getPopupContainer={() => {
             return document.querySelector('#pop-{{{ antdPopContainerId }}}');
           }}
-          {{#ownAntd}}
-          prefixCls="{{ownAntd.antPrefix}}"
-          {{/ownAntd}}
+          {{#isolateAntd}}
+          prefixCls="{{isolateAntd.antPrefix}}"
+          {{/isolateAntd}}
         >
           <ThemeLayout>{container}</ThemeLayout>
         </ConfigProvider>
@@ -136,6 +136,18 @@ export function rootContainer(container) {
     </AppContext.Provider>
   );
 }
+
+{{#title}}
+// 强制覆盖config.ts的title到portal上面
+export function onRouteChange() {
+  if (appProps.appRoot) {
+    portal.setTitle('{{ title }}');
+  }
+}
+if (appProps.appRoot) {
+  portal.setTitle('{{ title }}');
+}
+{{/title}}
 
 const codeMessage: { [key: number]: string } = {
   200: '服务器成功返回请求的数据。',
@@ -208,4 +220,11 @@ export const lightTheme = {
 export const darkTheme = {
   '--portal-scrollbar-fore': 'rgb(90, 90, 90)',
   '--portal-boxArea-bgColor': '#000000',
+};
+
+export const onPortalTitleChange = (title) => {
+  if (title?.portalTitle) {
+    return `${title.portalTitle} - ${title.appTitle}`;
+  }
+  return title;
 };

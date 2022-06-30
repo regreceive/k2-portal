@@ -1,6 +1,6 @@
 import clone from 'lodash/clone';
 import type { History } from 'umi';
-import { history } from 'umi';
+import { history, plugin, ApplyPluginsType } from 'umi';
 import * as utils from 'k2-portal/lib/utils';
 import qs from 'query-string';
 // @ts-ignore
@@ -33,6 +33,11 @@ type GlobalPortalType = {
   accessToken: string;
   /** nacos配置，也有一些portal内部配置 */
   config: Config;
+  /**
+   * 设置portal的窗体标题
+   * @param title 窗体标题
+   */
+  setTitle: (title: string) => void;
   /** 
    * 设置主题
    * @param theme antd自定义主题名称
@@ -136,6 +141,18 @@ export const portal: GlobalPortalType = Object.defineProperties({} as GlobalPort
   },
   appHandlers: {
     get: () => appHandlers,
+  },
+  setTitle: {
+    get() {
+      return (appTitle: string) => {
+        document.title = plugin.applyPlugins({
+          key: 'onPortalTitleChange',
+          type: ApplyPluginsType.modify,
+          initialValue: {portalTitle: '{{ title }}', appTitle},
+          async: false,
+        });
+      }
+    }
   },
   setTheme: {
     get() {

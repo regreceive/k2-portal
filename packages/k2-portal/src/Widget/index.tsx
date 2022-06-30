@@ -72,10 +72,10 @@ const Widget: FC<Props> = (props) => {
   const renderApp = useCallback(() => {
     // 有可能来自appProps的更新，此时iframe还没有加载完页面造成没有renderChildApp这个函数
     // @ts-ignore
-    frame.current?.contentWindow?.renderChildApp?.(
-      bodyRef.current!,
-      props.appProps,
-    );
+    frame.current?.contentWindow?.renderChildApp?.(bodyRef.current!, {
+      ...props.appProps,
+      appRoot: props.appRoot,
+    });
   }, [props.appProps, iframeUrl]);
 
   // 应用的props更新，进行一次渲染
@@ -121,7 +121,8 @@ const Widget: FC<Props> = (props) => {
         onLoad={() => {
           try {
             // about: blank也会触发onload，这里判断一下
-            if (frame.current?.contentWindow?.location.host !== '') {
+            const childWin = frame.current?.contentWindow;
+            if (childWin?.location.host !== '') {
               setLoading(false);
               // spin更新不及时，会导致容器还处在未渲染状态
               setTimeout(() => {

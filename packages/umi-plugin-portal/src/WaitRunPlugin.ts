@@ -7,7 +7,6 @@ type Options = {
 const allowedPortalProps = [
   'SVGElement',
   'HTMLCanvasElement',
-  'document',
   'innerWidth',
   'innerHeight',
   'scrollX',
@@ -34,7 +33,7 @@ class WaitRunWebpackPlugin {
         ret = [
           key,
           `(function () {
-          var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {
+          var run = function (ownWindow, window, self, globalThis, document, ${allowedPortalProps}) {
               ${assets[key].source()}
           };
           var evt = document.createEvent('CustomEvent');
@@ -81,7 +80,7 @@ class WaitRunWebpackPlugin {
                     // SVGElement 为了兼容jointjs
                     return new webpack.sources.ConcatSource(
                       `(function () {
-                        var run = function (ownWindow, window, self, globalThis, ${allowedPortalProps}) {\n`,
+                        var run = function (ownWindow, window, self, globalThis, document, ${allowedPortalProps}) {\n`,
                       old,
                       `\n };
                         var evt = document.createEvent('CustomEvent');

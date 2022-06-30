@@ -77,7 +77,7 @@ export default async function (api: IApi) {
             .string()
             .pattern(/app|portal/, 'app|portal')
             .description('当前应用类型，是portal还是app'),
-          ownAntd: joi
+          isolateAntd: joi
             .object({
               antPrefix: joi
                 .string()
@@ -125,6 +125,7 @@ export default async function (api: IApi) {
   // 运行时调用主题样式
   api.addRuntimePluginKey(() => 'lightTheme');
   api.addRuntimePluginKey(() => 'darkTheme');
+  api.addRuntimePluginKey(() => 'onPortalTitleChange');
 
   api.addRuntimePlugin(() => [
     join(api.paths.absTmpPath!, 'plugin-portal/runtime.tsx'),
@@ -158,7 +159,7 @@ export default async function (api: IApi) {
       devAuth,
       customToken,
       role,
-      ownAntd,
+      isolateAntd,
       interestedMessage,
       declaredMessage,
     } = api.config?.portal ?? {};
@@ -212,7 +213,7 @@ export default async function (api: IApi) {
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
-          ownAntd: !!ownAntd,
+          isolateAntd: !!isolateAntd,
           webpack5: !!api.userConfig.webpack5,
           version: require('../package').version,
         },
@@ -289,6 +290,7 @@ export default async function (api: IApi) {
           basic: base64,
           declaredMessage: JSON.stringify(declaredMessage),
           version: require('../package').version,
+          title: api.config.title,
         },
       ),
     });
@@ -320,7 +322,8 @@ export default async function (api: IApi) {
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
           interestedMessage: interestStr,
-          ownAntd,
+          isolateAntd,
+          title: api.config.title,
         },
       ),
     });
@@ -330,7 +333,7 @@ export default async function (api: IApi) {
   api.modifyBabelPresetOpts((opts) => {
     let importList = opts.import || [];
 
-    if (!api.config.portal.ownAntd) {
+    if (!api.config.portal.isolateAntd) {
       importList = importList.filter((row) => row.libraryName !== 'antd');
     }
 
@@ -417,8 +420,8 @@ export default async function (api: IApi) {
 
   // 复制资源文件到输出目录
   api.modifyConfig((memo) => {
-    const ownAntd = memo.portal.ownAntd;
-    if (!ownAntd) {
+    const isolateAntd = memo.portal.isolateAntd;
+    if (!isolateAntd) {
       try {
         const themeName = /[\w\d\-]+(?=\.less$)/;
         antdThemes = readdirSync(
@@ -473,14 +476,14 @@ export default async function (api: IApi) {
       ],
     );
 
-    if (antdThemes.length === 0 && !ownAntd) {
+    if (antdThemes.length === 0 && !isolateAntd) {
       copy.push({
         from: `${relative}node_modules/antd/dist/antd.min.css`,
         to: 'alone/antd.css',
       });
     }
 
-    if (api.env === 'production' && !ownAntd) {
+    if (api.env === 'production' && !isolateAntd) {
       copy.push({
         from: `${relative}node_modules/antd/dist/antd.min.js`,
         to: 'alone/antd.js',
@@ -492,7 +495,7 @@ export default async function (api: IApi) {
         from: `${relative}node_modules/moment/min/moment.min.js.map`,
         to: 'alone/moment.min.js.map',
       });
-      if (!ownAntd) {
+      if (!isolateAntd) {
         copy.push(
           // 方便本地调试框架对antd的兼容性问题
           {
@@ -549,7 +552,7 @@ export default async function (api: IApi) {
       },
     ];
 
-    if (!ownAntd) {
+    if (!isolateAntd) {
       externals[0].antd = 'antd';
       externals.push(
         memo.webpack5
@@ -570,9 +573,9 @@ export default async function (api: IApi) {
       copy: api.env === 'test' ? memo.copy : copy,
       manifest: {},
       define: { ...memo.define, ...runtimeEnv() },
-      antd: false,
-      theme: ownAntd
-        ? { ...memo.theme, '@ant-prefix': ownAntd.antPrefix }
+      // antd: false,
+      theme: isolateAntd
+        ? { ...memo.theme, '@ant-prefix': isolateAntd.antPrefix }
         : memo.theme,
     };
   });

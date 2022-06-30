@@ -9,7 +9,7 @@ const ThemeLayout: React.FC = (props) => {
   const currTheme = useMessage('portal.theme');
 
   useEffect(() => {
-     const appTheme = plugin.applyPlugins({
+    const appTheme = plugin.applyPlugins({
       key: (currTheme?.style ?? 'light') + 'Theme',
       type: ApplyPluginsType.modify,
       initialValue: {},

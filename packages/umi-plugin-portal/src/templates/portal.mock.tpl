@@ -107,6 +107,7 @@ const mockPortal: GlobalPortalType =  {
   currAppKey: '',
   currAppPath: '',
   currAppUrl: '',
+  setTitle: () => {},
   setTheme: () => {},
   _registerMessageSubscriber: () => {},
   _unregisterMessageSubscriber: () => {},

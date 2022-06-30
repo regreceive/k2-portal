@@ -101,7 +101,9 @@ var Widget = function Widget(props) {
 
     // 有可能来自appProps的更新，此时iframe还没有加载完页面造成没有renderChildApp这个函数
     // @ts-ignore
-    (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : (_frame$current$conten2 = _frame$current$conten.renderChildApp) === null || _frame$current$conten2 === void 0 ? void 0 : _frame$current$conten2.call(_frame$current$conten, bodyRef.current, props.appProps);
+    (_frame$current = frame.current) === null || _frame$current === void 0 ? void 0 : (_frame$current$conten = _frame$current.contentWindow) === null || _frame$current$conten === void 0 ? void 0 : (_frame$current$conten2 = _frame$current$conten.renderChildApp) === null || _frame$current$conten2 === void 0 ? void 0 : _frame$current$conten2.call(_frame$current$conten, bodyRef.current, _objectSpread(_objectSpread({}, props.appProps), {}, {
+      appRoot: props.appRoot
+    }));
   }, [props.appProps, iframeUrl]); // 应用的props更新，进行一次渲染
 
   (0, _react.useEffect)(function () {
@@ -151,10 +153,12 @@ var Widget = function Widget(props) {
     ref: frame,
     onLoad: function onLoad() {
       try {
-        var _frame$current4, _frame$current4$conte;
+        var _frame$current4;
 
         // about: blank也会触发onload，这里判断一下
-        if (((_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : (_frame$current4$conte = _frame$current4.contentWindow) === null || _frame$current4$conte === void 0 ? void 0 : _frame$current4$conte.location.host) !== '') {
+        var childWin = (_frame$current4 = frame.current) === null || _frame$current4 === void 0 ? void 0 : _frame$current4.contentWindow;
+
+        if ((childWin === null || childWin === void 0 ? void 0 : childWin.location.host) !== '') {
           setLoading(false); // spin更新不及时，会导致容器还处在未渲染状态
 
           setTimeout(function () {

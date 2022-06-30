@@ -195,3 +195,15 @@ export const lightTheme = {
   '--custom-bgColor': '#333',
 };
 ```
+
+### onPortalTitleChange
+
+Portal 接受子应用标题切换的回调，可以控制做更精细的标题显示。
+
+<Alert type="info">在 config.ts 中设置 title 属性作为应用标题，应用的子路由标题切换不会影响到 Portal。</Alert>
+
+```ts
+export const onPortalTitleChange = ({ portalTitle, appTitle }) => {
+  return appTitle + '-' + a.portalTitle;
+};
+```

@@ -162,14 +162,13 @@ window.publicPath = location.pathname;
   window.ReactDOM = parent.ReactDOM;
   window.moment = parent.moment;
 
-  {{^ownAntd}}
+  {{^isolateAntd}}
   window.antd = parent.antd;
-  {{/ownAntd}}
+  {{/isolateAntd}}
 
   const allowedPortalProps = new Set([
     'SVGElement',
     'HTMLCanvasElement',
-    'document',
     'innerWidth',
     'innerHeight',
     'scrollX',
@@ -197,6 +196,9 @@ window.publicPath = location.pathname;
       if (key === 'window') {
         return proxyWindow;
       }
+      if (key === 'document') {
+        return proxyDocument;
+      }
       if (allowedPortalProps.has(key)) {
         return getProp(parent, key);
       }
@@ -204,6 +206,18 @@ window.publicPath = location.pathname;
     },
     set(target, key, value) {
       return Reflect.set(window, key, value);
+    }
+  });
+
+  const proxyDocument = new Proxy(parent.document, {
+    get(target, key) {
+      return getProp(target, key);
+    },
+    set(target, key, value) {
+      if (key === 'title') {
+        return Reflect.set(document, key, value);
+      }
+      return Reflect.set(target, key, value);
     }
   });
 
@@ -224,13 +238,13 @@ window.publicPath = location.pathname;
     if (!window.React) {
       addScript('react.js').then(() => {
         Promise.all([
-          {{^ownAntd}}
+          {{^isolateAntd}}
           addAntdTheme(),
-          {{/ownAntd}}
+          {{/isolateAntd}}
           addScript('react-dom.js').then(() => {
-            {{^ownAntd}}
+            {{^isolateAntd}}
             return addScript('antd.js');
-            {{/ownAntd}}
+            {{/isolateAntd}}
           }),
           addScript('moment.js').then(() => {
             addScript('zh-cn.js');
@@ -240,7 +254,7 @@ window.publicPath = location.pathname;
           // 独立运行
           window.$$config.alone = true;
           const props = Array.from(allowedPortalProps).map(key => window[key]);
-          event.detail.run(...Array(4).fill(window), ...props);
+          event.detail.run(...Array(4).fill(window), document, ...props);
         });
       });
       createAntPopContainer(document);
@@ -248,12 +262,12 @@ window.publicPath = location.pathname;
       const href = document.querySelector('link[href$=".css"]')?.href;
       const link = addChildLink(href, 'css-{{ antdPopContainerId }}');
       window.addEventListener('unload', () => {
-        parent.document.head.removeChild(link);
+        parent.document.body.removeChild(link);
       });
       createAntPopContainer(window.parent.document);
-      // ownWindow, window, self, globalThis
+      // ownWindow, window, self, globalThis, document
       const props = Array.from(allowedPortalProps).map(key => parent[key]);
-      event.detail.run(window, proxyWindow, proxyWindow, proxyWindow, ...props);
+      event.detail.run(window, proxyWindow, proxyWindow, proxyWindow, proxyDocument, ...props);
     }
   });
 })();
