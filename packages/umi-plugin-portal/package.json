@@ -1,6 +1,6 @@
 {
   "name": "umi-plugin-portal",
-  "version": "2.2.34",
+  "version": "2.2.35",
   "description": "integrated with portal",
   "author": "liyao <regreceive@163.com>",
   "homepage": "https://github.com/regreceive/k2-portal",
@@ -29,8 +29,8 @@
   "devDependencies": {
     "@types/diff": "^5.0.1",
     "@types/md5": "^2.3.0",
-    "@umijs/types": "^3.5.31",
     "@umijs/plugin-request": "^2.6.0",
+    "@umijs/types": "^3.5.31",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
     "umi": "^3.4.25"
