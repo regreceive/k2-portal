@@ -16,17 +16,18 @@ const ThemeLayout: React.FC = (props) => {
       async: false,
     });
 
-    const style = ref.current!.style;
     const popContainer = document.querySelector<HTMLDivElement>('#pop-{{antdPopContainerId}}');
+    const styleString =
+      JSON.stringify(appTheme)
+        .replace(/[\{\}"]/g, '')
+        .replaceAll(',', ';');
 
-    Object.entries<string>(appTheme).map(([key, value]) => {
-      style.setProperty(key, value);
-      popContainer.style.setProperty(key, value);
-    });
+    ref.current!.style = styleString;
+    popContainer.style = styleString + ';width:unset;height:unset;';
   }, [currTheme]);
 
   return (
-    <div className="k2-umi-root" ref={ref}>
+    <div className={'k2-umi-root el-{{antdPopContainerId}}'} ref={ref}>
       {props.children}
     </div>
   );

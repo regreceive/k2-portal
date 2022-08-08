@@ -226,6 +226,7 @@ window.publicPath = location.pathname;
     if (!doc.querySelector('#pop-{{{ antdPopContainerId }}}')) {
       const antPopContainer = doc.createElement('div');
       antPopContainer.id = 'pop-{{{ antdPopContainerId }}}';
+      antPopContainer.className = 'el-{{{ antdPopContainerId }}}';
       doc.body.appendChild(antPopContainer);
       window.addEventListener('unload', () => {
         doc.body.removeChild(antPopContainer);

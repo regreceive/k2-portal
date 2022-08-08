@@ -1,4 +1,3 @@
-/// <reference types="react" />
 import * as echarts from 'echarts';
 declare type Options = {
     renderer?: 'canvas' | 'svg';
@@ -16,7 +15,7 @@ declare type Options = {
  */
 export default function useChart<T extends HTMLDivElement>(theme?: string, opts?: Options): {
     ref: import("react").RefObject<T>;
-    setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean | undefined, lazyUpdate?: boolean | undefined, forceInit?: any) => void;
+    setOption: (EChartsOption: echarts.EChartsOption, notMerge?: boolean, lazyUpdate?: boolean, forceInit?: boolean) => void;
     showEmpty: (text?: string) => void;
     chart: echarts.ECharts | undefined;
 };

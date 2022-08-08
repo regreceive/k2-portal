@@ -26,6 +26,10 @@ export default async function (api: IApi) {
 
   api.logger.info('umi portal plugin.');
 
+  const appHash = createHash('sha1')
+    .update(Math.random().toString())
+    .digest('hex');
+
   api.describe({
     key: 'portal',
     config: {
@@ -81,13 +85,12 @@ export default async function (api: IApi) {
             .object({
               antPrefix: joi
                 .string()
-                .required()
                 .description(
                   'antd样式名称前缀。为了与Portal样式隔离，请设置为其他名称。',
                 ),
             })
             .description(
-              '是否随应用一起按需打包antd，默认使用来自Portal的antd',
+              '应用是否打包antd，默认不打包到一起，而是使用来自Portal的antd',
             ),
           nacos: joi
             .object({
@@ -164,10 +167,6 @@ export default async function (api: IApi) {
       declaredMessage,
     } = api.config?.portal ?? {};
 
-    const antdPopContainerId = createHash('sha1')
-      .update(Math.random().toString())
-      .digest('hex');
-
     let base64 = '';
     if (api.env !== 'production') {
       base64 =
@@ -209,7 +208,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'init.tpl'), 'utf-8'),
         {
-          antdPopContainerId,
+          antdPopContainerId: appHash,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
@@ -226,7 +225,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8'),
         {
-          antdPopContainerId,
+          antdPopContainerId: appHash,
         },
       ),
     });
@@ -317,7 +316,7 @@ export default async function (api: IApi) {
       content: Mustache.render(
         readFileSync(join(__dirname, 'templates', 'runtime.tpl'), 'utf-8'),
         {
-          antdPopContainerId,
+          antdPopContainerId: appHash,
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
@@ -381,6 +380,19 @@ export default async function (api: IApi) {
       .use('graphql-modules')
       .loader(require.resolve('./graphql-loader'));
 
+    // antd样式隔离的应用，避免global.less样式污染
+    if (api.config.portal.isolateAntd) {
+      config.module
+        .rule('less')
+        .oneOf('css')
+        .use('haha-loader')
+        .after('postcss-loader')
+        .loader(require.resolve('./haha-loader'))
+        .options({
+          scope: appHash,
+        });
+    }
+
     // compatible with react-dnd
     if (webpack.version?.startsWith('5.')) {
       // v4会报错
@@ -393,17 +405,6 @@ export default async function (api: IApi) {
     // 确保打包输出不同的css名称，防止多应用样式冲突
     if (api.env === 'production') {
       const hashPrefix = Math.random().toString().slice(-5);
-      config.module
-        .rule('css')
-        .oneOf('css-modules')
-        .use('css-loader')
-        .tap((options) => {
-          return {
-            ...options,
-            modules: { ...options.modules, hashPrefix },
-          };
-        });
-
       config.module
         .rule('less')
         .oneOf('css-modules')
@@ -575,7 +576,7 @@ export default async function (api: IApi) {
       define: { ...memo.define, ...runtimeEnv() },
       // antd: false,
       theme: isolateAntd
-        ? { ...memo.theme, '@ant-prefix': isolateAntd.antPrefix }
+        ? { ...memo.theme, '@ant-prefix': isolateAntd.antPrefix || 'ant' }
         : memo.theme,
     };
   });

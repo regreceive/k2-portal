@@ -73,9 +73,9 @@ function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && 
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
@@ -102,6 +102,7 @@ function _ref() {
     }
 
     api.logger.info('umi portal plugin.');
+    const appHash = (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
     api.describe({
       key: 'portal',
       config: {
@@ -138,8 +139,8 @@ function _ref() {
             customToken: joi.string().description('自定义token，将覆盖http头部的Authorization，优先级高于devAuth。'),
             role: joi.string().pattern(/app|portal/, 'app|portal').description('当前应用类型，是portal还是app'),
             isolateAntd: joi.object({
-              antPrefix: joi.string().required().description('antd样式名称前缀。为了与Portal样式隔离，请设置为其他名称。')
-            }).description('是否随应用一起按需打包antd，默认使用来自Portal的antd'),
+              antPrefix: joi.string().description('antd样式名称前缀。为了与Portal样式隔离，请设置为其他名称。')
+            }).description('应用是否打包antd，默认不打包到一起，而是使用来自Portal的antd'),
             nacos: joi.object({
               url: joi.string().description('线上的nacos地址，如果不输入，会取default配置'),
               default: joi.object({
@@ -190,7 +191,6 @@ function _ref() {
             interestedMessage = _ref3.interestedMessage,
             declaredMessage = _ref3.declaredMessage;
 
-      const antdPopContainerId = (0, _crypto().createHash)('sha1').update(Math.random().toString()).digest('hex');
       let base64 = '';
 
       if (api.env !== 'production') {
@@ -218,7 +218,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/init.ts',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'init.tpl'), 'utf-8'), {
-          antdPopContainerId,
+          antdPopContainerId: appHash,
           nacos: JSON.stringify(nacos.default, null, 4) || '{}',
           nacosUrl: nacos.url,
           antdThemes: JSON.stringify(antdThemes),
@@ -231,7 +231,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/ThemeLayout.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'ThemeLayout.tpl'), 'utf-8'), {
-          antdPopContainerId
+          antdPopContainerId: appHash
         })
       });
 
@@ -286,7 +286,7 @@ function _ref() {
       api.writeTmpFile({
         path: 'plugin-portal/runtime.tsx',
         content: Mustache.render((0, _fs().readFileSync)((0, _path().join)(__dirname, 'templates', 'runtime.tpl'), 'utf-8'), {
-          antdPopContainerId,
+          antdPopContainerId: appHash,
           customToken,
           basic: base64,
           appDefaultProps: JSON.stringify(appDefaultProps),
@@ -328,7 +328,14 @@ function _ref() {
       }]);
       config.entry('init').add(_path().default.resolve(api.paths.absTmpPath, 'plugin-portal/init.ts'));
       config.optimization.set('runtimeChunk', 'single');
-      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // compatible with react-dnd
+      config.module.rule('graphql').test(/\.(gql|graphql)$/).exclude.add(/node_modules/).end().use('graphql-modules').loader(require.resolve('./graphql-loader')); // antd样式隔离的应用，避免global.less样式污染
+
+      if (api.config.portal.isolateAntd) {
+        config.module.rule('less').oneOf('css').use('haha-loader').after('postcss-loader').loader(require.resolve('./haha-loader')).options({
+          scope: appHash
+        });
+      } // compatible with react-dnd
+
 
       if ((_webpack$version = webpack.version) === null || _webpack$version === void 0 ? void 0 : _webpack$version.startsWith('5.')) {
         // v4会报错
@@ -338,13 +345,6 @@ function _ref() {
 
       if (api.env === 'production') {
         const hashPrefix = Math.random().toString().slice(-5);
-        config.module.rule('css').oneOf('css-modules').use('css-loader').tap(options => {
-          return _objectSpread(_objectSpread({}, options), {}, {
-            modules: _objectSpread(_objectSpread({}, options.modules), {}, {
-              hashPrefix
-            })
-          });
-        });
         config.module.rule('less').oneOf('css-modules').use('css-loader').tap(options => {
           return _objectSpread(_objectSpread({}, options), {}, {
             modules: _objectSpread(_objectSpread({}, options.modules), {}, {
@@ -487,7 +487,7 @@ function _ref() {
         define: _objectSpread(_objectSpread({}, memo.define), runtimeEnv()),
         // antd: false,
         theme: isolateAntd ? _objectSpread(_objectSpread({}, memo.theme), {}, {
-          '@ant-prefix': isolateAntd.antPrefix
+          '@ant-prefix': isolateAntd.antPrefix || 'ant'
         }) : memo.theme
       });
     });

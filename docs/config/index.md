@@ -135,6 +135,24 @@ appDefaultProps: {
 
 当前应用类型，可以选择 portal 或者 app。在一个微前端项目中，只允许有一个 portal，可以有多个 app。
 
+### isolateAntd
+
+- 类型：`{ antPrefix: string }`
+  - antPrefix: antd 组件的样式前缀，默认 'ant'
+- 默认值：`null`
+
+应用是否打包 antd，默认不打包到一起，而是使用来自 Portal 的 antd。
+
+<Alert type="info">antPrefix 可以起到样式隔离的作用，比如某种场景需要子应用的 antd 样式和主应用不同。</Alert>
+
+示例：
+
+```js
+isolateAntd: {
+  antPrefix: 'xxx',
+}
+```
+
 ### devAuth<Badge>开发环境</Badge>
 
 - 类型：`Object`
@@ -198,7 +216,7 @@ export const lightTheme = {
 
 ### onPortalTitleChange
 
-Portal 接受子应用标题切换的回调，可以控制做更精细的标题显示。
+Portal 接受子应用标题切换的回调，可以做更精细的标题显示。
 
 <Alert type="info">在 config.ts 中设置 title 属性作为应用标题，应用的子路由标题切换不会影响到 Portal。</Alert>
 

@@ -15,6 +15,7 @@
     "@apollo/client": "^3.5.5",
     "diff": "^5.0.0",
     "graphql": "^16.0.1",
+    "less-loader": "^11.0.0",
     "webpack": "^5.40.0"
   },
   "files": [
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@types/diff": "^5.0.1",
     "@types/md5": "^2.3.0",
+    "@umijs/types": "^3.5.31",
     "@umijs/plugin-request": "^2.6.0",
     "antd": "^4.16.5",
     "cross-env": "^7.0.3",
